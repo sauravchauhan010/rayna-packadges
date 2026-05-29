@@ -67,7 +67,13 @@
     // Config Check & Setup (Rule 1 & Rule 3)
     const firebaseConfig = typeof window.__firebase_config !== 'undefined'
       ? JSON.parse(window.__firebase_config)
-      : { apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" };
+      : { apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU", 
+         authDomain: "packadge-itenary.firebaseapp.com", 
+         projectId: "packadge-itenary", 
+         storageBucket: "packadge-itenary.firebasestorage.app", 
+         messagingSenderId: "482476048193", 
+         appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
+        };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
