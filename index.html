@@ -70,7 +70,12 @@
     // Config Check & Setup (Rule 1 & Rule 3)
     const firebaseConfig = typeof window.__firebase_config !== 'undefined'
       ? JSON.parse(window.__firebase_config)
-      : { apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" };
+      : { apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU", 
+         authDomain: "packadge-itenary.firebaseapp.com", 
+         projectId: "packadge-itenary", 
+         storageBucket: "packadge-itenary.firebasestorage.app", 
+         messagingSenderId: "482476048193", 
+         appId: "G-3VQQFLX9GF" };
 
     // Self-healing database check to avoid crashes/freezes on unconfigured deployments
     const isFirebaseConfigured = !!(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "");
