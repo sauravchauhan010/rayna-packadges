@@ -31,7 +31,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Fallback seed packages
     const SEED_PACKAGES = [
@@ -67,15 +67,16 @@
     const ADMIN_USERNAME = 'admin@smc';
     const ADMIN_PASSWORD = 'smctours2026';
 
-    // Config Check & Setup (Rule 1 & Rule 3)
-    const firebaseConfig = typeof window.__firebase_config !== 'undefined'
-      ? JSON.parse(window.__firebase_config)
-      : { apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU", 
-         authDomain: "packadge-itenary.firebaseapp.com", 
-         projectId: "packadge-itenary", 
-         storageBucket: "packadge-itenary.firebasestorage.app", 
-         messagingSenderId: "482476048193", 
-         appId: "G-3VQQFLX9GF" };
+    // Config Check & Setup (Rule 1 & Rule 3) - Loaded with your Live Firebase credentials
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
+      authDomain: "packadge-itenary.firebaseapp.com",
+      projectId: "packadge-itenary",
+      storageBucket: "packadge-itenary.firebasestorage.app",
+      messagingSenderId: "482476048193",
+      appId: "1:482476048193:web:4164c8c466c5e856b96bc0",
+      measurementId: "G-3VQQFLX9GF"
+    };
 
     // Self-healing database check to avoid crashes/freezes on unconfigured deployments
     const isFirebaseConfigured = !!(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "");
@@ -107,6 +108,7 @@
       formError: '',
       inquiryError: '',
       inquiryForm: { name: '', email: '', phone: '' },
+      editingPackageId: null, // Track package ID currently being edited
       newPackage: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
     };
 
@@ -252,6 +254,32 @@
       render();
     };
 
+    // Begin Edit Sequence
+    window.handleStartEdit = (id) => {
+      const pkg = state.packages.find(p => p.id === id);
+      if (!pkg) return;
+
+      state.editingPackageId = id;
+      state.newPackage = {
+        title: pkg.title,
+        duration: pkg.duration,
+        highlight: pkg.highlight,
+        image: pkg.image,
+        pdfUrl: pkg.pdfUrl
+      };
+      render();
+      // Smooth scroll back to form
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Cancel Edit Sequence
+    window.handleCancelEdit = () => {
+      state.editingPackageId = null;
+      state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
+      render();
+    };
+
+    // Save or Update Package Handler
     window.handleAddPackage = async (e) => {
       e.preventDefault();
       state.formError = '';
@@ -278,30 +306,36 @@
       };
 
       if (!isFirebaseConfigured) {
-        // Offline Save
-        const updated = [{ id: 'pkg-' + Date.now(), ...payload }, ...state.packages];
-        state.packages = updated;
-        localStorage.setItem('smc_local_packages_v3', JSON.stringify(updated));
+        if (state.editingPackageId) {
+          // Edit offline
+          state.packages = state.packages.map(p => p.id === state.editingPackageId ? { ...p, ...payload } : p);
+        } else {
+          // Add offline
+          state.packages = [{ id: 'pkg-' + Date.now(), ...payload }, ...state.packages];
+        }
+        localStorage.setItem('smc_local_packages_v3', JSON.stringify(state.packages));
         
-        // Reset Inputs
-        document.getElementById('pkg-title').value = '';
-        document.getElementById('pkg-duration').value = '';
-        document.getElementById('pkg-highlight').value = '';
-        document.getElementById('pkg-image').value = '';
-        document.getElementById('pkg-pdf').value = '';
+        // Reset Inputs & Edit state
+        state.editingPackageId = null;
+        state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
         render();
         return;
       }
 
       try {
-        const pkgsCol = collection(db, 'artifacts', appId, 'public', 'data', 'packages');
-        await addDoc(pkgsCol, payload);
-        // Reset Inputs
-        document.getElementById('pkg-title').value = '';
-        document.getElementById('pkg-duration').value = '';
-        document.getElementById('pkg-highlight').value = '';
-        document.getElementById('pkg-image').value = '';
-        document.getElementById('pkg-pdf').value = '';
+        if (state.editingPackageId) {
+          // Update live FireStore document
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', state.editingPackageId);
+          await updateDoc(docRef, payload);
+        } else {
+          // Add live FireStore document
+          const pkgsCol = collection(db, 'artifacts', appId, 'public', 'data', 'packages');
+          await addDoc(pkgsCol, payload);
+        }
+        
+        // Reset Inputs & Edit state
+        state.editingPackageId = null;
+        state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
         render();
       } catch (err) {
         state.formError = 'Cloud Database Error: ' + err.message;
@@ -310,18 +344,20 @@
     };
 
     window.handleDeletePackage = async (id) => {
-      if (!isFirebaseConfigured) {
-        const updated = state.packages.filter(p => p.id !== id);
-        state.packages = updated;
-        localStorage.setItem('smc_local_packages_v3', JSON.stringify(updated));
-        render();
-        return;
-      }
-      try {
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', id);
-        await deleteDoc(docRef);
-      } catch (err) {
-        console.error("Failed deleting package:", err);
+      if (confirm("Are you sure you want to delete this package?")) {
+        if (!isFirebaseConfigured) {
+          const updated = state.packages.filter(p => p.id !== id);
+          state.packages = updated;
+          localStorage.setItem('smc_local_packages_v3', JSON.stringify(updated));
+          render();
+          return;
+        }
+        try {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', id);
+          await deleteDoc(docRef);
+        } catch (err) {
+          console.error("Failed deleting package:", err);
+        }
       }
     };
 
@@ -484,7 +520,7 @@
 
             <!-- Custom Showcase Catalog (Mockup Aligned) -->
             <section class="py-16 bg-slate-100">
-              <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <div class="flex items-center justify-between mb-10">
                   <div>
@@ -506,9 +542,10 @@
                     <p class="text-slate-500 text-base">No packages found matching your filter.</p>
                   </div>
                 ` : `
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                  <!-- Fully responsive grid: Showing exactly 4 columns on full XL screens -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     ${filtered.map((pkg, idx) => `
-                      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-200/80 flex flex-col h-full text-center relative max-w-sm mx-auto w-full group">
+                      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-200/80 flex flex-col h-full text-center relative w-full group">
                         
                         <!-- Image Container with Yellow Overlay text inside Dark Blue Banner -->
                         <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
@@ -535,7 +572,7 @@
 
                             <!-- Dashed Outline Pill Box -->
                             <div class="w-full flex justify-center mt-5">
-                              <div class="bg-[#e0f2fe]/80 border border-dashed border-slate-800 text-slate-900 font-bold text-xs py-2 px-8 rounded-full min-w-[200px] truncate animate-pulse">
+                              <div class="bg-[#e0f2fe]/80 border border-dashed border-slate-800 text-slate-900 font-bold text-xs py-2 px-6 rounded-full w-full truncate">
                                 ${pkg.highlight}
                               </div>
                             </div>
@@ -697,7 +734,9 @@
                   
                   <div class="mb-6">
                     <span class="bg-purple-100 text-purple-700 text-[10px] font-black uppercase px-2 py-1 rounded">SMC Creator Control</span>
-                    <h2 class="text-xl font-bold text-slate-900 mt-2">Add New Showcase Card</h2>
+                    <h2 class="text-xl font-bold text-slate-900 mt-2">
+                      ${state.editingPackageId ? 'Edit Showcase Card' : 'Add New Showcase Card'}
+                    </h2>
                   </div>
 
                   <form onsubmit="handleAddPackage(event)" class="space-y-4">
@@ -709,32 +748,40 @@
 
                     <div>
                       <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Country/Main Title *</label>
-                      <input type="text" id="pkg-title" required placeholder="e.g. SWITZERLAND" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold uppercase text-slate-900" />
+                      <input type="text" id="pkg-title" required placeholder="e.g. SWITZERLAND" value="${state.newPackage.title}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold uppercase text-slate-900" />
                     </div>
 
                     <div>
                       <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Duration text *</label>
-                      <input type="text" id="pkg-duration" required placeholder="e.g. 03 NIGHTS / 04 DAYS" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-slate-900" />
+                      <input type="text" id="pkg-duration" required placeholder="e.g. 03 NIGHTS / 04 DAYS" value="${state.newPackage.duration}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-slate-900" />
                     </div>
 
                     <div>
                       <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Highlight / Dashed Tag *</label>
-                      <input type="text" id="pkg-highlight" placeholder="e.g. Zurich 3N" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium text-slate-900" />
+                      <input type="text" id="pkg-highlight" placeholder="e.g. Zurich 3N" value="${state.newPackage.highlight}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium text-slate-900" />
                     </div>
 
                     <div>
                       <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Card Cover Image URL</label>
-                      <input type="url" id="pkg-image" placeholder="Paste cover photo link" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
+                      <input type="url" id="pkg-image" placeholder="Paste cover photo link" value="${state.newPackage.image}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
                     </div>
 
                     <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
                       <label class="block text-[11px] font-bold text-purple-950 uppercase tracking-wider mb-1">Itinerary PDF Link *</label>
-                      <input type="url" id="pkg-pdf" required placeholder="Paste PDF link (Google Drive, Dropbox, Web Server)" class="w-full bg-white border border-purple-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-purple-900" />
+                      <input type="url" id="pkg-pdf" required placeholder="Paste PDF link (Google Drive, Dropbox, Web Server)" value="${state.newPackage.pdfUrl}" class="w-full bg-white border border-purple-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-purple-900" />
                     </div>
 
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition text-xs shadow-md cursor-pointer">
-                      Publish to ${isFirebaseConfigured ? 'Live Cloud Database' : 'Local Storage'}
-                    </button>
+                    <div class="flex flex-col gap-2">
+                      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition text-xs shadow-md cursor-pointer">
+                        ${state.editingPackageId ? 'Update Live Package' : `Publish to ${isFirebaseConfigured ? 'Live Cloud Database' : 'Local Storage'}`}
+                      </button>
+                      
+                      ${state.editingPackageId ? `
+                        <button type="button" onclick="handleCancelEdit()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold p-3 rounded-xl transition text-xs cursor-pointer">
+                          Cancel Edit
+                        </button>
+                      ` : ''}
+                    </div>
                   </form>
                 </div>
               </div>
@@ -760,14 +807,14 @@
                             <th class="p-3">Country / Main Title</th>
                             <th class="p-3">Duration</th>
                             <th class="p-3">Highlight</th>
-                            <th class="p-3 text-right">Delete</th>
+                            <th class="p-3 text-right">Actions</th>
                           </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                           ${state.packages.map(pkg => `
-                            <tr>
+                            <tr class="${state.editingPackageId === pkg.id ? 'bg-purple-50/50' : ''}">
                               <td class="p-3 flex items-center space-x-3">
-                                <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 animate-pulse" />
+                                <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100" />
                                 <div>
                                   <span class="font-bold text-slate-900 uppercase block">${pkg.title}</span>
                                   <a href="${pkg.pdfUrl}" target="_blank" class="text-[10px] text-blue-600 hover:underline">View PDF</a>
@@ -780,7 +827,14 @@
                                 </span>
                               </td>
                               <td class="p-3 text-right">
-                                <button onclick="handleDeletePackage('${pkg.id}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition cursor-pointer">Delete</button>
+                                <div class="flex justify-end gap-2">
+                                  <button onclick="handleStartEdit('${pkg.id}')" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold rounded transition cursor-pointer">
+                                    Edit
+                                  </button>
+                                  <button onclick="handleDeletePackage('${pkg.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold rounded transition cursor-pointer">
+                                    Delete
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           `).join('')}
