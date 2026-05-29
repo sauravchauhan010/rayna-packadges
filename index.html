@@ -30,7 +30,7 @@
   <!-- Firebase SDK and Application Logic Module -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Fallback seed packages
@@ -128,10 +128,14 @@
       }
     }
 
-    // Authenticate (Rule 3)
+    // Authenticate prioritizing Custom Token if present (Rule 3)
     async function initAuth() {
       try {
-        await signInAnonymously(auth);
+        if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
+          await signInWithCustomToken(auth, window.__initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
       } catch (err) {
         console.error("Database initialization connection failed:", err);
       }
