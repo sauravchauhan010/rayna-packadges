@@ -36,6 +36,7 @@
     // Fallback seed packages
     const SEED_PACKAGES = [
       {
+        id: 'pkg-default-1',
         title: 'SWITZERLAND',
         duration: '03 NIGHTS / 04 DAYS',
         highlight: 'Zurich 3N',
@@ -44,6 +45,7 @@
         createdAt: new Date().toISOString()
       },
       {
+        id: 'pkg-default-2',
         title: 'FRANCE',
         duration: '04 NIGHTS / 05 DAYS',
         highlight: 'Paris 4N',
@@ -52,6 +54,7 @@
         createdAt: new Date().toISOString()
       },
       {
+        id: 'pkg-default-3',
         title: 'UNITED KINGDOM',
         duration: '05 NIGHTS / 06 DAYS',
         highlight: 'London 5N',
@@ -67,17 +70,21 @@
     // Config Check & Setup (Rule 1 & Rule 3)
     const firebaseConfig = typeof window.__firebase_config !== 'undefined'
       ? JSON.parse(window.__firebase_config)
-      : { apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU", 
-         authDomain: "packadge-itenary.firebaseapp.com", 
-         projectId: "packadge-itenary", 
-         storageBucket: "packadge-itenary.firebasestorage.app", 
-         messagingSenderId: "482476048193", 
-         appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
-        };
+      : { apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Self-healing database check to avoid crashes/freezes on unconfigured deployments
+    const isFirebaseConfigured = !!(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "");
+
+    let app, auth, db;
+    if (isFirebaseConfigured) {
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+      } catch (err) {
+        console.error("Firebase SDK failed to initialize:", err);
+      }
+    }
     const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'smc-tours-portal-v2';
 
     // Dynamic State Store
@@ -136,6 +143,11 @@
 
     // Authenticate prioritizing Custom Token if present (Rule 3)
     async function initAuth() {
+      if (!isFirebaseConfigured) {
+        // Fallback local auth simulation
+        state.user = { uid: "local-admin" };
+        return;
+      }
       try {
         if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
           await signInWithCustomToken(auth, window.__initial_auth_token);
@@ -147,8 +159,27 @@
       }
     }
 
-    // Initialize Firebase listeners (Rule 1 & Rule 2)
+    // Initialize Database Listeners with secure local fallbacks
     function setupDatabaseListeners() {
+      if (!isFirebaseConfigured) {
+        console.log("SMC Tours database loading locally. Firebase configuration empty.");
+        // Retrieve local sandbox data
+        const localPkgs = localStorage.getItem('smc_local_packages_v3');
+        if (localPkgs) {
+          state.packages = JSON.parse(localPkgs);
+        } else {
+          state.packages = [...SEED_PACKAGES];
+          localStorage.setItem('smc_local_packages_v3', JSON.stringify(state.packages));
+        }
+
+        const localInqs = localStorage.getItem('smc_local_inquiries_v3');
+        state.inquiries = localInqs ? JSON.parse(localInqs) : [];
+
+        state.isDbLoading = false;
+        render();
+        return;
+      }
+
       onAuthStateChanged(auth, (usr) => {
         state.user = usr;
         if (!usr) return;
@@ -241,11 +272,31 @@
         createdAt: new Date().toISOString()
       };
 
+      if (!isFirebaseConfigured) {
+        // Offline Save
+        const updated = [{ id: 'pkg-' + Date.now(), ...payload }, ...state.packages];
+        state.packages = updated;
+        localStorage.setItem('smc_local_packages_v3', JSON.stringify(updated));
+        
+        // Reset Inputs
+        document.getElementById('pkg-title').value = '';
+        document.getElementById('pkg-duration').value = '';
+        document.getElementById('pkg-highlight').value = '';
+        document.getElementById('pkg-image').value = '';
+        document.getElementById('pkg-pdf').value = '';
+        render();
+        return;
+      }
+
       try {
         const pkgsCol = collection(db, 'artifacts', appId, 'public', 'data', 'packages');
         await addDoc(pkgsCol, payload);
         // Reset Inputs
-        state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
+        document.getElementById('pkg-title').value = '';
+        document.getElementById('pkg-duration').value = '';
+        document.getElementById('pkg-highlight').value = '';
+        document.getElementById('pkg-image').value = '';
+        document.getElementById('pkg-pdf').value = '';
         render();
       } catch (err) {
         state.formError = 'Cloud Database Error: ' + err.message;
@@ -254,6 +305,13 @@
     };
 
     window.handleDeletePackage = async (id) => {
+      if (!isFirebaseConfigured) {
+        const updated = state.packages.filter(p => p.id !== id);
+        state.packages = updated;
+        localStorage.setItem('smc_local_packages_v3', JSON.stringify(updated));
+        render();
+        return;
+      }
       try {
         const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', id);
         await deleteDoc(docRef);
@@ -284,6 +342,20 @@
         createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
       };
 
+      if (!isFirebaseConfigured) {
+        const updated = [{ id: 'inq-' + Date.now(), ...payload }, ...state.inquiries];
+        state.inquiries = updated;
+        localStorage.setItem('smc_local_inquiries_v3', JSON.stringify(updated));
+        state.showSuccessToast = true;
+        render();
+        setTimeout(() => {
+          state.selectedInquiryPackage = null;
+          state.showSuccessToast = false;
+          render();
+        }, 4000);
+        return;
+      }
+
       try {
         const inqsCol = collection(db, 'artifacts', appId, 'public', 'data', 'inquiries');
         await addDoc(inqsCol, payload);
@@ -301,6 +373,13 @@
     };
 
     window.handleArchiveInquiry = async (id) => {
+      if (!isFirebaseConfigured) {
+        const updated = state.inquiries.filter(i => i.id !== id);
+        state.inquiries = updated;
+        localStorage.setItem('smc_local_inquiries_v3', JSON.stringify(updated));
+        render();
+        return;
+      }
       try {
         const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'inquiries', id);
         await deleteDoc(docRef);
@@ -337,7 +416,7 @@
                 </span>
                 <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold flex items-center space-x-1">
                   <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>Live Database Portal</span>
+                  <span>${isFirebaseConfigured ? 'Live Database Portal' : 'Local Sandbox Mode'}</span>
                 </p>
               </div>
             </div>
@@ -415,7 +494,7 @@
                 ${state.isDbLoading ? `
                   <div class="text-center py-24 bg-white rounded-3xl border border-slate-200 p-8 flex flex-col items-center justify-center space-y-4">
                     <div class="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p class="text-slate-500 text-sm font-semibold">Connecting to SMC Cloud Storage...</p>
+                    <p class="text-slate-500 text-sm font-semibold">Connecting to SMC Storage...</p>
                   </div>
                 ` : filtered.length === 0 ? `
                   <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8">
@@ -451,7 +530,7 @@
 
                             <!-- Dashed Outline Pill Box -->
                             <div class="w-full flex justify-center mt-5">
-                              <div class="bg-[#e0f2fe]/80 border border-dashed border-slate-800 text-slate-900 font-bold text-xs py-2 px-8 rounded-full min-w-[200px] truncate">
+                              <div class="bg-[#e0f2fe]/80 border border-dashed border-slate-800 text-slate-900 font-bold text-xs py-2 px-8 rounded-full min-w-[200px] truncate animate-pulse">
                                 ${pkg.highlight}
                               </div>
                             </div>
@@ -586,12 +665,23 @@
                 </div>
                 <div>
                   <h3 class="font-extrabold text-sm sm:text-base">Universal Cloud Synced Dashboard</h3>
-                  <p class="text-xs text-purple-200">Changes made here are updated live immediately across all devices and customers.</p>
+                  ${isFirebaseConfigured ? `
+                    <p class="text-xs text-purple-200">Changes made here are updated live immediately across all devices and customers.</p>
+                  ` : `
+                    <p class="text-xs text-amber-200 font-bold">Local storage demo mode active. Fill in your Firebase config keys in the Canvas to activate live Cloud Database syncing.</p>
+                  `}
                 </div>
               </div>
-              <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
-                Live Database Active
-              </span>
+              
+              ${isFirebaseConfigured ? `
+                <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
+                  Live Database Active
+                </span>
+              ` : `
+                <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
+                  Local Sandbox Mode
+                </span>
+              `}
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -638,7 +728,7 @@
                     </div>
 
                     <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition text-xs shadow-md cursor-pointer">
-                      Publish to Live Cloud Database
+                      Publish to ${isFirebaseConfigured ? 'Live Cloud Database' : 'Local Storage'}
                     </button>
                   </form>
                 </div>
@@ -672,7 +762,7 @@
                           ${state.packages.map(pkg => `
                             <tr>
                               <td class="p-3 flex items-center space-x-3">
-                                <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100" />
+                                <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 animate-pulse" />
                                 <div>
                                   <span class="font-bold text-slate-900 uppercase block">${pkg.title}</span>
                                   <a href="${pkg.pdfUrl}" target="_blank" class="text-[10px] text-blue-600 hover:underline">View PDF</a>
@@ -741,7 +831,9 @@
               <p class="font-bold text-white uppercase tracking-wider text-xs">SMC TOURS LTD.</p>
               <p class="text-[11px] text-slate-500 mt-1">&copy; 2026 SMC Tours. Custom layouts crafted perfectly for group departures.</p>
             </div>
-            <span class="text-slate-500 font-bold text-[10px] uppercase tracking-wider">SMC Cloud Connected</span>
+            <span class="text-slate-500 font-bold text-[10px] uppercase tracking-wider">
+              ${isFirebaseConfigured ? 'SMC Cloud Connected' : 'SMC Local Mode'}
+            </span>
           </div>
         </footer>
       `;
