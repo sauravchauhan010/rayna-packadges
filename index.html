@@ -325,4 +325,592 @@
       try {
         if (state.editingPackageId) {
           // Update live FireStore document
-          const docRef = doc(db, 'artifacts', appId, 'public', 'data
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', state.editingPackageId);
+          await updateDoc(docRef, payload);
+        } else {
+          // Add live FireStore document
+          const pkgsCol = collection(db, 'artifacts', appId, 'public', 'data', 'packages');
+          await addDoc(pkgsCol, payload);
+        }
+        
+        // Reset Inputs & Edit state
+        state.editingPackageId = null;
+        state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
+        render();
+      } catch (err) {
+        state.formError = 'Cloud Database Error: ' + err.message;
+        render();
+      }
+    };
+
+    window.handleDeletePackage = async (id) => {
+      if (confirm("Are you sure you want to delete this package?")) {
+        if (!isFirebaseConfigured) {
+          const updated = state.packages.filter(p => p.id !== id);
+          state.packages = updated;
+          localStorage.setItem('smc_local_packages_v3', JSON.stringify(updated));
+          render();
+          return;
+        }
+        try {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', id);
+          await deleteDoc(docRef);
+        } catch (err) {
+          console.error("Failed deleting package:", err);
+        }
+      }
+    };
+
+    window.handleInquirySubmit = async (e) => {
+      e.preventDefault();
+      state.inquiryError = '';
+
+      const name = document.getElementById('inq-name').value;
+      const phone = document.getElementById('inq-phone').value;
+      const email = document.getElementById('inq-email').value;
+
+      if (!name || !phone) {
+        state.inquiryError = 'Please enter your Name and Mobile Number.';
+        render();
+        return;
+      }
+
+      const payload = {
+        customerName: name,
+        phone: phone,
+        email: email || '',
+        packageName: state.selectedInquiryPackage ? state.selectedInquiryPackage.title : 'General Inquiry',
+        createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+      };
+
+      if (!isFirebaseConfigured) {
+        const updated = [{ id: 'inq-' + Date.now(), ...payload }, ...state.inquiries];
+        state.inquiries = updated;
+        localStorage.setItem('smc_local_inquiries_v3', JSON.stringify(updated));
+        state.showSuccessToast = true;
+        render();
+        setTimeout(() => {
+          state.selectedInquiryPackage = null;
+          state.showSuccessToast = false;
+          render();
+        }, 4000);
+        return;
+      }
+
+      try {
+        const inqsCol = collection(db, 'artifacts', appId, 'public', 'data', 'inquiries');
+        await addDoc(inqsCol, payload);
+        state.showSuccessToast = true;
+        render();
+        setTimeout(() => {
+          state.selectedInquiryPackage = null;
+          state.showSuccessToast = false;
+          render();
+        }, 4000);
+      } catch (err) {
+        state.inquiryError = 'Failed logging callback: ' + err.message;
+        render();
+      }
+    };
+
+    window.handleArchiveInquiry = async (id) => {
+      if (!isFirebaseConfigured) {
+        const updated = state.inquiries.filter(i => i.id !== id);
+        state.inquiries = updated;
+        localStorage.setItem('smc_local_inquiries_v3', JSON.stringify(updated));
+        render();
+        return;
+      }
+      try {
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'inquiries', id);
+        await deleteDoc(docRef);
+      } catch (err) {
+        console.error("Failed archiving inquiry:", err);
+      }
+    };
+
+    // Pure HTML Rendering Engine
+    function render() {
+      const container = document.getElementById('app');
+      evaluateRoute();
+
+      // Filter Packages
+      const filtered = state.packages.filter(p => 
+        p.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+        p.highlight.toLowerCase().includes(state.searchQuery.toLowerCase())
+      );
+
+      let content = '';
+
+      // --- HEADER ---
+      content += `
+        <header class="sticky top-0 z-40 bg-slate-900 text-white shadow-md border-b border-purple-950">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+            
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="dispatch('REDIRECT_HOME')">
+              <div class="bg-gradient-to-tr from-purple-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md transform hover:rotate-6 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+              </div>
+              <div>
+                <span class="text-xl sm:text-2xl font-black tracking-wider uppercase text-white">
+                  SMC<span class="text-purple-400"> Tours</span>
+                </span>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold flex items-center space-x-1">
+                  <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>${isFirebaseConfigured ? 'Live Database Portal' : 'Local Sandbox Mode'}</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+              ${state.isLoggedIn && (state.view === 'admin' || state.view === 'admin-login') ? `
+                <button onclick="dispatch('LOGOUT')" class="flex items-center space-x-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-md transition-all cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+                  <span>Log Out</span>
+                </button>
+              ` : ''}
+
+              ${!state.isLoggedIn && state.view === 'admin-login' ? `
+                <button onclick="dispatch('REDIRECT_HOME')" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <span>View Customer Site</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </header>
+      `;
+
+      // --- MAIN PANELS ---
+      if (state.view === 'customer') {
+        content += `
+          <main class="flex-1">
+            
+            <!-- Hero Grid -->
+            <div class="relative bg-slate-950 text-white min-h-[340px] flex items-center">
+              <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-25"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent"></div>
+
+              <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-10">
+                <span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] px-3.5 py-1 rounded-full font-bold uppercase tracking-wider">
+                  SMC Instant PDF Downloads
+                </span>
+                <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mt-4">
+                  Explore the World with <span class="text-purple-400">SMC Tours</span>
+                </h1>
+                <p class="text-sm sm:text-base text-slate-300 mt-3 max-w-xl mx-auto font-light leading-relaxed">
+                  Browse our premium holiday layouts below. Download the complete, beautiful PDF package itinerary directly, or submit a custom inquiry callback instantly!
+                </p>
+
+                <!-- Filter bar -->
+                <div class="mt-8 max-w-md mx-auto">
+                  <div class="relative">
+                    <svg class="absolute left-4 top-3.5 w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25gA7.5 7.5 0 1119.5 10.5z" /></svg>
+                    <input 
+                      type="text" 
+                      placeholder="Search countries, regions, or highlights..."
+                      value="${state.searchQuery}"
+                      oninput="dispatch('SET_SEARCH', this.value)"
+                      class="w-full bg-white text-slate-900 border-none rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm font-medium shadow-xl"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Custom Showcase Catalog (Mockup Aligned) -->
+            <section class="py-16 bg-slate-100">
+              <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="flex items-center justify-between mb-10">
+                  <div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight uppercase">SMC Group Departures</h2>
+                    <div class="h-1 w-12 bg-purple-600 mt-1"></div>
+                  </div>
+                  <span class="text-xs text-slate-500 font-bold bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
+                    ${filtered.length} packages active
+                  </span>
+                </div>
+
+                ${state.isDbLoading ? `
+                  <div class="text-center py-24 bg-white rounded-3xl border border-slate-200 p-8 flex flex-col items-center justify-center space-y-4">
+                    <div class="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-slate-500 text-sm font-semibold">Connecting to SMC Storage...</p>
+                  </div>
+                ` : filtered.length === 0 ? `
+                  <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8">
+                    <p class="text-slate-500 text-base">No packages found matching your filter.</p>
+                  </div>
+                ` : `
+                  <!-- Fully responsive grid: Showing exactly 4 columns on full XL screens -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    ${filtered.map((pkg, idx) => `
+                      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-200/80 flex flex-col h-full text-center relative w-full group">
+                        
+                        <!-- Image Container with Yellow Overlay text inside Dark Blue Banner -->
+                        <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                          <img src="${pkg.image}" alt="${pkg.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          ${pkg.highlight ? `
+                            <div class="absolute bottom-0 left-0 right-0 bg-[#0d2a5c] text-[#facc15] py-2 text-center font-black text-sm uppercase tracking-wider border-t border-blue-900">
+                              ${pkg.highlight}
+                            </div>
+                          ` : ''}
+                        </div>
+
+                        <!-- Card Details -->
+                        <div class="p-6 flex-1 flex flex-col justify-between items-center bg-white">
+                          <div class="w-full text-center">
+                            <!-- Deep Purple Country Code -->
+                            <h3 class="text-2xl font-extrabold text-[#4c1d95] tracking-wide uppercase mt-2">
+                              ${pkg.title}
+                            </h3>
+                            
+                            <!-- Subtitle Nights Text -->
+                            <p class="text-slate-900 text-sm font-bold tracking-wider mt-2 uppercase">
+                              ${pkg.duration}
+                            </p>
+
+                            <!-- Dashed Outline Pill Box -->
+                            <div class="w-full flex justify-center mt-5">
+                              <div class="bg-[#e0f2fe]/80 border border-dashed border-slate-800 text-slate-900 font-bold text-xs py-2 px-6 rounded-full w-full truncate">
+                                ${pkg.highlight}
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Actions Section -->
+                          <div class="mt-8 w-full border-t border-slate-100 pt-5 flex flex-col items-center space-y-3">
+                            <a href="${pkg.pdfUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 text-sm font-bold tracking-wide flex items-center space-x-1.5 transition-colors group cursor-pointer">
+                              <span>View Full Itinerary</span>
+                              <span class="transform group-hover:translate-x-1 transition-transform">→</span>
+                            </a>
+                            <button onclick="dispatch('OPEN_INQUIRY', ${JSON.stringify(pkg).replace(/"/g, '&quot;')})" class="text-[11px] text-slate-500 hover:text-purple-600 font-semibold uppercase tracking-wider underline cursor-pointer">
+                              Or Click to request details
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    `).join('')}
+                  </div>
+                `}
+
+              </div>
+            </section>
+
+            <!-- Callback Inquiry Overlay Modal -->
+            ${state.selectedInquiryPackage ? `
+              <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
+                <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+                  
+                  <div class="bg-purple-950 text-white p-6 relative">
+                    <h3 class="text-lg font-bold">Request a Callback</h3>
+                    <p class="text-slate-300 text-xs mt-1">SMC Package: <span class="text-purple-300 font-bold">${state.selectedInquiryPackage.title}</span></p>
+                    <button onclick="dispatch('CLOSE_INQUIRY')" class="absolute top-6 right-6 text-slate-400 hover:text-white transition font-bold cursor-pointer">✕</button>
+                  </div>
+
+                  ${state.showSuccessToast ? `
+                    <div class="p-8 text-center">
+                      <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      </div>
+                      <h4 class="text-lg font-bold text-slate-950">Inquiry Logged!</h4>
+                      <p class="text-slate-600 text-xs mt-2 font-medium">
+                        Our SMC Specialist will reach out regarding the <span class="font-semibold text-purple-900">${state.selectedInquiryPackage.title}</span> program. Thank you!
+                      </p>
+                    </div>
+                  ` : `
+                    <form onsubmit="handleInquirySubmit(event)" class="p-6 space-y-4">
+                      ${state.inquiryError ? `
+                        <div class="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
+                          ${state.inquiryError}
+                        </div>
+                      ` : ''}
+
+                      <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Your Name *</label>
+                        <input type="text" id="inq-name" required placeholder="e.g. Rahul Sharma" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                      </div>
+
+                      <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile Number *</label>
+                        <input type="tel" id="inq-phone" required placeholder="e.g. +91 9876543210" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                      </div>
+
+                      <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address (Optional)</label>
+                        <input type="email" id="inq-email" placeholder="e.g. rahul@example.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                      </div>
+
+                      <div class="pt-4 flex space-x-3">
+                        <button type="button" onclick="dispatch('CLOSE_INQUIRY')" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-3 rounded-xl transition text-xs cursor-pointer">Cancel</button>
+                        <button type="submit" class="w-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition text-xs cursor-pointer">Send Callback</button>
+                      </div>
+                    </form>
+                  `}
+                </div>
+              </div>
+            ` : ''}
+
+          </main>
+        `;
+      } else if (state.view === 'admin-login') {
+        content += `
+          <main class="flex-1 flex items-center justify-center p-6 bg-slate-900">
+            <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+              
+              <div class="bg-gradient-to-br from-purple-900 to-indigo-950 p-8 text-white relative text-center">
+                <h2 class="text-2xl font-black mt-3">SMC Control Room</h2>
+                <p class="text-slate-300 text-xs mt-1">Please enter your agency credentials to access the package adder dashboard.</p>
+              </div>
+
+              <form onsubmit="handleLoginSubmit(event)" class="p-8 space-y-5">
+                ${state.loginError ? `
+                  <div class="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
+                    ${state.loginError}
+                  </div>
+                ` : ''}
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Username</label>
+                  <input type="text" id="login-username" required placeholder="admin@smc" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Security Password</label>
+                  <input type="password" id="login-password" required placeholder="••••••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
+                </div>
+
+                <div class="bg-purple-50 border border-purple-100 p-3.5 rounded-xl text-[11px] text-purple-950">
+                  <span class="font-extrabold uppercase">Default Credentials:</span>
+                  <div class="mt-1 font-mono text-[10px]">
+                    <div>User: <b>${ADMIN_USERNAME}</b></div>
+                    <div>Pass: <b>${ADMIN_PASSWORD}</b></div>
+                  </div>
+                </div>
+
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3.5 rounded-xl transition text-xs shadow-md cursor-pointer">
+                  Authorize & Enter Dashboard
+                </button>
+              </form>
+            </div>
+          </main>
+        `;
+      } else if (state.view === 'admin' && state.isLoggedIn) {
+        content += `
+          <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <div class="bg-gradient-to-r from-purple-900 to-slate-900 text-white p-4 rounded-2xl shadow-sm mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div class="flex items-center space-x-3">
+                <div class="bg-purple-800 p-2 rounded-xl">
+                  <svg class="w-5 h-5 text-purple-300 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                </div>
+                <div>
+                  <h3 class="font-extrabold text-sm sm:text-base">Universal Cloud Synced Dashboard</h3>
+                  ${isFirebaseConfigured ? `
+                    <p class="text-xs text-purple-200">Changes made here are updated live immediately across all devices and customers.</p>
+                  ` : `
+                    <p class="text-xs text-amber-200 font-bold">Local storage demo mode active. Fill in your Firebase config keys in the Canvas to activate live Cloud Database syncing.</p>
+                  `}
+                </div>
+              </div>
+              
+              ${isFirebaseConfigured ? `
+                <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
+                  Live Database Active
+                </span>
+              ` : `
+                <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
+                  Local Sandbox Mode
+                </span>
+              `}
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              <!-- Form Column -->
+              <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                  
+                  <div class="mb-6">
+                    <span class="bg-purple-100 text-purple-700 text-[10px] font-black uppercase px-2 py-1 rounded">SMC Creator Control</span>
+                    <h2 class="text-xl font-bold text-slate-900 mt-2">
+                      ${state.editingPackageId ? 'Edit Showcase Card' : 'Add New Showcase Card'}
+                    </h2>
+                  </div>
+
+                  <form onsubmit="handleAddPackage(event)" class="space-y-4">
+                    ${state.formError ? `
+                      <div class="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
+                        ${state.formError}
+                      </div>
+                    ` : ''}
+
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Country/Main Title *</label>
+                      <input type="text" id="pkg-title" required placeholder="e.g. SWITZERLAND" value="${state.newPackage.title}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold uppercase text-slate-900" />
+                    </div>
+
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Duration text *</label>
+                      <input type="text" id="pkg-duration" required placeholder="e.g. 03 NIGHTS / 04 DAYS" value="${state.newPackage.duration}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-slate-900" />
+                    </div>
+
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Highlight / Dashed Tag *</label>
+                      <input type="text" id="pkg-highlight" placeholder="e.g. Zurich 3N" value="${state.newPackage.highlight}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium text-slate-900" />
+                    </div>
+
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Card Cover Image URL</label>
+                      <input type="url" id="pkg-image" placeholder="Paste cover photo link" value="${state.newPackage.image}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
+                    </div>
+
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                      <label class="block text-[11px] font-bold text-purple-950 uppercase tracking-wider mb-1">Itinerary PDF Link *</label>
+                      <input type="url" id="pkg-pdf" required placeholder="Paste PDF link (Google Drive, Dropbox, Web Server)" value="${state.newPackage.pdfUrl}" class="w-full bg-white border border-purple-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-purple-900" />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition text-xs shadow-md cursor-pointer">
+                        ${state.editingPackageId ? 'Update Live Package' : `Publish to ${isFirebaseConfigured ? 'Live Cloud Database' : 'Local Storage'}`}
+                      </button>
+                      
+                      ${state.editingPackageId ? `
+                        <button type="button" onclick="handleCancelEdit()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold p-3 rounded-xl transition text-xs cursor-pointer">
+                          Cancel Edit
+                        </button>
+                      ` : ''}
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Content Column -->
+              <div class="lg:col-span-2 space-y-8">
+                
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                  <h3 class="text-lg font-bold text-slate-900 mb-4">Active Live Packages (${state.packages.length})</h3>
+                  
+                  ${state.isDbLoading ? `
+                    <div class="text-center py-10 flex flex-col items-center justify-center space-y-2">
+                      <div class="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span class="text-xs text-slate-400">Loading catalog...</span>
+                    </div>
+                  ` : state.packages.length === 0 ? `
+                    <p class="text-xs text-slate-400">No active packages found.</p>
+                  ` : `
+                    <div class="border border-slate-100 rounded-2xl overflow-hidden">
+                      <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider">
+                          <tr>
+                            <th class="p-3">Country / Main Title</th>
+                            <th class="p-3">Duration</th>
+                            <th class="p-3">Highlight</th>
+                            <th class="p-3 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                          ${state.packages.map(pkg => `
+                            <tr class="${state.editingPackageId === pkg.id ? 'bg-purple-50/50' : ''}">
+                              <td class="p-3 flex items-center space-x-3">
+                                <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100" />
+                                <div>
+                                  <span class="font-bold text-slate-900 uppercase block">${pkg.title}</span>
+                                  <a href="${pkg.pdfUrl}" target="_blank" class="text-[10px] text-blue-600 hover:underline">View PDF</a>
+                                </div>
+                              </td>
+                              <td class="p-3 font-medium text-slate-600">${pkg.duration}</td>
+                              <td class="p-3">
+                                <span class="bg-blue-50 border border-dashed border-slate-400 text-slate-800 text-[10px] font-bold px-2 py-1 rounded">
+                                  ${pkg.highlight}
+                                </span>
+                              </td>
+                              <td class="p-3 text-right">
+                                <div class="flex justify-end gap-2">
+                                  <button onclick="handleStartEdit('${pkg.id}')" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold rounded transition cursor-pointer">
+                                    Edit
+                                  </button>
+                                  <button onclick="handleDeletePackage('${pkg.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold rounded transition cursor-pointer">
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          `).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  `}
+                </div>
+
+                <!-- Callback Log -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                  <h3 class="text-lg font-bold text-slate-900 mb-1">Callback Logins</h3>
+                  <p class="text-slate-500 text-xs mb-4">Real-time leads logging directly from your B2C card inquiries.</p>
+
+                  ${state.inquiries.length === 0 ? `
+                    <p class="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">No callbacks requested yet.</p>
+                  ` : `
+                    <div class="space-y-3">
+                      ${state.inquiries.map(lead => `
+                        <div class="border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                          <div>
+                            <div class="flex items-center space-x-2">
+                              <h4 class="font-extrabold text-slate-900 text-sm">${lead.customerName}</h4>
+                              <span class="text-[9px] font-black uppercase bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md">Inquiry</span>
+                            </div>
+                            <div class="mt-1 flex gap-x-4 text-xs text-slate-500 font-medium">
+                              <span>Phone: <b class="text-slate-800">${lead.phone}</b></span>
+                              ${lead.email ? `<span>Email: ${lead.email}</span>` : ''}
+                            </div>
+                            <p class="text-[11px] text-purple-950 font-bold mt-2 bg-purple-50/50 px-2.5 py-1 rounded-md inline-block">Product Interest: ${lead.packageName}</p>
+                          </div>
+                          <div class="text-right">
+                            <span class="text-[10px] text-slate-400 block">${lead.createdAt}</span>
+                            <button onclick="handleArchiveInquiry('${lead.id}')" class="text-xs text-rose-600 hover:text-rose-800 font-bold underline mt-1 cursor-pointer">Archive</button>
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  `}
+                </div>
+
+              </div>
+            </div>
+          </main>
+        `;
+      }
+
+      // --- FOOTER ---
+      content += `
+        <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div>
+              <p class="font-bold text-white uppercase tracking-wider text-xs">SMC TOURS LTD.</p>
+              <p class="text-[11px] text-slate-500 mt-1">&copy; 2026 SMC Tours. Custom layouts crafted perfectly for group departures.</p>
+            </div>
+            <span class="text-slate-500 font-bold text-[10px] uppercase tracking-wider">
+              ${isFirebaseConfigured ? 'SMC Cloud Connected' : 'SMC Local Mode'}
+            </span>
+          </div>
+        </footer>
+      `;
+
+      container.innerHTML = content;
+    }
+
+    // Startup Routines
+    window.onload = async () => {
+      await initAuth();
+      setupDatabaseListeners();
+      render();
+    };
+
+    // Listen to URL state changes for live SPA routing
+    window.addEventListener('popstate', () => {
+      render();
+    });
+  </script>
+</body>
+</html>
