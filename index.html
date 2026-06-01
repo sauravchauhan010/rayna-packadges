@@ -4,817 +4,767 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rayna Tours — Premium Group Departures</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --navy: #0a1628;
-      --navy-mid: #132040;
-      --gold: #c9a84c;
-      --gold-light: #e8c97a;
-      --cream: #faf8f4;
-      --slate-soft: #f1f0ed;
+      --black:  #0d0d0d;
+      --white:  #ffffff;
+      --off:    #f5f4f1;
+      --muted:  #888580;
+      --border: #e4e2dd;
+      --gold:   #c8a84b;
+      --gold2:  #e8c96e;
+      --navy:   #0f1f3d;
+      --red:    #c0392b;
     }
 
-    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background-color: var(--cream);
-      color: var(--navy);
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--black);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
-    h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; }
+    /* ── TYPOGRAPHY ── */
+    .display {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+    }
+    .heading {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+    .label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
 
-    /* Spinner */
+    /* ── LAYOUT ── */
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+    @media(max-width:640px) { .wrap { padding: 0 16px; } }
+
+    /* ── NAV ── */
+    #nav {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--black);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      height: 64px;
+      display: flex; align-items: center;
+    }
+    .nav-inner {
+      width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 32px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .logo-mark {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; text-decoration: none;
+    }
+    .logo-icon {
+      width: 36px; height: 36px; background: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 15px; color: var(--black); letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 17px; color: var(--white); letter-spacing: -0.01em;
+    }
+    .logo-text span { color: var(--gold); }
+    .live-chip {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+    }
+    .live-dot {
+      width: 6px; height: 6px; background: #4ade80;
+      border-radius: 50%; animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .nav-btn {
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 8px 16px; border-radius: 4px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent; color: rgba(255,255,255,0.5);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+    .nav-link {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.25);
+      text-decoration: none; padding: 4px 0;
+    }
+    .nav-link:hover { color: rgba(255,255,255,0.5); }
+
+    /* ── HERO ── */
+    #hero {
+      background: var(--black);
+      position: relative; overflow: hidden;
+    }
+    .hero-img {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      opacity: 0.22;
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      max-width: 820px; margin: 0 auto;
+      padding: 100px 32px 80px;
+      text-align: center;
+    }
+    @media(max-width:640px) { .hero-content { padding: 64px 16px 56px; } }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(200,168,75,0.4);
+      padding: 6px 14px; margin-bottom: 28px;
+    }
+    .hero-badge span { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+
+    .hero-title {
+      font-size: clamp(42px, 7vw, 80px);
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+    .hero-title em { color: var(--gold); font-style: normal; }
+
+    .hero-sub {
+      font-size: 16px; color: rgba(255,255,255,0.5);
+      line-height: 1.75; max-width: 520px; margin: 0 auto 40px;
+      font-weight: 400;
+    }
+
+    .search-bar {
+      max-width: 460px; margin: 0 auto;
+      position: relative;
+    }
+    .search-bar input {
+      width: 100%; height: 52px;
+      background: var(--white);
+      border: none; outline: none;
+      padding: 0 20px 0 48px;
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400;
+      color: var(--black);
+    }
+    .search-bar input::placeholder { color: #aaa; }
+    .search-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none;
+    }
+
+    /* ── CATALOG ── */
+    #catalog { padding: 72px 0; background: var(--off); }
+
+    .section-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 40px; flex-wrap: wrap; gap: 12px;
+    }
+    .section-title { font-size: clamp(26px,4vw,36px); }
+    .count-pill {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      color: var(--muted); background: var(--white);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+    }
+
+    /* ── GRID ── */
+    .pkg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+      gap: 2px;
+    }
+
+    .pkg-card {
+      background: var(--white);
+      display: flex; flex-direction: column;
+      cursor: pointer;
+      transition: none;
+      border: 1px solid var(--border);
+    }
+    .pkg-card:hover .card-img img { transform: scale(1.05); }
+    .pkg-card:hover .card-cta { background: var(--gold2); }
+
+    .card-img {
+      position: relative; aspect-ratio: 16/10; overflow: hidden;
+      background: #ddd;
+    }
+    .card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; transition: transform 0.5s ease;
+    }
+    .card-flag {
+      position: absolute; top: 14px; left: 14px;
+      background: var(--black); color: var(--gold);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; padding: 5px 10px;
+    }
+
+    .card-body { padding: 22px 22px 20px; flex: 1; display: flex; flex-direction: column; }
+    .card-country {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 22px; letter-spacing: -0.01em;
+      color: var(--black); margin-bottom: 4px;
+    }
+    .card-duration {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+    }
+    .card-divider { height: 1px; background: var(--border); margin-bottom: 16px; }
+    .card-footer { display: flex; gap: 8px; margin-top: auto; }
+
+    .card-cta {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--gold); color: var(--black);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 11px 14px; border: none; cursor: pointer;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .card-cta:hover { background: var(--gold2); }
+
+    .card-inquiry {
+      padding: 11px 14px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .card-inquiry:hover { border-color: var(--black); color: var(--black); }
+
+    /* ── EMPTY / LOADING ── */
+    .state-box {
+      padding: 80px 24px; text-align: center;
+      background: var(--white); border: 1px solid var(--border);
+    }
     .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid rgba(201,168,76,0.3);
+      width: 32px; height: 32px; margin: 0 auto 16px;
+      border: 2px solid var(--border);
       border-top-color: var(--gold);
       border-radius: 50%;
-      animation: spin 0.9s linear infinite;
+      animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Card hover */
-    .pkg-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .pkg-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(10,22,40,0.12); }
-
-    .pkg-card img { transition: transform 0.5s ease; }
-    .pkg-card:hover img { transform: scale(1.06); }
-
-    /* Gold underline */
-    .gold-line::after {
-      content: '';
-      display: block;
-      width: 40px; height: 2px;
-      background: var(--gold);
-      margin-top: 8px;
-    }
-
-    /* Overlay backdrop */
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 50;
-      background: rgba(10,22,40,0.75);
-      backdrop-filter: blur(6px);
+    /* ── LOGIN ── */
+    #login-view {
+      min-height: calc(100vh - 64px);
+      background: var(--black);
       display: flex; align-items: center; justify-content: center;
-      padding: 1rem;
-      animation: fadeIn 0.2s ease;
+      padding: 40px 16px;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .modal-box { animation: slideUp 0.25s ease; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Inputs */
-    .field {
-      width: 100%;
-      background: #fff;
-      border: 1px solid #ddd8ce;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      color: var(--navy);
-      outline: none;
-      transition: border-color 0.2s;
+    .login-card {
+      background: var(--white); width: 100%; max-width: 380px;
     }
-    .field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+    .login-head {
+      background: var(--black); padding: 32px 28px;
+      border-bottom: 3px solid var(--gold);
+    }
+    .login-body { padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── ADMIN ── */
+    #admin-view { padding: 40px 0 80px; background: var(--off); min-height: calc(100vh - 64px); }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media(max-width:900px) { .admin-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+    }
+    .panel-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .panel-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+    .panel-body { padding: 22px; }
+
+    /* Form */
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .form-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .form-input {
+      height: 40px; padding: 0 12px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      font-family: 'Inter', sans-serif; font-size: 13px; color: var(--black);
+      outline: none; width: 100%;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus { border-color: var(--black); }
+    .form-hint { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
     /* Buttons */
-    .btn-gold {
-      background: var(--gold);
-      color: var(--navy);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 11px 24px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      display: inline-flex; align-items: center; gap: 6px;
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 11px 20px; cursor: pointer; border: none; transition: all 0.15s;
+      text-decoration: none;
     }
-    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
-    .btn-gold:active { transform: translateY(0); }
+    .btn-primary { background: var(--black); color: var(--white); }
+    .btn-primary:hover { background: #222; }
+    .btn-gold { background: var(--gold); color: var(--black); }
+    .btn-gold:hover { background: var(--gold2); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--black); border-color: var(--black); }
+    .btn-danger { background: transparent; color: var(--red); border: 1px solid #f5c6c2; font-size: 10px; padding: 7px 12px; }
+    .btn-danger:hover { background: #fff5f5; }
+    .btn-sm { font-size: 10px; padding: 7px 12px; }
+    .btn-full { width: 100%; }
 
-    .btn-outline {
-      background: transparent;
-      color: var(--navy);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: 1px solid #ddd8ce;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .btn-outline:hover { background: var(--slate-soft); border-color: #c0b9ad; }
-
-    .btn-danger {
-      background: transparent;
-      color: #b91c1c;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 12px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 8px 14px;
-      border-radius: 6px;
-      border: 1px solid #fecaca;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-danger:hover { background: #fff1f2; }
-
-    .btn-edit {
-      background: transparent;
-      color: var(--navy);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 12px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 8px 14px;
-      border-radius: 6px;
-      border: 1px solid #ddd8ce;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-edit:hover { background: var(--slate-soft); }
-
-    /* Toast */
-    .toast {
-      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-      background: var(--navy); color: #fff;
-      padding: 12px 24px; border-radius: 40px;
-      font-size: 13px; font-weight: 500;
-      display: flex; align-items: center; gap: 8px;
-      z-index: 100;
-      animation: toastIn 0.3s ease;
-      box-shadow: 0 8px 30px rgba(10,22,40,0.25);
-    }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    /* Alerts */
+    .alert { padding: 10px 14px; font-size: 12px; font-weight: 500; margin-bottom: 14px; }
+    .alert-error { background: #fff5f5; border: 1px solid #f5c6c2; color: var(--red); }
+    .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
 
     /* Table */
-    table { border-collapse: collapse; width: 100%; }
-    th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 10px 14px; background: var(--slate-soft); }
-    td { padding: 12px 14px; border-top: 1px solid #ede9e1; font-size: 13px; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+      padding: 10px 16px; background: var(--off);
+      border-bottom: 1px solid var(--border); text-align: left;
+    }
+    .data-table td {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px; vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr.editing td { background: #fffbf0; }
+    .data-table tr:hover td { background: var(--off); }
+    .data-table tr.editing:hover td { background: #fffbf0; }
+
+    /* Lead card */
+    .lead-card {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .lead-card:last-child { border-bottom: none; }
+    .lead-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+    .lead-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .lead-pkg {
+      display: inline-block; margin-top: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      background: var(--off); color: var(--black);
+      padding: 4px 10px; border: 1px solid var(--border);
+    }
 
     /* Tag */
     .tag {
-      display: inline-block;
-      font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 3px 10px; border-radius: 40px;
+      display: inline-block; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 8px;
     }
+    .tag-gold { background: rgba(200,168,75,0.12); color: #8a6c1a; border: 1px solid rgba(200,168,75,0.3); }
+    .tag-green { background: rgba(22,163,74,0.1); color: #15803d; border: 1px solid rgba(22,163,74,0.25); }
+    .tag-local { background: rgba(251,191,36,0.1); color: #b45309; border: 1px solid rgba(251,191,36,0.3); }
 
-    /* Nav */
-    nav { background: var(--navy); }
-
-    /* Label */
-    .field-label {
-      display: block; font-size: 10px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase; color: #888;
-      margin-bottom: 6px;
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(13,13,13,0.85);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.2s ease;
     }
-
-    /* Hero */
-    .hero-bg {
-      background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
-      background-size: cover; background-position: center;
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal {
+      background: var(--white); width: 100%; max-width: 420px;
+      animation: slideUp 0.22s ease;
+      overflow: hidden;
     }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--cream); }
-    ::-webkit-scrollbar-thumb { background: #c0b9ad; border-radius: 3px; }
-
-    /* Error box */
-    .error-box {
-      background: #fff1f2; border: 1px solid #fecaca;
-      color: #991b1b; border-radius: 8px;
-      padding: 10px 14px; font-size: 12px; font-weight: 500;
+    @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .modal-head {
+      background: var(--black);
+      padding: 24px 28px;
+      border-bottom: 3px solid var(--gold);
+      display: flex; justify-content: space-between; align-items: flex-start;
     }
-
-    /* Success box */
-    .success-box {
-      background: #f0fdf4; border: 1px solid #bbf7d0;
-      color: #166534; border-radius: 8px;
-      padding: 10px 14px; font-size: 12px; font-weight: 500;
+    .modal-close {
+      background: rgba(255,255,255,0.08); border: none; color: rgba(255,255,255,0.5);
+      width: 28px; height: 28px; cursor: pointer; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
     }
+    .modal-close:hover { background: rgba(255,255,255,0.15); color: var(--white); }
+    .modal-body { padding: 24px 28px; }
 
-    /* Status badge */
-    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 1.8s infinite; display: inline-block; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-    /* Package card image wrapper */
-    .img-wrap { position: relative; overflow: hidden; aspect-ratio: 4/3; background: #e8e4dc; }
-
-    /* Highlight strip */
-    .highlight-strip {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: var(--navy);
-      color: var(--gold);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      text-align: center; padding: 8px 0;
+    /* Success state */
+    .success-state { padding: 40px 28px; text-align: center; }
+    .check-circle {
+      width: 52px; height: 52px; background: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px; border-radius: 50%;
     }
-
-    /* Admin status bar */
-    .admin-bar {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      color: #fff;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 28px;
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    /* Package editing highlight */
-    .editing-row { background: #fffbf0; }
 
     /* Footer */
-    footer { background: var(--navy); color: rgba(255,255,255,0.5); }
+    #footer {
+      background: var(--black);
+      padding: 32px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--white); }
+    .footer-logo span { color: var(--gold); }
+    .footer-copy { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 3px; }
+
+    /* Sticky form panel */
+    .sticky-panel { position: sticky; top: 80px; }
+
+    /* Status bar */
+    .status-bar {
+      background: var(--navy);
+      padding: 14px 22px; margin-bottom: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .status-bar-text { font-size: 13px; color: rgba(255,255,255,0.65); font-weight: 500; }
+    .status-bar-sub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+    /* Thumbnail */
+    .pkg-thumb {
+      width: 40px; height: 40px; object-fit: cover; background: var(--off);
+      display: block; flex-shrink: 0;
+    }
+
+    /* Responsive */
+    @media(max-width:640px) {
+      .admin-grid { grid-template-columns: 1fr; }
+      .sticky-panel { position: static; }
+      .hero-content { padding: 56px 16px 48px; }
+    }
   </style>
 </head>
 <body>
-
 <div id="app">
-  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
-    <div class="spinner"></div>
-    <p style="font-size:13px;color:#888;font-weight:500;letter-spacing:0.05em;">Loading Rayna Tours…</p>
+  <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--black);">
+    <div class="spinner" style="border-top-color:var(--gold);border-color:rgba(200,168,75,0.2);border-top-color:var(--gold);"></div>
+    <p style="font-size:12px;color:rgba(255,255,255,0.3);letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">Loading</p>
   </div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // ─── CONFIG ────────────────────────────────────────────────────────────────
-  const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
-    authDomain: "packadge-itenary.firebaseapp.com",
-    projectId: "packadge-itenary",
-    storageBucket: "packadge-itenary.firebasestorage.app",
+  /* ── CONFIG ───────────────────────────────────────────────── */
+  const FB = {
+    apiKey:            "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
+    authDomain:        "packadge-itenary.firebaseapp.com",
+    projectId:         "packadge-itenary",
+    storageBucket:     "packadge-itenary.firebasestorage.app",
     messagingSenderId: "482476048193",
-    appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
+    appId:             "1:482476048193:web:4164c8c466c5e856b96bc0"
   };
+  const ADMIN_USER = 'admin@smc';
+  const ADMIN_PASS = 'smctours2026';
+  const APP_ID     = (typeof window.__app_id !== 'undefined' && window.__app_id) || 'smc-tours-portal-v2';
 
-  const ADMIN_USERNAME = 'admin@smc';
-  const ADMIN_PASSWORD = 'smctours2026';
-
-  const APP_ID = (typeof window.__app_id !== 'undefined' && window.__app_id) ? window.__app_id : 'smc-tours-portal-v2';
-
-  const SEED_PACKAGES = [
-    {
-      id: 'seed-1',
-      title: 'Switzerland',
-      duration: '3 Nights / 4 Days',
-      highlight: 'Zurich 3N',
-      image: 'https://images.unsplash.com/photo-1538370965046-79c0d6907d47?auto=format&fit=crop&w=800&q=80',
-      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'seed-2',
-      title: 'France',
-      duration: '4 Nights / 5 Days',
-      highlight: 'Paris 4N',
-      image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80',
-      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'seed-3',
-      title: 'United Kingdom',
-      duration: '5 Nights / 6 Days',
-      highlight: 'London 5N',
-      image: 'https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=800&q=80',
-      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'seed-4',
-      title: 'Italy',
-      duration: '5 Nights / 6 Days',
-      highlight: 'Rome 3N + Florence 2N',
-      image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=800&q=80',
-      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      createdAt: new Date().toISOString()
-    }
+  const SEEDS = [
+    { id:'s1', title:'Switzerland',     duration:'3 Nights / 4 Days', highlight:'Zurich 3N',             image:'https://images.unsplash.com/photo-1538370965046-79c0d6907d47?auto=format&fit=crop&w=800&q=80', pdfUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', createdAt:new Date().toISOString() },
+    { id:'s2', title:'France',           duration:'4 Nights / 5 Days', highlight:'Paris 4N',              image:'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80', pdfUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', createdAt:new Date().toISOString() },
+    { id:'s3', title:'United Kingdom',   duration:'5 Nights / 6 Days', highlight:'London 5N',             image:'https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=800&q=80', pdfUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', createdAt:new Date().toISOString() },
+    { id:'s4', title:'Italy',            duration:'5 Nights / 6 Days', highlight:'Rome 3N + Florence 2N', image:'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=800&q=80', pdfUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', createdAt:new Date().toISOString() }
   ];
 
-  // ─── FIREBASE INIT ─────────────────────────────────────────────────────────
-  const isFirebaseReady = !!(FIREBASE_CONFIG?.apiKey);
+  /* ── FIREBASE ─────────────────────────────────────────────── */
+  const fbReady = !!FB?.apiKey;
   let app, auth, db;
-
-  if (isFirebaseReady) {
-    try {
-      app = initializeApp(FIREBASE_CONFIG);
-      auth = getAuth(app);
-      db = getFirestore(app);
-    } catch (err) {
-      console.error('Firebase init error:', err);
-    }
+  if (fbReady) {
+    try { app = initializeApp(FB); auth = getAuth(app); db = getFirestore(app); }
+    catch(e) { console.error('Firebase init:', e); }
   }
 
-  // ─── STATE ─────────────────────────────────────────────────────────────────
-  const state = {
+  /* ── STATE ────────────────────────────────────────────────── */
+  const S = {
     view: 'customer',
-    isLoggedIn: sessionStorage.getItem('smc_admin_auth') === 'true',
-    user: null,
-    packages: [],
-    inquiries: [],
-    isDbLoading: true,
-    searchQuery: '',
-    selectedPackage: null,
-    showSuccessModal: false,
-    loginError: '',
-    formError: '',
-    formSuccess: '',
-    inquiryError: '',
-    editingId: null,
-    draft: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
+    loggedIn: sessionStorage.getItem('rt_auth') === 'true',
+    packages: [], inquiries: [],
+    loading: true,
+    q: '',
+    modalPkg: null, modalSuccess: false,
+    loginErr: '', formErr: '', formOk: '', inqErr: '',
+    editId: null,
+    draft: { title:'', duration:'', highlight:'', image:'', pdfUrl:'' }
   };
 
-  // ─── ROUTING ───────────────────────────────────────────────────────────────
-  function getView() {
+  /* ── ROUTING ──────────────────────────────────────────────── */
+  function route() {
     const p = new URLSearchParams(window.location.search);
-    if (p.has('admin')) return state.isLoggedIn ? 'admin' : 'admin-login';
+    if (p.has('admin')) return S.loggedIn ? 'admin' : 'login';
     return 'customer';
   }
 
-  // ─── AUTH ──────────────────────────────────────────────────────────────────
-  async function initAuth() {
-    if (!isFirebaseReady || !auth) {
-      state.user = { uid: 'local-user' };
-      return;
-    }
+  /* ── UTILS ────────────────────────────────────────────────── */
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const pkgData = p => JSON.stringify(p).replace(/"/g,'&quot;');
+  const save = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(_){} };
+  const load = (k,d) => { try { const v=localStorage.getItem(k); return v?JSON.parse(v):d; } catch(_){ return d; } };
+  const fmtDate = iso => { try { return new Date(iso).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(_){ return iso||''; } };
+
+  /* ── AUTH / DB ────────────────────────────────────────────── */
+  async function boot() {
+    if (!fbReady || !auth) { S.packages = load('rt_pkgs', SEEDS); S.inquiries = load('rt_inqs', []); S.loading = false; render(); return; }
     try {
-      if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
+      if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token)
         await signInWithCustomToken(auth, window.__initial_auth_token);
-      } else {
-        await signInAnonymously(auth);
-      }
-    } catch (err) {
-      console.error('Auth error:', err);
-    }
+      else await signInAnonymously(auth);
+    } catch(e) { console.error('Auth:', e); }
   }
 
-  // ─── DATABASE ──────────────────────────────────────────────────────────────
-  function setupListeners() {
-    if (!isFirebaseReady || !db) {
-      // Local mode
-      try {
-        const localPkgs = localStorage.getItem('smc_pkgs_v4');
-        state.packages = localPkgs ? JSON.parse(localPkgs) : [...SEED_PACKAGES];
-        if (!localPkgs) localStorage.setItem('smc_pkgs_v4', JSON.stringify(state.packages));
-
-        const localInqs = localStorage.getItem('smc_inqs_v4');
-        state.inquiries = localInqs ? JSON.parse(localInqs) : [];
-      } catch(_) {
-        state.packages = [...SEED_PACKAGES];
-        state.inquiries = [];
-      }
-      state.isDbLoading = false;
-      render();
-      return;
-    }
-
-    onAuthStateChanged(auth, (usr) => {
-      state.user = usr;
+  function listen() {
+    if (!fbReady || !db) { render(); return; }
+    onAuthStateChanged(auth, usr => {
       if (!usr) return;
-
-      const pkgsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
-      onSnapshot(pkgsCol, async (snap) => {
-        const list = [];
-        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-
-        if (list.length === 0 && state.isDbLoading) {
-          // Seed
-          try {
-            for (const item of SEED_PACKAGES) {
-              const { id: _id, ...data } = item;
-              await addDoc(pkgsCol, data);
-            }
-          } catch (err) { console.error('Seed error:', err); }
+      S.user = usr;
+      const pkgCol = collection(db,'artifacts',APP_ID,'public','data','packages');
+      onSnapshot(pkgCol, async snap => {
+        const list = []; snap.forEach(d => list.push({id:d.id,...d.data()}));
+        if (list.length === 0 && S.loading) {
+          for (const {id:_,...d} of SEEDS) { try { await addDoc(pkgCol,d); } catch(e){} }
         } else {
-          list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-          state.packages = list;
-          state.isDbLoading = false;
-          render();
+          list.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+          S.packages = list; S.loading = false; render();
         }
-      }, err => { console.error('Packages listener error:', err); state.isDbLoading = false; render(); });
-
-      const inqsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries');
-      onSnapshot(inqsCol, (snap) => {
-        const list = [];
-        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-        list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        state.inquiries = list;
-        render();
-      }, err => { console.error('Inquiries listener error:', err); });
+      }, e=>{ console.error(e); S.loading=false; render(); });
+      const inqCol = collection(db,'artifacts',APP_ID,'public','data','inquiries');
+      onSnapshot(inqCol, snap => {
+        const list=[]; snap.forEach(d=>list.push({id:d.id,...d.data()}));
+        list.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+        S.inquiries=list; render();
+      }, e=>console.error(e));
     });
   }
 
-  // ─── HELPERS ───────────────────────────────────────────────────────────────
-  function esc(str) {
-    return String(str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  function pkgJson(pkg) {
-    return JSON.stringify(pkg).replace(/"/g, '&quot;');
-  }
-
-  function saveLocal(key, data) {
-    try { localStorage.setItem(key, JSON.stringify(data)); } catch(_) {}
-  }
-
-  function formatDate(iso) {
-    if (!iso) return '';
-    try {
-      return new Date(iso).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    } catch(_) { return iso; }
-  }
-
-  // ─── DISPATCH ──────────────────────────────────────────────────────────────
-  window.dispatch = (action, payload) => {
-    switch(action) {
-      case 'SEARCH':
-        state.searchQuery = payload;
-        break;
-      case 'OPEN_INQUIRY':
-        state.selectedPackage = payload;
-        state.inquiryError = '';
-        state.showSuccessModal = false;
-        break;
-      case 'CLOSE_INQUIRY':
-        state.selectedPackage = null;
-        state.showSuccessModal = false;
-        break;
-      case 'LOGOUT':
-        state.isLoggedIn = false;
-        sessionStorage.removeItem('smc_admin_auth');
-        const url = new URL(window.location);
-        url.searchParams.delete('admin');
-        window.history.pushState({}, '', url);
-        break;
-      case 'GO_HOME':
-        const u2 = new URL(window.location);
-        u2.searchParams.delete('admin');
-        window.history.pushState({}, '', u2);
-        break;
-    }
+  /* ── HANDLERS ─────────────────────────────────────────────── */
+  window.dispatch = (a, p) => {
+    if (a==='SEARCH')   { S.q=p; }
+    if (a==='OPEN_INQ') { S.modalPkg=p; S.inqErr=''; S.modalSuccess=false; }
+    if (a==='CLOSE_INQ'){ S.modalPkg=null; S.modalSuccess=false; }
+    if (a==='LOGOUT')   { S.loggedIn=false; sessionStorage.removeItem('rt_auth'); nav(''); }
+    if (a==='HOME')     { nav(''); }
     render();
   };
 
-  // ─── EVENT HANDLERS ────────────────────────────────────────────────────────
-  window.handleLogin = (e) => {
+  function nav(q) {
+    const u = new URL(window.location); u.searchParams.delete('admin');
+    if (q) u.searchParams.set('admin',''); window.history.pushState({}, '', q ? u.toString() : u.toString().replace(/\?$/, ''));
+  }
+
+  window.handleLogin = e => {
     e.preventDefault();
-    const user = document.getElementById('f-user')?.value?.trim();
-    const pass = document.getElementById('f-pass')?.value;
-    state.loginError = '';
-
-    if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-      state.isLoggedIn = true;
-      sessionStorage.setItem('smc_admin_auth', 'true');
-    } else {
-      state.loginError = 'Incorrect username or password. Please try again.';
-    }
+    const u = document.getElementById('l-user')?.value?.trim();
+    const p = document.getElementById('l-pass')?.value;
+    S.loginErr = '';
+    if (u===ADMIN_USER && p===ADMIN_PASS) { S.loggedIn=true; sessionStorage.setItem('rt_auth','true'); }
+    else S.loginErr = 'Incorrect username or password.';
     render();
   };
 
-  window.handleStartEdit = (id) => {
-    const pkg = state.packages.find(p => p.id === id);
-    if (!pkg) return;
-    state.editingId = id;
-    state.draft = { title: pkg.title, duration: pkg.duration, highlight: pkg.highlight, image: pkg.image || '', pdfUrl: pkg.pdfUrl };
-    state.formError = '';
-    state.formSuccess = '';
-    render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.startEdit = id => {
+    const pkg = S.packages.find(p=>p.id===id); if (!pkg) return;
+    S.editId=id; S.formErr=''; S.formOk='';
+    S.draft={title:pkg.title,duration:pkg.duration,highlight:pkg.highlight||'',image:pkg.image||'',pdfUrl:pkg.pdfUrl};
+    render(); window.scrollTo({top:0,behavior:'smooth'});
   };
+  window.cancelEdit = () => { S.editId=null; S.draft={title:'',duration:'',highlight:'',image:'',pdfUrl:''}; S.formErr=''; S.formOk=''; render(); };
 
-  window.handleCancelEdit = () => {
-    state.editingId = null;
-    state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
-    state.formError = '';
-    state.formSuccess = '';
-    render();
-  };
-
-  window.handlePackageSubmit = async (e) => {
-    e.preventDefault();
-    state.formError = '';
-    state.formSuccess = '';
-
-    const title     = document.getElementById('f-title')?.value?.trim();
-    const duration  = document.getElementById('f-duration')?.value?.trim();
-    const highlight = document.getElementById('f-highlight')?.value?.trim();
-    const image     = document.getElementById('f-image')?.value?.trim();
-    const pdfUrl    = document.getElementById('f-pdf')?.value?.trim();
-
-    if (!title || !duration || !pdfUrl) {
-      state.formError = 'Country title, duration, and PDF link are required.';
+  window.submitPkg = async e => {
+    e.preventDefault(); S.formErr=''; S.formOk='';
+    const g = id => document.getElementById(id)?.value?.trim();
+    const title=g('p-title'), duration=g('p-dur'), highlight=g('p-hl'), image=g('p-img'), pdfUrl=g('p-pdf');
+    if (!title||!duration||!pdfUrl) { S.formErr='Title, duration and PDF link are required.'; render(); return; }
+    try { new URL(pdfUrl); } catch(_) { S.formErr='Enter a valid PDF URL (https://…).'; render(); return; }
+    const pl = { title, duration, highlight:highlight||'', image:image||'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80', pdfUrl, createdAt:new Date().toISOString() };
+    if (!fbReady||!db) {
+      if (S.editId) S.packages=S.packages.map(p=>p.id===S.editId?{...p,...pl}:p);
+      else S.packages=[{id:'p'+Date.now(),...pl},...S.packages];
+      save('rt_pkgs',S.packages);
+      S.formOk=S.editId?'Package updated.':'Package published.'; S.editId=null; S.draft={title:'',duration:'',highlight:'',image:'',pdfUrl:''};
       render(); return;
     }
-
-    // Basic URL validation for pdfUrl
-    try { new URL(pdfUrl); } catch(_) {
-      state.formError = 'Please enter a valid PDF URL (must start with https://).';
-      render(); return;
-    }
-
-    const payload = {
-      title: title.trim(),
-      duration: duration.trim(),
-      highlight: highlight || '',
-      image: image || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80',
-      pdfUrl,
-      createdAt: new Date().toISOString()
-    };
-
-    if (!isFirebaseReady || !db) {
-      if (state.editingId) {
-        state.packages = state.packages.map(p => p.id === state.editingId ? { ...p, ...payload } : p);
-      } else {
-        state.packages = [{ id: 'pkg-' + Date.now(), ...payload }, ...state.packages];
-      }
-      saveLocal('smc_pkgs_v4', state.packages);
-      state.editingId = null;
-      state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
-      state.formSuccess = state.editingId ? 'Package updated.' : 'Package published successfully.';
-      render(); return;
-    }
-
     try {
-      if (state.editingId) {
-        const ref = doc(db, 'artifacts', APP_ID, 'public', 'data', 'packages', state.editingId);
-        await updateDoc(ref, payload);
-        state.formSuccess = 'Package updated successfully.';
-      } else {
-        const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
-        await addDoc(col, payload);
-        state.formSuccess = 'Package published successfully.';
-      }
-      state.editingId = null;
-      state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
-    } catch (err) {
-      state.formError = 'Database error: ' + err.message;
-    }
+      if (S.editId) { await updateDoc(doc(db,'artifacts',APP_ID,'public','data','packages',S.editId),pl); S.formOk='Updated.'; }
+      else { await addDoc(collection(db,'artifacts',APP_ID,'public','data','packages'),pl); S.formOk='Published.'; }
+      S.editId=null; S.draft={title:'',duration:'',highlight:'',image:'',pdfUrl:''};
+    } catch(e) { S.formErr='Error: '+e.message; }
     render();
   };
 
-  window.handleDelete = async (id) => {
-    if (!confirm('Delete this package? This cannot be undone.')) return;
-
-    if (!isFirebaseReady || !db) {
-      state.packages = state.packages.filter(p => p.id !== id);
-      saveLocal('smc_pkgs_v4', state.packages);
-      if (state.editingId === id) { state.editingId = null; state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }; }
-      render(); return;
+  window.deletePkg = async id => {
+    if (!confirm('Delete this package?')) return;
+    if (!fbReady||!db) {
+      S.packages=S.packages.filter(p=>p.id!==id);
+      save('rt_pkgs',S.packages);
+      if (S.editId===id) window.cancelEdit(); else render(); return;
     }
-    try {
-      await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'packages', id));
-      if (state.editingId === id) { state.editingId = null; state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }; }
-    } catch (err) { console.error('Delete error:', err); }
+    try { await deleteDoc(doc(db,'artifacts',APP_ID,'public','data','packages',id)); if(S.editId===id) window.cancelEdit(); }
+    catch(e) { console.error(e); }
   };
 
-  window.handleInquirySubmit = async (e) => {
-    e.preventDefault();
-    state.inquiryError = '';
-
-    const name  = document.getElementById('i-name')?.value?.trim();
-    const phone = document.getElementById('i-phone')?.value?.trim();
-    const email = document.getElementById('i-email')?.value?.trim();
-
-    if (!name || !phone) {
-      state.inquiryError = 'Name and mobile number are required.';
-      render(); return;
-    }
-
-    // Basic phone check
-    if (!/^[\d\s\+\-\(\)]{7,15}$/.test(phone)) {
-      state.inquiryError = 'Please enter a valid mobile number.';
-      render(); return;
-    }
-
-    const payload = {
-      customerName: name,
-      phone,
-      email: email || '',
-      packageName: state.selectedPackage?.title || 'General Inquiry',
-      createdAt: new Date().toISOString()
-    };
-
-    if (!isFirebaseReady || !db) {
-      state.inquiries = [{ id: 'inq-' + Date.now(), ...payload }, ...state.inquiries];
-      saveLocal('smc_inqs_v4', state.inquiries);
-      state.showSuccessModal = true;
-      render();
-      setTimeout(() => { state.selectedPackage = null; state.showSuccessModal = false; render(); }, 4000);
-      return;
-    }
-
-    try {
-      const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries');
-      await addDoc(col, payload);
-      state.showSuccessModal = true;
-      render();
-      setTimeout(() => { state.selectedPackage = null; state.showSuccessModal = false; render(); }, 4000);
-    } catch (err) {
-      state.inquiryError = 'Failed to submit. Please try again.';
-      render();
-    }
-  };
-
-  window.handleArchive = async (id) => {
-    if (!isFirebaseReady || !db) {
-      state.inquiries = state.inquiries.filter(i => i.id !== id);
-      saveLocal('smc_inqs_v4', state.inquiries);
-      render(); return;
+  window.submitInq = async e => {
+    e.preventDefault(); S.inqErr='';
+    const g=id=>document.getElementById(id)?.value?.trim();
+    const name=g('i-name'), phone=g('i-phone'), email=g('i-email');
+    if (!name||!phone) { S.inqErr='Name and mobile number are required.'; render(); return; }
+    if (!/^[\d\s\+\-\(\)]{7,15}$/.test(phone)) { S.inqErr='Enter a valid mobile number.'; render(); return; }
+    const pl={customerName:name,phone,email:email||'',packageName:S.modalPkg?.title||'General',createdAt:new Date().toISOString()};
+    if (!fbReady||!db) {
+      S.inquiries=[{id:'i'+Date.now(),...pl},...S.inquiries]; save('rt_inqs',S.inquiries);
+      S.modalSuccess=true; render(); setTimeout(()=>{S.modalPkg=null;S.modalSuccess=false;render();},4000); return;
     }
     try {
-      await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries', id));
-    } catch (err) { console.error('Archive error:', err); }
+      await addDoc(collection(db,'artifacts',APP_ID,'public','data','inquiries'),pl);
+      S.modalSuccess=true; render(); setTimeout(()=>{S.modalPkg=null;S.modalSuccess=false;render();},4000);
+    } catch(e) { S.inqErr='Failed. Please try again.'; render(); }
   };
 
-  // ─── RENDER ────────────────────────────────────────────────────────────────
+  window.archiveInq = async id => {
+    if (!fbReady||!db) { S.inquiries=S.inquiries.filter(i=>i.id!==id); save('rt_inqs',S.inquiries); render(); return; }
+    try { await deleteDoc(doc(db,'artifacts',APP_ID,'public','data','inquiries',id)); }
+    catch(e){ console.error(e); }
+  };
+
+  /* ── RENDER ───────────────────────────────────────────────── */
   function render() {
-    state.view = getView();
-    const container = document.getElementById('app');
-    if (!container) return;
-
-    const filtered = state.packages.filter(p => {
-      const q = state.searchQuery.toLowerCase();
-      return !q || esc(p.title).toLowerCase().includes(q) || esc(p.highlight).toLowerCase().includes(q);
+    S.view = route();
+    const root = document.getElementById('app');
+    if (!root) return;
+    const filt = S.packages.filter(p => {
+      const q=S.q.toLowerCase();
+      return !q || p.title.toLowerCase().includes(q) || (p.highlight||'').toLowerCase().includes(q);
     });
 
-    let html = '';
+    let html = nav_html() + main_html(filt) + footer_html();
+    if (S.modalPkg) html += modal_html();
+    root.innerHTML = html;
+  }
 
-    // ── NAV ──
-    html += `
-    <header style="position:sticky;top:0;z-index:40;background:var(--navy);box-shadow:0 2px 20px rgba(0,0,0,0.3);">
-      <div style="max-width:1320px;margin:0 auto;padding:0 24px;height:68px;display:flex;justify-content:space-between;align-items:center;">
-        
-        <div style="display:flex;align-items:center;gap:14px;cursor:pointer;" onclick="dispatch('GO_HOME')">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;">
-            <rect width="32" height="32" rx="8" fill="#c9a84c" opacity="0.15"/>
-            <path d="M16 6L6 14v12h7v-7h6v7h7V14L16 6z" fill="#c9a84c"/>
-          </svg>
+  /* ── NAV HTML ─────────────────────────────────────────────── */
+  function nav_html() {
+    return `
+    <nav id="nav">
+      <div class="nav-inner">
+        <div class="logo-mark" onclick="dispatch('HOME')">
+          <div class="logo-icon">RT</div>
           <div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.04em;line-height:1;">
-              Rayna <span style="color:var(--gold);">Tours</span>
-            </div>
-            <div style="font-size:9px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:6px;margin-top:2px;">
-              <span class="live-dot"></span>
-              ${isFirebaseReady ? 'Live Cloud Portal' : 'Local Mode'}
-            </div>
+            <div class="logo-text">Rayna <span>Tours</span></div>
+            <div class="live-chip"><span class="live-dot"></span>${fbReady?'Live Cloud Portal':'Local Mode'}</div>
           </div>
         </div>
-
-        <div style="display:flex;align-items:center;gap:10px;">
-          ${state.isLoggedIn && state.view === 'admin' ? `
-            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:11px;" onclick="dispatch('LOGOUT')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:4px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-              Sign Out
-            </button>
-          ` : ''}
-          ${state.view === 'admin-login' ? `
-            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:11px;" onclick="dispatch('GO_HOME')">
-              ← Customer View
-            </button>
-          ` : ''}
-          ${state.view === 'customer' && !state.isLoggedIn ? `
-            <a href="?admin" style="font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);text-decoration:none;" title="Admin Login">Admin</a>
-          ` : ''}
+        <div class="nav-actions">
+          ${S.view==='admin'&&S.loggedIn ? `<button class="nav-btn" onclick="dispatch('LOGOUT')">Sign Out</button>` : ''}
+          ${S.view==='login' ? `<button class="nav-btn" onclick="dispatch('HOME')">← Customer View</button>` : ''}
+          ${S.view==='customer' ? `<a href="?admin" class="nav-link">Admin</a>` : ''}
         </div>
       </div>
-    </header>`;
-
-    // ── VIEWS ──
-    if (state.view === 'customer') {
-      html += renderCustomer(filtered);
-    } else if (state.view === 'admin-login') {
-      html += renderLogin();
-    } else if (state.view === 'admin') {
-      html += renderAdmin();
-    }
-
-    // ── FOOTER ──
-    html += `
-    <footer style="padding:40px 24px;">
-      <div style="max-width:1320px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
-        <div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.04em;">Rayna Tours</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">© 2026 SMC Tours Ltd. All rights reserved.</div>
-        </div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);">
-          ${isFirebaseReady ? 'Cloud Connected' : 'Local Storage Mode'}
-        </div>
-      </div>
-    </footer>`;
-
-    // ── INQUIRY MODAL ──
-    if (state.selectedPackage) {
-      html += renderInquiryModal();
-    }
-
-    container.innerHTML = html;
+    </nav>`;
   }
 
-  // ── CUSTOMER VIEW ──────────────────────────────────────────────────────────
-  function renderCustomer(filtered) {
+  /* ── MAIN HTML ────────────────────────────────────────────── */
+  function main_html(filt) {
+    if (S.view==='customer') return customer_html(filt);
+    if (S.view==='login')    return login_html();
+    if (S.view==='admin')    return admin_html();
+    return '';
+  }
+
+  /* ── CUSTOMER ─────────────────────────────────────────────── */
+  function customer_html(filt) {
     return `
     <main>
-      <!-- Hero -->
-      <div class="hero-bg" style="position:relative;min-height:420px;display:flex;align-items:center;">
-        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(10,22,40,0.7) 0%, rgba(10,22,40,0.85) 100%);"></div>
-        <div style="position:relative;z-index:1;max-width:720px;margin:0 auto;padding:64px 24px;text-align:center;">
-          <div style="display:inline-block;border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;padding:6px 18px;border-radius:40px;margin-bottom:20px;">
-            Premium Group Departures
+      <!-- HERO -->
+      <section id="hero">
+        <div class="hero-img"></div>
+        <div class="hero-content">
+          <div class="hero-badge">
+            <div style="width:20px;height:1px;background:var(--gold);"></div>
+            <span>Premium Group Departures</span>
+            <div style="width:20px;height:1px;background:var(--gold);"></div>
           </div>
-          <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,58px);font-weight:700;color:#fff;line-height:1.1;margin:0 0 16px;">
-            Explore the World with<br><em style="color:var(--gold);">Rayna Tours</em>
+          <h1 class="display hero-title">
+            Explore the World<br>with <em>Rayna Tours</em>
           </h1>
-          <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.7;max-width:480px;margin:0 auto 32px;font-weight:300;">
-            Browse our curated holiday packages. Download the full itinerary PDF or request a callback from our travel specialists.
+          <p class="hero-sub">
+            Curated holiday packages with instant PDF itinerary downloads.<br>
+            Request a callback from our travel specialists.
           </p>
-          <div style="max-width:420px;margin:0 auto;position:relative;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.7)" stroke-width="2" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;">
+          <div class="search-bar">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
-            <input
-              type="text"
-              placeholder="Search destinations…"
-              value="${esc(state.searchQuery)}"
-              oninput="dispatch('SEARCH', this.value)"
-              style="width:100%;background:rgba(255,255,255,0.95);border:none;border-radius:40px;padding:14px 16px 14px 46px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--navy);outline:none;box-shadow:0 8px 30px rgba(0,0,0,0.2);"
+            <input type="text" placeholder="Search destinations…"
+              value="${esc(S.q)}"
+              oninput="dispatch('SEARCH',this.value)"
             />
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Catalog -->
-      <section style="padding:64px 24px;background:var(--cream);">
-        <div style="max-width:1320px;margin:0 auto;">
-          
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:12px;">
-            <div>
-              <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;margin:0;line-height:1;">Group Departures</h2>
-              <div style="width:40px;height:2px;background:var(--gold);margin-top:8px;"></div>
-            </div>
-            <span style="font-size:12px;font-weight:500;color:#888;background:#fff;border:1px solid #e5e0d8;padding:6px 14px;border-radius:6px;">
-              ${filtered.length} ${filtered.length === 1 ? 'package' : 'packages'}
-            </span>
+      <!-- CATALOG -->
+      <section id="catalog">
+        <div class="wrap">
+          <div class="section-header">
+            <h2 class="heading section-title">Group Departures</h2>
+            <span class="count-pill">${filt.length} ${filt.length===1?'package':'packages'}</span>
           </div>
 
-          ${state.isDbLoading ? `
-            <div style="text-align:center;padding:80px 20px;background:#fff;border-radius:16px;border:1px solid #e5e0d8;">
-              <div class="spinner" style="margin:0 auto 16px;"></div>
-              <p style="font-size:13px;color:#888;font-weight:500;">Loading packages…</p>
+          ${S.loading ? `
+            <div class="state-box">
+              <div class="spinner"></div>
+              <p style="font-size:13px;color:var(--muted);font-weight:500;">Loading packages…</p>
             </div>
-          ` : filtered.length === 0 ? `
-            <div style="text-align:center;padding:80px 20px;background:#fff;border-radius:16px;border:1px dashed #d5d0c8;">
-              <p style="font-size:15px;color:#999;">No packages match your search.</p>
-              ${state.searchQuery ? `<button onclick="dispatch('SEARCH','')" style="margin-top:12px;font-size:12px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:600;letter-spacing:0.06em;">Clear search</button>` : ''}
+          ` : filt.length===0 ? `
+            <div class="state-box">
+              <p style="font-size:15px;color:var(--muted);margin-bottom:12px;">No packages found.</p>
+              ${S.q?`<button class="btn btn-ghost btn-sm" onclick="dispatch('SEARCH','')">Clear Search</button>`:''}
             </div>
           ` : `
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px;">
-              ${filtered.map(pkg => `
-                <div class="pkg-card" style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid #ede9e1;display:flex;flex-direction:column;">
-                  
-                  <div class="img-wrap">
-                    <img src="${esc(pkg.image)}" alt="${esc(pkg.title)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80'" />
-                    ${pkg.highlight ? `<div class="highlight-strip">${esc(pkg.highlight)}</div>` : ''}
+            <div class="pkg-grid">
+              ${filt.map(pkg=>`
+                <div class="pkg-card">
+                  <div class="card-img">
+                    <img src="${esc(pkg.image)}" alt="${esc(pkg.title)}"
+                      onerror="this.src='https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80'"/>
+                    <div class="card-flag">${esc(pkg.highlight||pkg.title)}</div>
                   </div>
-
-                  <div style="padding:22px 20px;flex:1;display:flex;flex-direction:column;">
-                    <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:0 0 6px;color:var(--navy);">${esc(pkg.title)}</h3>
-                    <p style="font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#999;margin:0 0 18px;">${esc(pkg.duration)}</p>
-                    
-                    <div style="flex:1;"></div>
-
-                    <div style="border-top:1px solid #ede9e1;padding-top:16px;margin-top:16px;display:flex;flex-direction:column;gap:10px;align-items:center;">
-                      <a href="${esc(pkg.pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn-gold" style="width:100%;justify-content:center;text-decoration:none;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                        View Itinerary PDF
+                  <div class="card-body">
+                    <div class="card-country">${esc(pkg.title)}</div>
+                    <div class="card-duration">${esc(pkg.duration)}</div>
+                    <div class="card-divider"></div>
+                    <div class="card-footer">
+                      <a href="${esc(pkg.pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn card-cta">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Itinerary PDF
                       </a>
-                      <button onclick="dispatch('OPEN_INQUIRY', ${pkgJson(pkg)})" style="background:none;border:none;cursor:pointer;font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#aaa;text-decoration:underline;padding:0;">
-                        Request a Callback
+                      <button class="card-inquiry" onclick="dispatch('OPEN_INQ',${pkgData(pkg)})">
+                        Enquire
                       </button>
                     </div>
                   </div>
@@ -822,284 +772,262 @@
               `).join('')}
             </div>
           `}
-
         </div>
       </section>
     </main>`;
   }
 
-  // ── LOGIN VIEW ─────────────────────────────────────────────────────────────
-  function renderLogin() {
+  /* ── LOGIN ────────────────────────────────────────────────── */
+  function login_html() {
     return `
-    <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 68px);padding:24px;background:var(--navy-mid);">
-      <div style="width:100%;max-width:400px;">
-        <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
-          
-          <div style="background:var(--navy);padding:32px;text-align:center;">
-            <div style="font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">SMC Admin Portal</div>
-            <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#fff;margin:0;">Control Room</h2>
-            <p style="font-size:12px;color:rgba(255,255,255,0.45);margin:8px 0 0;">Sign in with your agency credentials</p>
-          </div>
-
-          <form onsubmit="handleLogin(event)" style="padding:28px;display:flex;flex-direction:column;gap:18px;">
-            
-            ${state.loginError ? `<div class="error-box">${esc(state.loginError)}</div>` : ''}
-
-            <div>
-              <label class="field-label" for="f-user">Username</label>
-              <input class="field" id="f-user" type="text" placeholder="Enter your username" autocomplete="username" />
+    <div id="login-view">
+      <div class="login-card">
+        <div class="login-head">
+          <div class="label" style="color:var(--gold);margin-bottom:8px;">SMC Admin Portal</div>
+          <h2 class="heading" style="font-size:26px;color:var(--white);margin-bottom:4px;">Control Room</h2>
+          <p style="font-size:12px;color:rgba(255,255,255,0.4);">Sign in with your agency credentials</p>
+        </div>
+        <div class="login-body">
+          ${S.loginErr?`<div class="alert alert-error">${esc(S.loginErr)}</div>`:''}
+          <form onsubmit="handleLogin(event)" style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-group">
+              <label class="form-label" for="l-user">Username</label>
+              <input class="form-input" id="l-user" type="text" placeholder="Enter username" autocomplete="username" />
             </div>
-            <div>
-              <label class="field-label" for="f-pass">Password</label>
-              <input class="field" id="f-pass" type="password" placeholder="Enter your password" autocomplete="current-password" />
+            <div class="form-group">
+              <label class="form-label" for="l-pass">Password</label>
+              <input class="form-input" id="l-pass" type="password" placeholder="Enter password" autocomplete="current-password" />
             </div>
-
-            <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:13px;">
-              Sign In to Dashboard
-            </button>
+            <button type="submit" class="btn btn-primary btn-full" style="height:44px;margin-top:4px;">Sign In</button>
           </form>
         </div>
       </div>
-    </main>`;
+    </div>`;
   }
 
-  // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
-  function renderAdmin() {
+  /* ── ADMIN ────────────────────────────────────────────────── */
+  function admin_html() {
     return `
-    <main style="max-width:1320px;margin:0 auto;padding:36px 24px;">
-      
-      <div class="admin-bar">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="background:rgba(201,168,76,0.15);padding:10px;border-radius:10px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          </div>
+    <div id="admin-view">
+      <div class="wrap">
+
+        <!-- Status Bar -->
+        <div class="status-bar">
           <div>
-            <div style="font-weight:600;font-size:14px;">Package Manager Dashboard</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">
-              ${isFirebaseReady ? 'Changes sync live across all devices and customers.' : 'Running in local storage mode.'}
-            </div>
+            <div class="status-bar-text">Package Manager Dashboard</div>
+            <div class="status-bar-sub">${fbReady?'All changes sync live across all customer-facing pages.':'Running in local storage mode — no Firebase config detected.'}</div>
           </div>
-        </div>
-        <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:5px 14px;border-radius:40px;${isFirebaseReady ? 'background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.25);' : 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);'}">
-          ${isFirebaseReady ? '● Live' : '○ Local Mode'}
-        </span>
-      </div>
-
-      <div style="display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;">
-        
-        <!-- Form Panel -->
-        <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;padding:24px;position:sticky;top:88px;">
-          <div style="margin-bottom:20px;">
-            <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:#f5f3ef;color:#888;padding:4px 10px;border-radius:4px;">
-              ${state.editingId ? 'Editing Package' : 'Add Package'}
-            </span>
-            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:10px 0 0;">
-              ${state.editingId ? 'Edit Package Details' : 'Publish New Package'}
-            </h3>
-          </div>
-
-          ${state.formError ? `<div class="error-box" style="margin-bottom:16px;">${esc(state.formError)}</div>` : ''}
-          ${state.formSuccess ? `<div class="success-box" style="margin-bottom:16px;">${esc(state.formSuccess)}</div>` : ''}
-
-          <form onsubmit="handlePackageSubmit(event)" style="display:flex;flex-direction:column;gap:14px;">
-            <div>
-              <label class="field-label" for="f-title">Country / Destination *</label>
-              <input class="field" id="f-title" type="text" placeholder="e.g. Switzerland" value="${esc(state.draft.title)}" required />
-            </div>
-            <div>
-              <label class="field-label" for="f-duration">Duration *</label>
-              <input class="field" id="f-duration" type="text" placeholder="e.g. 3 Nights / 4 Days" value="${esc(state.draft.duration)}" required />
-            </div>
-            <div>
-              <label class="field-label" for="f-highlight">Highlight Tag</label>
-              <input class="field" id="f-highlight" type="text" placeholder="e.g. Zurich 3N" value="${esc(state.draft.highlight)}" />
-            </div>
-            <div>
-              <label class="field-label" for="f-image">Cover Image URL</label>
-              <input class="field" id="f-image" type="url" placeholder="https://… (Unsplash or direct link)" value="${esc(state.draft.image)}" />
-            </div>
-            <div style="background:#faf8f4;border:1px solid #ede9e1;border-radius:8px;padding:14px;">
-              <label class="field-label" for="f-pdf">Itinerary PDF URL *</label>
-              <input class="field" id="f-pdf" type="url" placeholder="https://… (Google Drive, Dropbox, etc.)" value="${esc(state.draft.pdfUrl)}" required />
-              <p style="font-size:10px;color:#aaa;margin:6px 0 0;">Use a direct or shareable PDF link.</p>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px;">
-              <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:12px;">
-                ${state.editingId ? 'Save Changes' : 'Publish Package'}
-              </button>
-              ${state.editingId ? `
-                <button type="button" class="btn-outline" onclick="handleCancelEdit()" style="width:100%;justify-content:center;">
-                  Cancel
-                </button>
-              ` : ''}
-            </div>
-          </form>
+          <span class="tag ${fbReady?'tag-green':'tag-local'}">${fbReady?'● Live Database':'○ Local Mode'}</span>
         </div>
 
-        <!-- Content Panels -->
-        <div style="display:flex;flex-direction:column;gap:24px;">
-          
-          <!-- Packages Table -->
-          <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;overflow:hidden;">
-            <div style="padding:20px 24px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
-              <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin:0;">Live Packages</h3>
-              <span style="font-size:11px;color:#aaa;font-weight:500;">${state.packages.length} total</span>
-            </div>
+        <div class="admin-grid">
 
-            ${state.isDbLoading ? `
-              <div style="padding:48px;text-align:center;">
-                <div class="spinner" style="margin:0 auto 12px;"></div>
-                <p style="font-size:12px;color:#aaa;">Loading…</p>
+          <!-- FORM PANEL -->
+          <div class="sticky-panel">
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">${S.editId?'Edit Package':'Add Package'}</div>
+                ${S.editId?`<button class="btn btn-ghost btn-sm" onclick="cancelEdit()">Cancel</button>`:''}
               </div>
-            ` : state.packages.length === 0 ? `
-              <p style="padding:32px 24px;font-size:13px;color:#bbb;text-align:center;">No packages yet. Add your first package using the form.</p>
-            ` : `
-              <div style="overflow-x:auto;">
-                <table>
-                  <thead>
-                    <tr>
-                      <th style="text-align:left;">Destination</th>
-                      <th style="text-align:left;">Duration</th>
-                      <th style="text-align:left;">Highlight</th>
-                      <th style="text-align:right;">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${state.packages.map(pkg => `
-                      <tr class="${state.editingId === pkg.id ? 'editing-row' : ''}">
-                        <td>
-                          <div style="display:flex;align-items:center;gap:12px;">
-                            <img src="${esc(pkg.image)}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;background:#e8e4dc;flex-shrink:0;" onerror="this.style.background='#e8e4dc';this.style.visibility='hidden'" />
-                            <div>
-                              <div style="font-weight:600;font-size:13px;">${esc(pkg.title)}</div>
-                              <a href="${esc(pkg.pdfUrl)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;font-weight:500;">View PDF ↗</a>
-                            </div>
-                          </div>
-                        </td>
-                        <td style="color:#666;white-space:nowrap;">${esc(pkg.duration)}</td>
-                        <td>
-                          ${pkg.highlight ? `<span style="font-size:10px;font-weight:600;letter-spacing:0.06em;background:#f5f3ef;border:1px solid #ded9cf;color:var(--navy);padding:3px 10px;border-radius:4px;">${esc(pkg.highlight)}</span>` : '<span style="color:#ccc;font-size:12px;">—</span>'}
-                        </td>
-                        <td style="text-align:right;">
-                          <div style="display:flex;justify-content:flex-end;gap:6px;">
-                            <button class="btn-edit" onclick="handleStartEdit('${esc(pkg.id)}')">Edit</button>
-                            <button class="btn-danger" onclick="handleDelete('${esc(pkg.id)}')">Delete</button>
-                          </div>
-                        </td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-            `}
-          </div>
-
-          <!-- Inquiries -->
-          <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;overflow:hidden;">
-            <div style="padding:20px 24px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin:0;">Callback Requests</h3>
-                <p style="font-size:11px;color:#aaa;margin:4px 0 0;">Live leads from customer inquiries</p>
-              </div>
-              <span style="font-size:11px;color:#aaa;font-weight:500;">${state.inquiries.length} total</span>
-            </div>
-
-            ${state.inquiries.length === 0 ? `
-              <div style="padding:40px 24px;text-align:center;border:1px dashed #e5e0d8;margin:16px;border-radius:10px;">
-                <p style="font-size:13px;color:#bbb;">No callback requests yet.</p>
-              </div>
-            ` : `
-              <div style="display:flex;flex-direction:column;gap:0;">
-                ${state.inquiries.map((lead, i) => `
-                  <div style="padding:16px 24px;${i > 0 ? 'border-top:1px solid #f0ece4;' : ''}display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
-                    <div>
-                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                        <span style="font-weight:600;font-size:14px;">${esc(lead.customerName)}</span>
-                        <span class="tag" style="background:#f5f3ef;color:var(--navy);border:1px solid #ded9cf;">Inquiry</span>
-                      </div>
-                      <div style="font-size:12px;color:#666;display:flex;gap:16px;flex-wrap:wrap;">
-                        <span><b style="color:var(--navy);">${esc(lead.phone)}</b></span>
-                        ${lead.email ? `<span style="color:#999;">${esc(lead.email)}</span>` : ''}
-                      </div>
-                      <div style="margin-top:8px;font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--navy);background:#faf8f4;padding:4px 10px;border-radius:4px;display:inline-block;">
-                        ${esc(lead.packageName)}
-                      </div>
-                    </div>
-                    <div style="text-align:right;flex-shrink:0;">
-                      <div style="font-size:11px;color:#bbb;margin-bottom:6px;">${formatDate(lead.createdAt)}</div>
-                      <button class="btn-danger" onclick="handleArchive('${esc(lead.id)}')" style="font-size:10px;padding:5px 10px;">Archive</button>
-                    </div>
+              <div class="panel-body">
+                ${S.formErr?`<div class="alert alert-error">${esc(S.formErr)}</div>`:''}
+                ${S.formOk?`<div class="alert alert-success">${esc(S.formOk)}</div>`:''}
+                <form onsubmit="submitPkg(event)">
+                  <div class="form-group">
+                    <label class="form-label" for="p-title">Country / Destination *</label>
+                    <input class="form-input" id="p-title" type="text" placeholder="e.g. Switzerland" value="${esc(S.draft.title)}" required />
                   </div>
-                `).join('')}
+                  <div class="form-group">
+                    <label class="form-label" for="p-dur">Duration *</label>
+                    <input class="form-input" id="p-dur" type="text" placeholder="e.g. 3 Nights / 4 Days" value="${esc(S.draft.duration)}" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="p-hl">Highlight Tag</label>
+                    <input class="form-input" id="p-hl" type="text" placeholder="e.g. Zurich 3N" value="${esc(S.draft.highlight)}" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="p-img">Cover Image URL</label>
+                    <input class="form-input" id="p-img" type="url" placeholder="https://… (Unsplash link)" value="${esc(S.draft.image)}" />
+                  </div>
+                  <div class="form-group" style="background:var(--off);padding:14px;margin-bottom:16px;">
+                    <label class="form-label" for="p-pdf">Itinerary PDF URL *</label>
+                    <input class="form-input" id="p-pdf" type="url" placeholder="https://… (Google Drive / Dropbox)" value="${esc(S.draft.pdfUrl)}" required style="background:var(--white);" />
+                    <div class="form-hint">Must be a direct or shareable PDF link.</div>
+                  </div>
+                  <button type="submit" class="btn btn-gold btn-full" style="height:44px;">
+                    ${S.editId?'Save Changes':'Publish Package'}
+                  </button>
+                </form>
               </div>
-            `}
+            </div>
           </div>
 
+          <!-- CONTENT PANELS -->
+          <div style="display:flex;flex-direction:column;gap:20px;">
+
+            <!-- Packages Table -->
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">Live Packages</div>
+                <span style="font-size:11px;color:var(--muted);">${S.packages.length} total</span>
+              </div>
+              ${S.loading?`
+                <div style="padding:48px;text-align:center;">
+                  <div class="spinner" style="margin:0 auto 12px;"></div>
+                  <p style="font-size:12px;color:var(--muted);">Loading…</p>
+                </div>
+              `:S.packages.length===0?`
+                <p style="padding:32px 22px;font-size:13px;color:var(--muted);text-align:center;">No packages yet.</p>
+              `:`
+                <div style="overflow-x:auto;">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Destination</th>
+                        <th>Duration</th>
+                        <th>Highlight</th>
+                        <th style="text-align:right;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${S.packages.map(pkg=>`
+                        <tr class="${S.editId===pkg.id?'editing':''}">
+                          <td>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                              <img class="pkg-thumb" src="${esc(pkg.image)}" onerror="this.style.visibility='hidden'" />
+                              <div>
+                                <div style="font-weight:600;font-size:13px;">${esc(pkg.title)}</div>
+                                <a href="${esc(pkg.pdfUrl)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;font-weight:600;letter-spacing:0.06em;">PDF ↗</a>
+                              </div>
+                            </div>
+                          </td>
+                          <td style="color:var(--muted);white-space:nowrap;">${esc(pkg.duration)}</td>
+                          <td>${pkg.highlight?`<span class="tag tag-gold">${esc(pkg.highlight)}</span>`:`<span style="color:var(--border);">—</span>`}</td>
+                          <td style="text-align:right;">
+                            <div style="display:flex;gap:6px;justify-content:flex-end;">
+                              <button class="btn btn-ghost btn-sm" onclick="startEdit('${esc(pkg.id)}')">Edit</button>
+                              <button class="btn btn-danger" onclick="deletePkg('${esc(pkg.id)}')">Delete</button>
+                            </div>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `}
+            </div>
+
+            <!-- Inquiries -->
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">Callback Requests</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:2px;">Live leads from customer enquiries</div>
+                </div>
+                <span style="font-size:11px;color:var(--muted);">${S.inquiries.length} total</span>
+              </div>
+              ${S.inquiries.length===0?`
+                <div style="padding:40px 22px;text-align:center;border:1px dashed var(--border);margin:16px 22px;">
+                  <p style="font-size:13px;color:var(--muted);">No callback requests yet.</p>
+                </div>
+              `:`
+                <div>
+                  ${S.inquiries.map(l=>`
+                    <div class="lead-card">
+                      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+                        <div>
+                          <div class="lead-name">${esc(l.customerName)}</div>
+                          <div class="lead-meta">
+                            <b style="color:var(--black);">${esc(l.phone)}</b>
+                            ${l.email?` &nbsp;·&nbsp; ${esc(l.email)}`:''}
+                          </div>
+                          <div class="lead-pkg">${esc(l.packageName)}</div>
+                        </div>
+                        <div style="text-align:right;flex-shrink:0;">
+                          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">${fmtDate(l.createdAt)}</div>
+                          <button class="btn btn-danger" onclick="archiveInq('${esc(l.id)}')">Archive</button>
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            </div>
+
+          </div>
         </div>
       </div>
-    </main>`;
+    </div>`;
   }
 
-  // ── INQUIRY MODAL ──────────────────────────────────────────────────────────
-  function renderInquiryModal() {
-    const pkg = state.selectedPackage;
+  /* ── MODAL ────────────────────────────────────────────────── */
+  function modal_html() {
+    const pkg = S.modalPkg;
     return `
-    <div class="modal-backdrop" onclick="if(event.target===this)dispatch('CLOSE_INQUIRY')">
-      <div class="modal-box" style="background:#fff;width:100%;max-width:420px;border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
-        
-        <div style="background:var(--navy);padding:24px 28px;display:flex;justify-content:space-between;align-items:flex-start;">
+    <div class="modal-overlay" onclick="if(event.target===this)dispatch('CLOSE_INQ')">
+      <div class="modal">
+        <div class="modal-head">
           <div>
-            <div style="font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Request a Callback</div>
-            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin:0;">${esc(pkg.title)}</h3>
-            <p style="font-size:11px;color:rgba(255,255,255,0.45);margin:4px 0 0;">${esc(pkg.duration)}</p>
+            <div class="label" style="color:var(--gold);margin-bottom:6px;">Request a Callback</div>
+            <div class="heading" style="font-size:22px;color:var(--white);">${esc(pkg.title)}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;">${esc(pkg.duration)}</div>
           </div>
-          <button onclick="dispatch('CLOSE_INQUIRY')" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">✕</button>
+          <button class="modal-close" onclick="dispatch('CLOSE_INQ')">✕</button>
         </div>
-
-        ${state.showSuccessModal ? `
-          <div style="padding:40px 28px;text-align:center;">
-            <div style="width:52px;height:52px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        ${S.modalSuccess?`
+          <div class="success-state">
+            <div class="check-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--black)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h4 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:0 0 8px;">Request Received</h4>
-            <p style="font-size:13px;color:#666;line-height:1.6;">A Rayna Tours specialist will contact you shortly regarding the <strong>${esc(pkg.title)}</strong> package.</p>
+            <h3 class="heading" style="font-size:22px;margin-bottom:8px;">Request Received</h3>
+            <p style="font-size:13px;color:var(--muted);line-height:1.65;">
+              A Rayna Tours specialist will contact you shortly regarding the <strong style="color:var(--black);">${esc(pkg.title)}</strong> package.
+            </p>
           </div>
-        ` : `
-          <form onsubmit="handleInquirySubmit(event)" style="padding:24px 28px;display:flex;flex-direction:column;gap:14px;">
-            
-            ${state.inquiryError ? `<div class="error-box">${esc(state.inquiryError)}</div>` : ''}
-
-            <div>
-              <label class="field-label" for="i-name">Full Name *</label>
-              <input class="field" id="i-name" type="text" placeholder="Your full name" required autocomplete="name" />
-            </div>
-            <div>
-              <label class="field-label" for="i-phone">Mobile Number *</label>
-              <input class="field" id="i-phone" type="tel" placeholder="+91 98765 43210" required autocomplete="tel" />
-            </div>
-            <div>
-              <label class="field-label" for="i-email">Email Address <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-              <input class="field" id="i-email" type="email" placeholder="your@email.com" autocomplete="email" />
-            </div>
-
-            <div style="display:flex;gap:10px;padding-top:4px;">
-              <button type="button" class="btn-outline" onclick="dispatch('CLOSE_INQUIRY')" style="flex:1;">Cancel</button>
-              <button type="submit" class="btn-gold" style="flex:2;justify-content:center;">Send Request</button>
-            </div>
-          </form>
+        `:`
+          <div class="modal-body">
+            ${S.inqErr?`<div class="alert alert-error">${esc(S.inqErr)}</div>`:''}
+            <form onsubmit="submitInq(event)" style="display:flex;flex-direction:column;gap:14px;">
+              <div class="form-group">
+                <label class="form-label" for="i-name">Full Name *</label>
+                <input class="form-input" id="i-name" type="text" placeholder="Your full name" required autocomplete="name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="i-phone">Mobile Number *</label>
+                <input class="form-input" id="i-phone" type="tel" placeholder="+91 98765 43210" required autocomplete="tel" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="i-email">Email <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+                <input class="form-input" id="i-email" type="email" placeholder="you@email.com" autocomplete="email" />
+              </div>
+              <div style="display:flex;gap:8px;padding-top:4px;">
+                <button type="button" class="btn btn-ghost" style="flex:1;" onclick="dispatch('CLOSE_INQ')">Cancel</button>
+                <button type="submit" class="btn btn-gold" style="flex:2;">Send Request</button>
+              </div>
+            </form>
+          </div>
         `}
       </div>
     </div>`;
   }
 
-  // ─── BOOT ──────────────────────────────────────────────────────────────────
-  window.addEventListener('popstate', render);
+  /* ── FOOTER ───────────────────────────────────────────────── */
+  function footer_html() {
+    return `
+    <footer id="footer">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-logo">Rayna <span>Tours</span></div>
+          <div class="footer-copy">© 2026 SMC Tours Ltd. All rights reserved.</div>
+        </div>
+        <div class="label" style="color:rgba(255,255,255,0.2);">${fbReady?'Cloud Connected':'Local Mode'}</div>
+      </div>
+    </footer>`;
+  }
 
-  window.onload = async () => {
-    await initAuth();
-    setupListeners();
-    render();
-  };
+  /* ── BOOT ─────────────────────────────────────────────────── */
+  window.addEventListener('popstate', render);
+  window.onload = async () => { await boot(); listen(); };
 </script>
 </body>
 </html>
