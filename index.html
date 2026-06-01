@@ -3,915 +3,1103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rayna Tours - Premium Group Departures</title>
-  <!-- Tailwind CSS via CDN -->
+  <title>Rayna Tours — Premium Group Departures</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+    :root {
+      --navy: #0a1628;
+      --navy-mid: #132040;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --cream: #faf8f4;
+      --slate-soft: #f1f0ed;
     }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--cream);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; }
+
+    /* Spinner */
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(201,168,76,0.3);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Card hover */
+    .pkg-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .pkg-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(10,22,40,0.12); }
+
+    .pkg-card img { transition: transform 0.5s ease; }
+    .pkg-card:hover img { transform: scale(1.06); }
+
+    /* Gold underline */
+    .gold-line::after {
+      content: '';
+      display: block;
+      width: 40px; height: 2px;
+      background: var(--gold);
+      margin-top: 8px;
+    }
+
+    /* Overlay backdrop */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(10,22,40,0.75);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-box { animation: slideUp 0.25s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Inputs */
+    .field {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ddd8ce;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--navy);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+
+    /* Buttons */
+    .btn-gold {
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 11px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-gold:active { transform: translateY(0); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd8ce;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-outline:hover { background: var(--slate-soft); border-color: #c0b9ad; }
+
+    .btn-danger {
+      background: transparent;
+      color: #b91c1c;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #fecaca;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-danger:hover { background: #fff1f2; }
+
+    .btn-edit {
+      background: transparent;
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #ddd8ce;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-edit:hover { background: var(--slate-soft); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: var(--navy); color: #fff;
+      padding: 12px 24px; border-radius: 40px;
+      font-size: 13px; font-weight: 500;
+      display: flex; align-items: center; gap: 8px;
+      z-index: 100;
+      animation: toastIn 0.3s ease;
+      box-shadow: 0 8px 30px rgba(10,22,40,0.25);
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    /* Table */
+    table { border-collapse: collapse; width: 100%; }
+    th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 10px 14px; background: var(--slate-soft); }
+    td { padding: 12px 14px; border-top: 1px solid #ede9e1; font-size: 13px; }
+
+    /* Tag */
+    .tag {
+      display: inline-block;
+      font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 40px;
+    }
+
+    /* Nav */
+    nav { background: var(--navy); }
+
+    /* Label */
+    .field-label {
+      display: block; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #888;
+      margin-bottom: 6px;
+    }
+
+    /* Hero */
+    .hero-bg {
+      background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
+      background-size: cover; background-position: center;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: #c0b9ad; border-radius: 3px; }
+
+    /* Error box */
+    .error-box {
+      background: #fff1f2; border: 1px solid #fecaca;
+      color: #991b1b; border-radius: 8px;
+      padding: 10px 14px; font-size: 12px; font-weight: 500;
+    }
+
+    /* Success box */
+    .success-box {
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      color: #166534; border-radius: 8px;
+      padding: 10px 14px; font-size: 12px; font-weight: 500;
+    }
+
+    /* Status badge */
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 1.8s infinite; display: inline-block; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Package card image wrapper */
+    .img-wrap { position: relative; overflow: hidden; aspect-ratio: 4/3; background: #e8e4dc; }
+
+    /* Highlight strip */
+    .highlight-strip {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--navy);
+      color: var(--gold);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      text-align: center; padding: 8px 0;
+    }
+
+    /* Admin status bar */
+    .admin-bar {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Package editing highlight */
+    .editing-row { background: #fffbf0; }
+
+    /* Footer */
+    footer { background: var(--navy); color: rgba(255,255,255,0.5); }
   </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col selection:bg-purple-600 selection:text-white">
+<body>
 
-  <!-- Main App Wrapper -->
-  <div id="app" class="min-h-screen flex flex-col">
-    <!-- Content will be rendered dynamically by JS -->
-    <div class="flex-1 flex items-center justify-center p-8">
-      <div class="text-center space-y-3">
-        <div class="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-slate-500 font-semibold text-sm">Loading</p>
-      </div>
-    </div>
+<div id="app">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
+    <div class="spinner"></div>
+    <p style="font-size:13px;color:#888;font-weight:500;letter-spacing:0.05em;">Loading Rayna Tours…</p>
   </div>
+</div>
 
-  <!-- Firebase SDK and Application Logic Module -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Fallback seed packages
-    const SEED_PACKAGES = [
-      {
-        id: 'pkg-default-1',
-        title: 'SWITZERLAND',
-        duration: '03 NIGHTS / 04 DAYS',
-        highlight: 'Zurich 3N',
-        image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
-        pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'pkg-default-2',
-        title: 'FRANCE',
-        duration: '04 NIGHTS / 05 DAYS',
-        highlight: 'Paris 4N',
-        image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
-        pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'pkg-default-3',
-        title: 'UNITED KINGDOM',
-        duration: '05 NIGHTS / 06 DAYS',
-        highlight: 'London 5N',
-        image: 'https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=800&q=80',
-        pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        createdAt: new Date().toISOString()
-      }
-    ];
+  // ─── CONFIG ────────────────────────────────────────────────────────────────
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
+    authDomain: "packadge-itenary.firebaseapp.com",
+    projectId: "packadge-itenary",
+    storageBucket: "packadge-itenary.firebasestorage.app",
+    messagingSenderId: "482476048193",
+    appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
+  };
 
-    const ADMIN_USERNAME = 'admin@smc';
-    const ADMIN_PASSWORD = 'smctours2026';
+  const ADMIN_USERNAME = 'admin@smc';
+  const ADMIN_PASSWORD = 'smctours2026';
 
-    // Config Check & Setup (Rule 1 & Rule 3) - Loaded with your Live Firebase credentials
-    const firebaseConfig = {
-      apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
-      authDomain: "packadge-itenary.firebaseapp.com",
-      projectId: "packadge-itenary",
-      storageBucket: "packadge-itenary.firebasestorage.app",
-      messagingSenderId: "482476048193",
-      appId: "1:482476048193:web:4164c8c466c5e856b96bc0",
-      measurementId: "G-3VQQFLX9GF"
-    };
+  const APP_ID = (typeof window.__app_id !== 'undefined' && window.__app_id) ? window.__app_id : 'smc-tours-portal-v2';
 
-    // Self-healing database check to avoid crashes/freezes on unconfigured deployments
-    const isFirebaseConfigured = !!(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "");
-
-    let app, auth, db;
-    if (isFirebaseConfigured) {
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-      } catch (err) {
-        console.error("Firebase SDK failed to initialize:", err);
-      }
+  const SEED_PACKAGES = [
+    {
+      id: 'seed-1',
+      title: 'Switzerland',
+      duration: '3 Nights / 4 Days',
+      highlight: 'Zurich 3N',
+      image: 'https://images.unsplash.com/photo-1538370965046-79c0d6907d47?auto=format&fit=crop&w=800&q=80',
+      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'seed-2',
+      title: 'France',
+      duration: '4 Nights / 5 Days',
+      highlight: 'Paris 4N',
+      image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80',
+      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'seed-3',
+      title: 'United Kingdom',
+      duration: '5 Nights / 6 Days',
+      highlight: 'London 5N',
+      image: 'https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?auto=format&fit=crop&w=800&q=80',
+      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'seed-4',
+      title: 'Italy',
+      duration: '5 Nights / 6 Days',
+      highlight: 'Rome 3N + Florence 2N',
+      image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=800&q=80',
+      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      createdAt: new Date().toISOString()
     }
-    const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'smc-tours-portal-v2';
+  ];
 
-    // Dynamic State Store
-    const state = {
-      view: 'customer', // 'customer' | 'admin-login' | 'admin'
-      isLoggedIn: sessionStorage.getItem('smc_admin_auth') === 'true',
-      user: null,
-      packages: [],
-      inquiries: [],
-      isDbLoading: true,
-      searchQuery: '',
-      selectedInquiryPackage: null,
-      showSuccessToast: false,
-      loginError: '',
-      formError: '',
-      inquiryError: '',
-      inquiryForm: { name: '', email: '', phone: '' },
-      editingPackageId: null, // Track package ID currently being edited
-      newPackage: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
-    };
+  // ─── FIREBASE INIT ─────────────────────────────────────────────────────────
+  const isFirebaseReady = !!(FIREBASE_CONFIG?.apiKey);
+  let app, auth, db;
 
-    // Global action dispatcher to force re-renders
-    window.dispatch = (action, payload) => {
-      if (action === 'SET_SEARCH') {
+  if (isFirebaseReady) {
+    try {
+      app = initializeApp(FIREBASE_CONFIG);
+      auth = getAuth(app);
+      db = getFirestore(app);
+    } catch (err) {
+      console.error('Firebase init error:', err);
+    }
+  }
+
+  // ─── STATE ─────────────────────────────────────────────────────────────────
+  const state = {
+    view: 'customer',
+    isLoggedIn: sessionStorage.getItem('smc_admin_auth') === 'true',
+    user: null,
+    packages: [],
+    inquiries: [],
+    isDbLoading: true,
+    searchQuery: '',
+    selectedPackage: null,
+    showSuccessModal: false,
+    loginError: '',
+    formError: '',
+    formSuccess: '',
+    inquiryError: '',
+    editingId: null,
+    draft: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
+  };
+
+  // ─── ROUTING ───────────────────────────────────────────────────────────────
+  function getView() {
+    const p = new URLSearchParams(window.location.search);
+    if (p.has('admin')) return state.isLoggedIn ? 'admin' : 'admin-login';
+    return 'customer';
+  }
+
+  // ─── AUTH ──────────────────────────────────────────────────────────────────
+  async function initAuth() {
+    if (!isFirebaseReady || !auth) {
+      state.user = { uid: 'local-user' };
+      return;
+    }
+    try {
+      if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
+        await signInWithCustomToken(auth, window.__initial_auth_token);
+      } else {
+        await signInAnonymously(auth);
+      }
+    } catch (err) {
+      console.error('Auth error:', err);
+    }
+  }
+
+  // ─── DATABASE ──────────────────────────────────────────────────────────────
+  function setupListeners() {
+    if (!isFirebaseReady || !db) {
+      // Local mode
+      try {
+        const localPkgs = localStorage.getItem('smc_pkgs_v4');
+        state.packages = localPkgs ? JSON.parse(localPkgs) : [...SEED_PACKAGES];
+        if (!localPkgs) localStorage.setItem('smc_pkgs_v4', JSON.stringify(state.packages));
+
+        const localInqs = localStorage.getItem('smc_inqs_v4');
+        state.inquiries = localInqs ? JSON.parse(localInqs) : [];
+      } catch(_) {
+        state.packages = [...SEED_PACKAGES];
+        state.inquiries = [];
+      }
+      state.isDbLoading = false;
+      render();
+      return;
+    }
+
+    onAuthStateChanged(auth, (usr) => {
+      state.user = usr;
+      if (!usr) return;
+
+      const pkgsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
+      onSnapshot(pkgsCol, async (snap) => {
+        const list = [];
+        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+
+        if (list.length === 0 && state.isDbLoading) {
+          // Seed
+          try {
+            for (const item of SEED_PACKAGES) {
+              const { id: _id, ...data } = item;
+              await addDoc(pkgsCol, data);
+            }
+          } catch (err) { console.error('Seed error:', err); }
+        } else {
+          list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+          state.packages = list;
+          state.isDbLoading = false;
+          render();
+        }
+      }, err => { console.error('Packages listener error:', err); state.isDbLoading = false; render(); });
+
+      const inqsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries');
+      onSnapshot(inqsCol, (snap) => {
+        const list = [];
+        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+        list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        state.inquiries = list;
+        render();
+      }, err => { console.error('Inquiries listener error:', err); });
+    });
+  }
+
+  // ─── HELPERS ───────────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function pkgJson(pkg) {
+    return JSON.stringify(pkg).replace(/"/g, '&quot;');
+  }
+
+  function saveLocal(key, data) {
+    try { localStorage.setItem(key, JSON.stringify(data)); } catch(_) {}
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    try {
+      return new Date(iso).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch(_) { return iso; }
+  }
+
+  // ─── DISPATCH ──────────────────────────────────────────────────────────────
+  window.dispatch = (action, payload) => {
+    switch(action) {
+      case 'SEARCH':
         state.searchQuery = payload;
-      } else if (action === 'OPEN_INQUIRY') {
-        state.selectedInquiryPackage = payload;
+        break;
+      case 'OPEN_INQUIRY':
+        state.selectedPackage = payload;
         state.inquiryError = '';
-        state.showSuccessToast = false;
-      } else if (action === 'CLOSE_INQUIRY') {
-        state.selectedInquiryPackage = null;
-      } else if (action === 'LOGOUT') {
+        state.showSuccessModal = false;
+        break;
+      case 'CLOSE_INQUIRY':
+        state.selectedPackage = null;
+        state.showSuccessModal = false;
+        break;
+      case 'LOGOUT':
         state.isLoggedIn = false;
         sessionStorage.removeItem('smc_admin_auth');
         const url = new URL(window.location);
         url.searchParams.delete('admin');
         window.history.pushState({}, '', url);
-        state.view = 'customer';
-      } else if (action === 'REDIRECT_HOME') {
-        const url = new URL(window.location);
-        url.searchParams.delete('admin');
-        window.history.pushState({}, '', url);
-        state.view = 'customer';
-      }
-      render();
+        break;
+      case 'GO_HOME':
+        const u2 = new URL(window.location);
+        u2.searchParams.delete('admin');
+        window.history.pushState({}, '', u2);
+        break;
+    }
+    render();
+  };
+
+  // ─── EVENT HANDLERS ────────────────────────────────────────────────────────
+  window.handleLogin = (e) => {
+    e.preventDefault();
+    const user = document.getElementById('f-user')?.value?.trim();
+    const pass = document.getElementById('f-pass')?.value;
+    state.loginError = '';
+
+    if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+      state.isLoggedIn = true;
+      sessionStorage.setItem('smc_admin_auth', 'true');
+    } else {
+      state.loginError = 'Incorrect username or password. Please try again.';
+    }
+    render();
+  };
+
+  window.handleStartEdit = (id) => {
+    const pkg = state.packages.find(p => p.id === id);
+    if (!pkg) return;
+    state.editingId = id;
+    state.draft = { title: pkg.title, duration: pkg.duration, highlight: pkg.highlight, image: pkg.image || '', pdfUrl: pkg.pdfUrl };
+    state.formError = '';
+    state.formSuccess = '';
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.handleCancelEdit = () => {
+    state.editingId = null;
+    state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
+    state.formError = '';
+    state.formSuccess = '';
+    render();
+  };
+
+  window.handlePackageSubmit = async (e) => {
+    e.preventDefault();
+    state.formError = '';
+    state.formSuccess = '';
+
+    const title     = document.getElementById('f-title')?.value?.trim();
+    const duration  = document.getElementById('f-duration')?.value?.trim();
+    const highlight = document.getElementById('f-highlight')?.value?.trim();
+    const image     = document.getElementById('f-image')?.value?.trim();
+    const pdfUrl    = document.getElementById('f-pdf')?.value?.trim();
+
+    if (!title || !duration || !pdfUrl) {
+      state.formError = 'Country title, duration, and PDF link are required.';
+      render(); return;
+    }
+
+    // Basic URL validation for pdfUrl
+    try { new URL(pdfUrl); } catch(_) {
+      state.formError = 'Please enter a valid PDF URL (must start with https://).';
+      render(); return;
+    }
+
+    const payload = {
+      title: title.trim(),
+      duration: duration.trim(),
+      highlight: highlight || '',
+      image: image || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80',
+      pdfUrl,
+      createdAt: new Date().toISOString()
     };
 
-    // Determine current routing view
-    function evaluateRoute() {
-      const queryParams = new URLSearchParams(window.location.search);
-      if (queryParams.has('admin')) {
-        state.view = state.isLoggedIn ? 'admin' : 'admin-login';
+    if (!isFirebaseReady || !db) {
+      if (state.editingId) {
+        state.packages = state.packages.map(p => p.id === state.editingId ? { ...p, ...payload } : p);
       } else {
-        state.view = 'customer';
+        state.packages = [{ id: 'pkg-' + Date.now(), ...payload }, ...state.packages];
       }
+      saveLocal('smc_pkgs_v4', state.packages);
+      state.editingId = null;
+      state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
+      state.formSuccess = state.editingId ? 'Package updated.' : 'Package published successfully.';
+      render(); return;
     }
 
-    // Authenticate prioritizing Custom Token if present (Rule 3)
-    async function initAuth() {
-      if (!isFirebaseConfigured) {
-        // Fallback local auth simulation
-        state.user = { uid: "local-admin" };
-        return;
-      }
-      try {
-        if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
-          await signInWithCustomToken(auth, window.__initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) {
-        console.error("Database initialization connection failed:", err);
-      }
-    }
-
-    // Initialize Database Listeners with secure local fallbacks
-    function setupDatabaseListeners() {
-      if (!isFirebaseConfigured) {
-        console.log("SMC Tours database loading locally. Firebase configuration empty.");
-        // Retrieve local sandbox data
-        const localPkgs = localStorage.getItem('smc_local_packages_v3');
-        if (localPkgs) {
-          state.packages = JSON.parse(localPkgs);
-        } else {
-          state.packages = [...SEED_PACKAGES];
-          localStorage.setItem('smc_local_packages_v3', JSON.stringify(state.packages));
-        }
-
-        const localInqs = localStorage.getItem('smc_local_inquiries_v3');
-        state.inquiries = localInqs ? JSON.parse(localInqs) : [];
-
-        state.isDbLoading = false;
-        render();
-        return;
-      }
-
-      onAuthStateChanged(auth, (usr) => {
-        state.user = usr;
-        if (!usr) return;
-
-        // Listen to Packages Collection
-        const pkgsCol = collection(db, 'artifacts', appId, 'public', 'data', 'packages');
-        onSnapshot(pkgsCol, async (snapshot) => {
-          const list = [];
-          snapshot.forEach((doc) => {
-            list.push({ id: doc.id, ...doc.data() });
-          });
-
-          if (list.length === 0 && state.isDbLoading) {
-            // Seed static defaults once if cloud database is fresh
-            try {
-              for (const item of SEED_PACKAGES) {
-                await addDoc(pkgsCol, item);
-              }
-            } catch (err) {
-              console.error("Failed seeding database: ", err);
-            }
-          } else {
-            // In-memory sort
-            list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-            state.packages = list;
-            state.isDbLoading = false;
-            render();
-          }
-        }, (error) => {
-          console.error("Failed loading packages:", error);
-          state.isDbLoading = false;
-          render();
-        });
-
-        // Listen to Inquiries Collection
-        const inqsCol = collection(db, 'artifacts', appId, 'public', 'data', 'inquiries');
-        onSnapshot(inqsCol, (snapshot) => {
-          const list = [];
-          snapshot.forEach((doc) => {
-            list.push({ id: doc.id, ...doc.data() });
-          });
-          list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-          state.inquiries = list;
-          render();
-        }, (error) => {
-          console.error("Failed loading inquiries:", error);
-        });
-      });
-    }
-
-    // Event Handlers
-    window.handleLoginSubmit = (e) => {
-      e.preventDefault();
-      const username = document.getElementById('login-username').value;
-      const pass = document.getElementById('login-password').value;
-      state.loginError = '';
-
-      if (username === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-        state.isLoggedIn = true;
-        sessionStorage.setItem('smc_admin_auth', 'true');
-        state.view = 'admin';
+    try {
+      if (state.editingId) {
+        const ref = doc(db, 'artifacts', APP_ID, 'public', 'data', 'packages', state.editingId);
+        await updateDoc(ref, payload);
+        state.formSuccess = 'Package updated successfully.';
       } else {
-        state.loginError = 'Invalid credentials. Please try again.';
+        const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
+        await addDoc(col, payload);
+        state.formSuccess = 'Package published successfully.';
       }
-      render();
+      state.editingId = null;
+      state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
+    } catch (err) {
+      state.formError = 'Database error: ' + err.message;
+    }
+    render();
+  };
+
+  window.handleDelete = async (id) => {
+    if (!confirm('Delete this package? This cannot be undone.')) return;
+
+    if (!isFirebaseReady || !db) {
+      state.packages = state.packages.filter(p => p.id !== id);
+      saveLocal('smc_pkgs_v4', state.packages);
+      if (state.editingId === id) { state.editingId = null; state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }; }
+      render(); return;
+    }
+    try {
+      await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'packages', id));
+      if (state.editingId === id) { state.editingId = null; state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }; }
+    } catch (err) { console.error('Delete error:', err); }
+  };
+
+  window.handleInquirySubmit = async (e) => {
+    e.preventDefault();
+    state.inquiryError = '';
+
+    const name  = document.getElementById('i-name')?.value?.trim();
+    const phone = document.getElementById('i-phone')?.value?.trim();
+    const email = document.getElementById('i-email')?.value?.trim();
+
+    if (!name || !phone) {
+      state.inquiryError = 'Name and mobile number are required.';
+      render(); return;
+    }
+
+    // Basic phone check
+    if (!/^[\d\s\+\-\(\)]{7,15}$/.test(phone)) {
+      state.inquiryError = 'Please enter a valid mobile number.';
+      render(); return;
+    }
+
+    const payload = {
+      customerName: name,
+      phone,
+      email: email || '',
+      packageName: state.selectedPackage?.title || 'General Inquiry',
+      createdAt: new Date().toISOString()
     };
 
-    // Begin Edit Sequence
-    window.handleStartEdit = (id) => {
-      const pkg = state.packages.find(p => p.id === id);
-      if (!pkg) return;
-
-      state.editingPackageId = id;
-      state.newPackage = {
-        title: pkg.title,
-        duration: pkg.duration,
-        highlight: pkg.highlight,
-        image: pkg.image,
-        pdfUrl: pkg.pdfUrl
-      };
+    if (!isFirebaseReady || !db) {
+      state.inquiries = [{ id: 'inq-' + Date.now(), ...payload }, ...state.inquiries];
+      saveLocal('smc_inqs_v4', state.inquiries);
+      state.showSuccessModal = true;
       render();
-      // Smooth scroll back to form
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+      setTimeout(() => { state.selectedPackage = null; state.showSuccessModal = false; render(); }, 4000);
+      return;
+    }
 
-    // Cancel Edit Sequence
-    window.handleCancelEdit = () => {
-      state.editingPackageId = null;
-      state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
+    try {
+      const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries');
+      await addDoc(col, payload);
+      state.showSuccessModal = true;
       render();
-    };
+      setTimeout(() => { state.selectedPackage = null; state.showSuccessModal = false; render(); }, 4000);
+    } catch (err) {
+      state.inquiryError = 'Failed to submit. Please try again.';
+      render();
+    }
+  };
 
-    // Save or Update Package Handler
-    window.handleAddPackage = async (e) => {
-      e.preventDefault();
-      state.formError = '';
+  window.handleArchive = async (id) => {
+    if (!isFirebaseReady || !db) {
+      state.inquiries = state.inquiries.filter(i => i.id !== id);
+      saveLocal('smc_inqs_v4', state.inquiries);
+      render(); return;
+    }
+    try {
+      await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries', id));
+    } catch (err) { console.error('Archive error:', err); }
+  };
 
-      const title = document.getElementById('pkg-title').value;
-      const duration = document.getElementById('pkg-duration').value;
-      const highlight = document.getElementById('pkg-highlight').value;
-      const image = document.getElementById('pkg-image').value;
-      const pdfUrl = document.getElementById('pkg-pdf').value;
+  // ─── RENDER ────────────────────────────────────────────────────────────────
+  function render() {
+    state.view = getView();
+    const container = document.getElementById('app');
+    if (!container) return;
 
-      if (!title || !duration || !pdfUrl) {
-        state.formError = 'Please enter a Country Title, Duration, and a valid PDF link.';
-        render();
-        return;
-      }
+    const filtered = state.packages.filter(p => {
+      const q = state.searchQuery.toLowerCase();
+      return !q || esc(p.title).toLowerCase().includes(q) || esc(p.highlight).toLowerCase().includes(q);
+    });
 
-      const payload = {
-        title: title.toUpperCase(),
-        duration: duration.toUpperCase(),
-        highlight: highlight || 'Flexible Schedule',
-        image: image || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80',
-        pdfUrl: pdfUrl,
-        createdAt: new Date().toISOString()
-      };
+    let html = '';
 
-      if (!isFirebaseConfigured) {
-        if (state.editingPackageId) {
-          // Edit offline
-          state.packages = state.packages.map(p => p.id === state.editingPackageId ? { ...p, ...payload } : p);
-        } else {
-          // Add offline
-          state.packages = [{ id: 'pkg-' + Date.now(), ...payload }, ...state.packages];
-        }
-        localStorage.setItem('smc_local_packages_v3', JSON.stringify(state.packages));
+    // ── NAV ──
+    html += `
+    <header style="position:sticky;top:0;z-index:40;background:var(--navy);box-shadow:0 2px 20px rgba(0,0,0,0.3);">
+      <div style="max-width:1320px;margin:0 auto;padding:0 24px;height:68px;display:flex;justify-content:space-between;align-items:center;">
         
-        // Reset Inputs & Edit state
-        state.editingPackageId = null;
-        state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
-        render();
-        return;
-      }
-
-      try {
-        if (state.editingPackageId) {
-          // Update live FireStore document
-          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', state.editingPackageId);
-          await updateDoc(docRef, payload);
-        } else {
-          // Add live FireStore document
-          const pkgsCol = collection(db, 'artifacts', appId, 'public', 'data', 'packages');
-          await addDoc(pkgsCol, payload);
-        }
-        
-        // Reset Inputs & Edit state
-        state.editingPackageId = null;
-        state.newPackage = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
-        render();
-      } catch (err) {
-        state.formError = 'Cloud Database Error: ' + err.message;
-        render();
-      }
-    };
-
-    window.handleDeletePackage = async (id) => {
-      if (confirm("Are you sure you want to delete this package?")) {
-        if (!isFirebaseConfigured) {
-          const updated = state.packages.filter(p => p.id !== id);
-          state.packages = updated;
-          localStorage.setItem('smc_local_packages_v3', JSON.stringify(updated));
-          render();
-          return;
-        }
-        try {
-          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'packages', id);
-          await deleteDoc(docRef);
-        } catch (err) {
-          console.error("Failed deleting package:", err);
-        }
-      }
-    };
-
-    window.handleInquirySubmit = async (e) => {
-      e.preventDefault();
-      state.inquiryError = '';
-
-      const name = document.getElementById('inq-name').value;
-      const phone = document.getElementById('inq-phone').value;
-      const email = document.getElementById('inq-email').value;
-
-      if (!name || !phone) {
-        state.inquiryError = 'Please enter your Name and Mobile Number.';
-        render();
-        return;
-      }
-
-      const payload = {
-        customerName: name,
-        phone: phone,
-        email: email || '',
-        packageName: state.selectedInquiryPackage ? state.selectedInquiryPackage.title : 'General Inquiry',
-        createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
-      };
-
-      if (!isFirebaseConfigured) {
-        const updated = [{ id: 'inq-' + Date.now(), ...payload }, ...state.inquiries];
-        state.inquiries = updated;
-        localStorage.setItem('smc_local_inquiries_v3', JSON.stringify(updated));
-        state.showSuccessToast = true;
-        render();
-        setTimeout(() => {
-          state.selectedInquiryPackage = null;
-          state.showSuccessToast = false;
-          render();
-        }, 4000);
-        return;
-      }
-
-      try {
-        const inqsCol = collection(db, 'artifacts', appId, 'public', 'data', 'inquiries');
-        await addDoc(inqsCol, payload);
-        state.showSuccessToast = true;
-        render();
-        setTimeout(() => {
-          state.selectedInquiryPackage = null;
-          state.showSuccessToast = false;
-          render();
-        }, 4000);
-      } catch (err) {
-        state.inquiryError = 'Failed logging callback: ' + err.message;
-        render();
-      }
-    };
-
-    window.handleArchiveInquiry = async (id) => {
-      if (!isFirebaseConfigured) {
-        const updated = state.inquiries.filter(i => i.id !== id);
-        state.inquiries = updated;
-        localStorage.setItem('smc_local_inquiries_v3', JSON.stringify(updated));
-        render();
-        return;
-      }
-      try {
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'inquiries', id);
-        await deleteDoc(docRef);
-      } catch (err) {
-        console.error("Failed archiving inquiry:", err);
-      }
-    };
-
-    // Pure HTML Rendering Engine
-    function render() {
-      const container = document.getElementById('app');
-      evaluateRoute();
-
-      // Filter Packages
-      const filtered = state.packages.filter(p => 
-        p.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-        p.highlight.toLowerCase().includes(state.searchQuery.toLowerCase())
-      );
-
-      let content = '';
-
-      // --- HEADER ---
-      content += `
-        <header class="sticky top-0 z-40 bg-slate-900 text-white shadow-md border-b border-purple-950">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
-            
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="dispatch('REDIRECT_HOME')">
-              <div class="bg-gradient-to-tr from-purple-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md transform hover:rotate-6 transition-transform">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
-              </div>
-              <div>
-                <span class="text-xl sm:text-2xl font-black tracking-wider uppercase text-white">
-                  Rayna<span class="text-purple-400"> Tours</span>
-                </span>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold flex items-center space-x-1">
-                  <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>${isFirebaseConfigured ? 'Live Database Portal' : 'Local Sandbox Mode'}</span>
-                </p>
-              </div>
+        <div style="display:flex;align-items:center;gap:14px;cursor:pointer;" onclick="dispatch('GO_HOME')">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;">
+            <rect width="32" height="32" rx="8" fill="#c9a84c" opacity="0.15"/>
+            <path d="M16 6L6 14v12h7v-7h6v7h7V14L16 6z" fill="#c9a84c"/>
+          </svg>
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.04em;line-height:1;">
+              Rayna <span style="color:var(--gold);">Tours</span>
             </div>
-
-            <div class="flex items-center space-x-4">
-              ${state.isLoggedIn && (state.view === 'admin' || state.view === 'admin-login') ? `
-                <button onclick="dispatch('LOGOUT')" class="flex items-center space-x-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-md transition-all cursor-pointer">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
-                  <span>Log Out</span>
-                </button>
-              ` : ''}
-
-              ${!state.isLoggedIn && state.view === 'admin-login' ? `
-                <button onclick="dispatch('REDIRECT_HOME')" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  <span>View Customer Site</span>
-                </button>
-              ` : ''}
+            <div style="font-size:9px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:6px;margin-top:2px;">
+              <span class="live-dot"></span>
+              ${isFirebaseReady ? 'Live Cloud Portal' : 'Local Mode'}
             </div>
           </div>
-        </header>
-      `;
+        </div>
 
-      // --- MAIN PANELS ---
-      if (state.view === 'customer') {
-        content += `
-          <main class="flex-1">
-            
-            <!-- Hero Grid -->
-            <div class="relative bg-slate-950 text-white min-h-[340px] flex items-center">
-              <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-25"></div>
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent"></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${state.isLoggedIn && state.view === 'admin' ? `
+            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:11px;" onclick="dispatch('LOGOUT')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:4px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              Sign Out
+            </button>
+          ` : ''}
+          ${state.view === 'admin-login' ? `
+            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:11px;" onclick="dispatch('GO_HOME')">
+              ← Customer View
+            </button>
+          ` : ''}
+          ${state.view === 'customer' && !state.isLoggedIn ? `
+            <a href="?admin" style="font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);text-decoration:none;" title="Admin Login">Admin</a>
+          ` : ''}
+        </div>
+      </div>
+    </header>`;
 
-                   <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-10">
-                <span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] px-3.5 py-1 rounded-full font-bold uppercase tracking-wider">
-                  Packadges Instant PDF Downloads
-                </span>
-                
-                <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mt-4">
-                  Explore the World with <span class="text-purple-400">Rayna Tours</span>
-                </h1>
-                <p class="text-sm sm:text-base text-slate-300 mt-3 max-w-xl mx-auto font-light leading-relaxed">
-                  Browse our premium holiday layouts below. Download the complete, beautiful PDF package itinerary directly, or submit a custom inquiry callback instantly!
-                </p>
+    // ── VIEWS ──
+    if (state.view === 'customer') {
+      html += renderCustomer(filtered);
+    } else if (state.view === 'admin-login') {
+      html += renderLogin();
+    } else if (state.view === 'admin') {
+      html += renderAdmin();
+    }
 
-                <!-- Filter bar -->
-                <div class="mt-8 max-w-md mx-auto">
-                  <div class="relative">
-                    <svg class="absolute left-4 top-3.5 w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25gA7.5 7.5 0 1119.5 10.5z" /></svg>
-                    <input 
-                      type="text" 
-                      placeholder="Search countries, regions, or highlights..."
-                      value="${state.searchQuery}"
-                      oninput="dispatch('SET_SEARCH', this.value)"
-                      class="w-full bg-white text-slate-900 border-none rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm font-medium shadow-xl"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+    // ── FOOTER ──
+    html += `
+    <footer style="padding:40px 24px;">
+      <div style="max-width:1320px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.04em;">Rayna Tours</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">© 2026 SMC Tours Ltd. All rights reserved.</div>
+        </div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);">
+          ${isFirebaseReady ? 'Cloud Connected' : 'Local Storage Mode'}
+        </div>
+      </div>
+    </footer>`;
 
-            <!-- Custom Showcase Catalog (Mockup Aligned) -->
-            <section class="py-16 bg-slate-100">
-              <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <div class="flex items-center justify-between mb-10">
-                  <div>
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight uppercase">Rayna Group Departures</h2>
-                    <div class="h-1 w-12 bg-purple-600 mt-1"></div>
-                  </div>
-                  <span class="text-xs text-slate-500 font-bold bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
-                    ${filtered.length} packages active
-                  </span>
-                </div>
+    // ── INQUIRY MODAL ──
+    if (state.selectedPackage) {
+      html += renderInquiryModal();
+    }
 
-                ${state.isDbLoading ? `
-                  <div class="text-center py-24 bg-white rounded-3xl border border-slate-200 p-8 flex flex-col items-center justify-center space-y-4">
-                    <div class="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p class="text-slate-500 text-sm font-semibold">Connecting to SMC Storage...</p>
-                  </div>
-                ` : filtered.length === 0 ? `
-                  <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8">
-                    <p class="text-slate-500 text-base">No packages found matching your filter.</p>
-                  </div>
-                ` : `
-                  <!-- Fully responsive grid: Showing exactly 4 columns on full XL screens -->
-                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    ${filtered.map((pkg, idx) => `
-                      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-200/80 flex flex-col h-full text-center relative w-full group">
-                        
-                        <!-- Image Container with Yellow Overlay text inside Dark Blue Banner -->
-                        <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                          <img src="${pkg.image}" alt="${pkg.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                          ${pkg.highlight ? `
-                            <div class="absolute bottom-0 left-0 right-0 bg-[#0d2a5c] text-[#facc15] py-2 text-center font-black text-sm uppercase tracking-wider border-t border-blue-900">
-                              ${pkg.highlight}
-                            </div>
-                          ` : ''}
-                        </div>
+    container.innerHTML = html;
+  }
 
-                        <!-- Card Details -->
-                        <div class="p-6 flex-1 flex flex-col justify-between items-center bg-white">
-                          <div class="w-full text-center">
-                            <!-- Deep Purple Country Code -->
-                            <h3 class="text-2xl font-extrabold text-[#4c1d95] tracking-wide uppercase mt-2">
-                              ${pkg.title}
-                            </h3>
-                            
-                            <!-- Subtitle Nights Text -->
-                            <p class="text-slate-900 text-sm font-bold tracking-wider mt-2 uppercase">
-                              ${pkg.duration}
-                            </p>
+  // ── CUSTOMER VIEW ──────────────────────────────────────────────────────────
+  function renderCustomer(filtered) {
+    return `
+    <main>
+      <!-- Hero -->
+      <div class="hero-bg" style="position:relative;min-height:420px;display:flex;align-items:center;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(10,22,40,0.7) 0%, rgba(10,22,40,0.85) 100%);"></div>
+        <div style="position:relative;z-index:1;max-width:720px;margin:0 auto;padding:64px 24px;text-align:center;">
+          <div style="display:inline-block;border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;padding:6px 18px;border-radius:40px;margin-bottom:20px;">
+            Premium Group Departures
+          </div>
+          <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,58px);font-weight:700;color:#fff;line-height:1.1;margin:0 0 16px;">
+            Explore the World with<br><em style="color:var(--gold);">Rayna Tours</em>
+          </h1>
+          <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.7;max-width:480px;margin:0 auto 32px;font-weight:300;">
+            Browse our curated holiday packages. Download the full itinerary PDF or request a callback from our travel specialists.
+          </p>
+          <div style="max-width:420px;margin:0 auto;position:relative;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.7)" stroke-width="2" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search destinations…"
+              value="${esc(state.searchQuery)}"
+              oninput="dispatch('SEARCH', this.value)"
+              style="width:100%;background:rgba(255,255,255,0.95);border:none;border-radius:40px;padding:14px 16px 14px 46px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--navy);outline:none;box-shadow:0 8px 30px rgba(0,0,0,0.2);"
+            />
+          </div>
+        </div>
+      </div>
 
-                            <!-- Dashed Outline Pill Box -->
-                            <div class="w-full flex justify-center mt-5">
-                              <div class="bg-[#e0f2fe]/80 border border-dashed border-slate-800 text-slate-900 font-bold text-xs py-2 px-6 rounded-full w-full truncate">
-                                ${pkg.highlight}
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Actions Section -->
-                          <div class="mt-8 w-full border-t border-slate-100 pt-5 flex flex-col items-center space-y-3">
-                            <a href="${pkg.pdfUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 text-sm font-bold tracking-wide flex items-center space-x-1.5 transition-colors group cursor-pointer">
-                              <span>View Full Itinerary</span>
-                              <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-                            </a>
-                            <button onclick="dispatch('OPEN_INQUIRY', ${JSON.stringify(pkg).replace(/"/g, '&quot;')})" class="text-[11px] text-slate-500 hover:text-purple-600 font-semibold uppercase tracking-wider underline cursor-pointer">
-                              Or Click to request details
-                            </button>
-                          </div>
-                        </div>
-
-                      </div>
-                    `).join('')}
-                  </div>
-                `}
-
-              </div>
-            </section>
-
-            <!-- Callback Inquiry Overlay Modal -->
-            ${state.selectedInquiryPackage ? `
-              <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-                <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
-                  
-                  <div class="bg-purple-950 text-white p-6 relative">
-                    <h3 class="text-lg font-bold">Request a Callback</h3>
-                    <p class="text-slate-300 text-xs mt-1">SMC Package: <span class="text-purple-300 font-bold">${state.selectedInquiryPackage.title}</span></p>
-                    <button onclick="dispatch('CLOSE_INQUIRY')" class="absolute top-6 right-6 text-slate-400 hover:text-white transition font-bold cursor-pointer">✕</button>
-                  </div>
-
-                  ${state.showSuccessToast ? `
-                    <div class="p-8 text-center">
-                      <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      </div>
-                      <h4 class="text-lg font-bold text-slate-950">Inquiry Logged!</h4>
-                      <p class="text-slate-600 text-xs mt-2 font-medium">
-                        Our SMC Specialist will reach out regarding the <span class="font-semibold text-purple-900">${state.selectedInquiryPackage.title}</span> program. Thank you!
-                      </p>
-                    </div>
-                  ` : `
-                    <form onsubmit="handleInquirySubmit(event)" class="p-6 space-y-4">
-                      ${state.inquiryError ? `
-                        <div class="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
-                          ${state.inquiryError}
-                        </div>
-                      ` : ''}
-
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Your Name *</label>
-                        <input type="text" id="inq-name" required placeholder="e.g. Rahul Sharma" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                      </div>
-
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile Number *</label>
-                        <input type="tel" id="inq-phone" required placeholder="e.g. +91 9876543210" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                      </div>
-
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address (Optional)</label>
-                        <input type="email" id="inq-email" placeholder="e.g. rahul@example.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                      </div>
-
-                      <div class="pt-4 flex space-x-3">
-                        <button type="button" onclick="dispatch('CLOSE_INQUIRY')" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-3 rounded-xl transition text-xs cursor-pointer">Cancel</button>
-                        <button type="submit" class="w-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition text-xs cursor-pointer">Send Callback</button>
-                      </div>
-                    </form>
-                  `}
-                </div>
-              </div>
-            ` : ''}
-
-          </main>
-        `;
-      } else if (state.view === 'admin-login') {
-        content += `
-          <main class="flex-1 flex items-center justify-center p-6 bg-slate-900">
-            <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
-              
-              <div class="bg-gradient-to-br from-purple-900 to-indigo-950 p-8 text-white relative text-center">
-                <h2 class="text-2xl font-black mt-3">SMC Control Room</h2>
-                <p class="text-slate-300 text-xs mt-1">Please enter your agency credentials to access the package adder dashboard.</p>
-              </div>
-
-              <form onsubmit="handleLoginSubmit(event)" class="p-8 space-y-5">
-                ${state.loginError ? `
-                  <div class="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
-                    ${state.loginError}
-                  </div>
-                ` : ''}
-
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Username</label>
-                  <input type="text" id="login-username" required placeholder="admin@smc" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
-                </div>
-
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Security Password</label>
-                  <input type="password" id="login-password" required placeholder="••••••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
-                </div>
-
-                <div class="bg-purple-50 border border-purple-100 p-3.5 rounded-xl text-[11px] text-purple-950">
-                  <span class="font-extrabold uppercase">Default Credentials:</span>
-                  <div class="mt-1 font-mono text-[10px]">
-                    <div>User: <b>${ADMIN_USERNAME}</b></div>
-                    <div>Pass: <b>${ADMIN_PASSWORD}</b></div>
-                  </div>
-                </div>
-
-                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3.5 rounded-xl transition text-xs shadow-md cursor-pointer">
-                  Authorize & Enter Dashboard
-                </button>
-              </form>
-            </div>
-          </main>
-        `;
-      } else if (state.view === 'admin' && state.isLoggedIn) {
-        content += `
-          <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            
-            <div class="bg-gradient-to-r from-purple-900 to-slate-900 text-white p-4 rounded-2xl shadow-sm mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div class="flex items-center space-x-3">
-                <div class="bg-purple-800 p-2 rounded-xl">
-                  <svg class="w-5 h-5 text-purple-300 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
-                </div>
-                <div>
-                  <h3 class="font-extrabold text-sm sm:text-base">Universal Cloud Synced Dashboard</h3>
-                  ${isFirebaseConfigured ? `
-                    <p class="text-xs text-purple-200">Changes made here are updated live immediately across all devices and customers.</p>
-                  ` : `
-                    <p class="text-xs text-amber-200 font-bold">Local storage demo mode active. Fill in your Firebase config keys in the Canvas to activate live Cloud Database syncing.</p>
-                  `}
-                </div>
-              </div>
-              
-              ${isFirebaseConfigured ? `
-                <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
-                  Live Database Active
-                </span>
-              ` : `
-                <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
-                  Local Sandbox Mode
-                </span>
-              `}
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
-              <!-- Form Column -->
-              <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                  
-                  <div class="mb-6">
-                    <span class="bg-purple-100 text-purple-700 text-[10px] font-black uppercase px-2 py-1 rounded">SMC Creator Control</span>
-                    <h2 class="text-xl font-bold text-slate-900 mt-2">
-                      ${state.editingPackageId ? 'Edit Showcase Card' : 'Add New Showcase Card'}
-                    </h2>
-                  </div>
-
-                  <form onsubmit="handleAddPackage(event)" class="space-y-4">
-                    ${state.formError ? `
-                      <div class="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
-                        ${state.formError}
-                      </div>
-                    ` : ''}
-
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Country/Main Title *</label>
-                      <input type="text" id="pkg-title" required placeholder="e.g. SWITZERLAND" value="${state.newPackage.title}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold uppercase text-slate-900" />
-                    </div>
-
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Duration text *</label>
-                      <input type="text" id="pkg-duration" required placeholder="e.g. 03 NIGHTS / 04 DAYS" value="${state.newPackage.duration}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-slate-900" />
-                    </div>
-
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Highlight / Dashed Tag *</label>
-                      <input type="text" id="pkg-highlight" placeholder="e.g. Zurich 3N" value="${state.newPackage.highlight}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium text-slate-900" />
-                    </div>
-
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Card Cover Image URL</label>
-                      <input type="url" id="pkg-image" placeholder="Paste cover photo link" value="${state.newPackage.image}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-900" />
-                    </div>
-
-                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
-                      <label class="block text-[11px] font-bold text-purple-950 uppercase tracking-wider mb-1">Itinerary PDF Link *</label>
-                      <input type="url" id="pkg-pdf" required placeholder="Paste PDF link (Google Drive, Dropbox, Web Server)" value="${state.newPackage.pdfUrl}" class="w-full bg-white border border-purple-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-purple-900" />
-                    </div>
-
-                    <div class="flex flex-col gap-2">
-                      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition text-xs shadow-md cursor-pointer">
-                        ${state.editingPackageId ? 'Update Live Package' : `Publish to ${isFirebaseConfigured ? 'Live Cloud Database' : 'Local Storage'}`}
-                      </button>
-                      
-                      ${state.editingPackageId ? `
-                        <button type="button" onclick="handleCancelEdit()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold p-3 rounded-xl transition text-xs cursor-pointer">
-                          Cancel Edit
-                        </button>
-                      ` : ''}
-                    </div>
-                  </form>
-                </div>
-              </div>
-
-              <!-- Content Column -->
-              <div class="lg:col-span-2 space-y-8">
-                
-                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                  <h3 class="text-lg font-bold text-slate-900 mb-4">Active Live Packages (${state.packages.length})</h3>
-                  
-                  ${state.isDbLoading ? `
-                    <div class="text-center py-10 flex flex-col items-center justify-center space-y-2">
-                      <div class="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                      <span class="text-xs text-slate-400">Loading catalog...</span>
-                    </div>
-                  ` : state.packages.length === 0 ? `
-                    <p class="text-xs text-slate-400">No active packages found.</p>
-                  ` : `
-                    <div class="border border-slate-100 rounded-2xl overflow-hidden">
-                      <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider">
-                          <tr>
-                            <th class="p-3">Country / Main Title</th>
-                            <th class="p-3">Duration</th>
-                            <th class="p-3">Highlight</th>
-                            <th class="p-3 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                          ${state.packages.map(pkg => `
-                            <tr class="${state.editingPackageId === pkg.id ? 'bg-purple-50/50' : ''}">
-                              <td class="p-3 flex items-center space-x-3">
-                                <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100" />
-                                <div>
-                                  <span class="font-bold text-slate-900 uppercase block">${pkg.title}</span>
-                                  <a href="${pkg.pdfUrl}" target="_blank" class="text-[10px] text-blue-600 hover:underline">View PDF</a>
-                                </div>
-                              </td>
-                              <td class="p-3 font-medium text-slate-600">${pkg.duration}</td>
-                              <td class="p-3">
-                                <span class="bg-blue-50 border border-dashed border-slate-400 text-slate-800 text-[10px] font-bold px-2 py-1 rounded">
-                                  ${pkg.highlight}
-                                </span>
-                              </td>
-                              <td class="p-3 text-right">
-                                <div class="flex justify-end gap-2">
-                                  <button onclick="handleStartEdit('${pkg.id}')" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold rounded transition cursor-pointer">
-                                    Edit
-                                  </button>
-                                  <button onclick="handleDeletePackage('${pkg.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold rounded transition cursor-pointer">
-                                    Delete
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          `).join('')}
-                        </tbody>
-                      </table>
-                    </div>
-                  `}
-                </div>
-
-                <!-- Callback Log -->
-                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                  <h3 class="text-lg font-bold text-slate-900 mb-1">Callback Logins</h3>
-                  <p class="text-slate-500 text-xs mb-4">Real-time leads logging directly from your B2C card inquiries.</p>
-
-                  ${state.inquiries.length === 0 ? `
-                    <p class="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">No callbacks requested yet.</p>
-                  ` : `
-                    <div class="space-y-3">
-                      ${state.inquiries.map(lead => `
-                        <div class="border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                          <div>
-                            <div class="flex items-center space-x-2">
-                              <h4 class="font-extrabold text-slate-900 text-sm">${lead.customerName}</h4>
-                              <span class="text-[9px] font-black uppercase bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md">Inquiry</span>
-                            </div>
-                            <div class="mt-1 flex gap-x-4 text-xs text-slate-500 font-medium">
-                              <span>Phone: <b class="text-slate-800">${lead.phone}</b></span>
-                              ${lead.email ? `<span>Email: ${lead.email}</span>` : ''}
-                            </div>
-                            <p class="text-[11px] text-purple-950 font-bold mt-2 bg-purple-50/50 px-2.5 py-1 rounded-md inline-block">Product Interest: ${lead.packageName}</p>
-                          </div>
-                          <div class="text-right">
-                            <span class="text-[10px] text-slate-400 block">${lead.createdAt}</span>
-                            <button onclick="handleArchiveInquiry('${lead.id}')" class="text-xs text-rose-600 hover:text-rose-800 font-bold underline mt-1 cursor-pointer">Archive</button>
-                          </div>
-                        </div>
-                      `).join('')}
-                    </div>
-                  `}
-                </div>
-
-              </div>
-            </div>
-          </main>
-        `;
-      }
-
-      // --- FOOTER ---
-      content += `
-        <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-6">
+      <!-- Catalog -->
+      <section style="padding:64px 24px;background:var(--cream);">
+        <div style="max-width:1320px;margin:0 auto;">
+          
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:12px;">
             <div>
-              <p class="font-bold text-white uppercase tracking-wider text-xs">SMC TOURS LTD.</p>
-              <p class="text-[11px] text-slate-500 mt-1">&copy; 2026 SMC Tours. Custom layouts crafted perfectly for group departures.</p>
+              <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;margin:0;line-height:1;">Group Departures</h2>
+              <div style="width:40px;height:2px;background:var(--gold);margin-top:8px;"></div>
             </div>
-            <span class="text-slate-500 font-bold text-[10px] uppercase tracking-wider">
-              ${isFirebaseConfigured ? 'SMC Cloud Connected' : 'SMC Local Mode'}
+            <span style="font-size:12px;font-weight:500;color:#888;background:#fff;border:1px solid #e5e0d8;padding:6px 14px;border-radius:6px;">
+              ${filtered.length} ${filtered.length === 1 ? 'package' : 'packages'}
             </span>
           </div>
-        </footer>
-      `;
 
-      container.innerHTML = content;
-    }
+          ${state.isDbLoading ? `
+            <div style="text-align:center;padding:80px 20px;background:#fff;border-radius:16px;border:1px solid #e5e0d8;">
+              <div class="spinner" style="margin:0 auto 16px;"></div>
+              <p style="font-size:13px;color:#888;font-weight:500;">Loading packages…</p>
+            </div>
+          ` : filtered.length === 0 ? `
+            <div style="text-align:center;padding:80px 20px;background:#fff;border-radius:16px;border:1px dashed #d5d0c8;">
+              <p style="font-size:15px;color:#999;">No packages match your search.</p>
+              ${state.searchQuery ? `<button onclick="dispatch('SEARCH','')" style="margin-top:12px;font-size:12px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:600;letter-spacing:0.06em;">Clear search</button>` : ''}
+            </div>
+          ` : `
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px;">
+              ${filtered.map(pkg => `
+                <div class="pkg-card" style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid #ede9e1;display:flex;flex-direction:column;">
+                  
+                  <div class="img-wrap">
+                    <img src="${esc(pkg.image)}" alt="${esc(pkg.title)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80'" />
+                    ${pkg.highlight ? `<div class="highlight-strip">${esc(pkg.highlight)}</div>` : ''}
+                  </div>
 
-    // Startup Routines
-    window.onload = async () => {
-      await initAuth();
-      setupDatabaseListeners();
-      render();
-    };
+                  <div style="padding:22px 20px;flex:1;display:flex;flex-direction:column;">
+                    <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:0 0 6px;color:var(--navy);">${esc(pkg.title)}</h3>
+                    <p style="font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#999;margin:0 0 18px;">${esc(pkg.duration)}</p>
+                    
+                    <div style="flex:1;"></div>
 
-    // Listen to URL state changes for live SPA routing
-    window.addEventListener('popstate', () => {
-      render();
-    });
-  </script>
+                    <div style="border-top:1px solid #ede9e1;padding-top:16px;margin-top:16px;display:flex;flex-direction:column;gap:10px;align-items:center;">
+                      <a href="${esc(pkg.pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn-gold" style="width:100%;justify-content:center;text-decoration:none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                        View Itinerary PDF
+                      </a>
+                      <button onclick="dispatch('OPEN_INQUIRY', ${pkgJson(pkg)})" style="background:none;border:none;cursor:pointer;font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#aaa;text-decoration:underline;padding:0;">
+                        Request a Callback
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+
+        </div>
+      </section>
+    </main>`;
+  }
+
+  // ── LOGIN VIEW ─────────────────────────────────────────────────────────────
+  function renderLogin() {
+    return `
+    <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 68px);padding:24px;background:var(--navy-mid);">
+      <div style="width:100%;max-width:400px;">
+        <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+          
+          <div style="background:var(--navy);padding:32px;text-align:center;">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">SMC Admin Portal</div>
+            <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#fff;margin:0;">Control Room</h2>
+            <p style="font-size:12px;color:rgba(255,255,255,0.45);margin:8px 0 0;">Sign in with your agency credentials</p>
+          </div>
+
+          <form onsubmit="handleLogin(event)" style="padding:28px;display:flex;flex-direction:column;gap:18px;">
+            
+            ${state.loginError ? `<div class="error-box">${esc(state.loginError)}</div>` : ''}
+
+            <div>
+              <label class="field-label" for="f-user">Username</label>
+              <input class="field" id="f-user" type="text" placeholder="Enter your username" autocomplete="username" />
+            </div>
+            <div>
+              <label class="field-label" for="f-pass">Password</label>
+              <input class="field" id="f-pass" type="password" placeholder="Enter your password" autocomplete="current-password" />
+            </div>
+
+            <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:13px;">
+              Sign In to Dashboard
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>`;
+  }
+
+  // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
+  function renderAdmin() {
+    return `
+    <main style="max-width:1320px;margin:0 auto;padding:36px 24px;">
+      
+      <div class="admin-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="background:rgba(201,168,76,0.15);padding:10px;border-radius:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:14px;">Package Manager Dashboard</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">
+              ${isFirebaseReady ? 'Changes sync live across all devices and customers.' : 'Running in local storage mode.'}
+            </div>
+          </div>
+        </div>
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:5px 14px;border-radius:40px;${isFirebaseReady ? 'background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.25);' : 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);'}">
+          ${isFirebaseReady ? '● Live' : '○ Local Mode'}
+        </span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;">
+        
+        <!-- Form Panel -->
+        <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;padding:24px;position:sticky;top:88px;">
+          <div style="margin-bottom:20px;">
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:#f5f3ef;color:#888;padding:4px 10px;border-radius:4px;">
+              ${state.editingId ? 'Editing Package' : 'Add Package'}
+            </span>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:10px 0 0;">
+              ${state.editingId ? 'Edit Package Details' : 'Publish New Package'}
+            </h3>
+          </div>
+
+          ${state.formError ? `<div class="error-box" style="margin-bottom:16px;">${esc(state.formError)}</div>` : ''}
+          ${state.formSuccess ? `<div class="success-box" style="margin-bottom:16px;">${esc(state.formSuccess)}</div>` : ''}
+
+          <form onsubmit="handlePackageSubmit(event)" style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label class="field-label" for="f-title">Country / Destination *</label>
+              <input class="field" id="f-title" type="text" placeholder="e.g. Switzerland" value="${esc(state.draft.title)}" required />
+            </div>
+            <div>
+              <label class="field-label" for="f-duration">Duration *</label>
+              <input class="field" id="f-duration" type="text" placeholder="e.g. 3 Nights / 4 Days" value="${esc(state.draft.duration)}" required />
+            </div>
+            <div>
+              <label class="field-label" for="f-highlight">Highlight Tag</label>
+              <input class="field" id="f-highlight" type="text" placeholder="e.g. Zurich 3N" value="${esc(state.draft.highlight)}" />
+            </div>
+            <div>
+              <label class="field-label" for="f-image">Cover Image URL</label>
+              <input class="field" id="f-image" type="url" placeholder="https://… (Unsplash or direct link)" value="${esc(state.draft.image)}" />
+            </div>
+            <div style="background:#faf8f4;border:1px solid #ede9e1;border-radius:8px;padding:14px;">
+              <label class="field-label" for="f-pdf">Itinerary PDF URL *</label>
+              <input class="field" id="f-pdf" type="url" placeholder="https://… (Google Drive, Dropbox, etc.)" value="${esc(state.draft.pdfUrl)}" required />
+              <p style="font-size:10px;color:#aaa;margin:6px 0 0;">Use a direct or shareable PDF link.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px;">
+              <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:12px;">
+                ${state.editingId ? 'Save Changes' : 'Publish Package'}
+              </button>
+              ${state.editingId ? `
+                <button type="button" class="btn-outline" onclick="handleCancelEdit()" style="width:100%;justify-content:center;">
+                  Cancel
+                </button>
+              ` : ''}
+            </div>
+          </form>
+        </div>
+
+        <!-- Content Panels -->
+        <div style="display:flex;flex-direction:column;gap:24px;">
+          
+          <!-- Packages Table -->
+          <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;overflow:hidden;">
+            <div style="padding:20px 24px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
+              <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin:0;">Live Packages</h3>
+              <span style="font-size:11px;color:#aaa;font-weight:500;">${state.packages.length} total</span>
+            </div>
+
+            ${state.isDbLoading ? `
+              <div style="padding:48px;text-align:center;">
+                <div class="spinner" style="margin:0 auto 12px;"></div>
+                <p style="font-size:12px;color:#aaa;">Loading…</p>
+              </div>
+            ` : state.packages.length === 0 ? `
+              <p style="padding:32px 24px;font-size:13px;color:#bbb;text-align:center;">No packages yet. Add your first package using the form.</p>
+            ` : `
+              <div style="overflow-x:auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="text-align:left;">Destination</th>
+                      <th style="text-align:left;">Duration</th>
+                      <th style="text-align:left;">Highlight</th>
+                      <th style="text-align:right;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${state.packages.map(pkg => `
+                      <tr class="${state.editingId === pkg.id ? 'editing-row' : ''}">
+                        <td>
+                          <div style="display:flex;align-items:center;gap:12px;">
+                            <img src="${esc(pkg.image)}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;background:#e8e4dc;flex-shrink:0;" onerror="this.style.background='#e8e4dc';this.style.visibility='hidden'" />
+                            <div>
+                              <div style="font-weight:600;font-size:13px;">${esc(pkg.title)}</div>
+                              <a href="${esc(pkg.pdfUrl)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;font-weight:500;">View PDF ↗</a>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="color:#666;white-space:nowrap;">${esc(pkg.duration)}</td>
+                        <td>
+                          ${pkg.highlight ? `<span style="font-size:10px;font-weight:600;letter-spacing:0.06em;background:#f5f3ef;border:1px solid #ded9cf;color:var(--navy);padding:3px 10px;border-radius:4px;">${esc(pkg.highlight)}</span>` : '<span style="color:#ccc;font-size:12px;">—</span>'}
+                        </td>
+                        <td style="text-align:right;">
+                          <div style="display:flex;justify-content:flex-end;gap:6px;">
+                            <button class="btn-edit" onclick="handleStartEdit('${esc(pkg.id)}')">Edit</button>
+                            <button class="btn-danger" onclick="handleDelete('${esc(pkg.id)}')">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+
+          <!-- Inquiries -->
+          <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;overflow:hidden;">
+            <div style="padding:20px 24px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin:0;">Callback Requests</h3>
+                <p style="font-size:11px;color:#aaa;margin:4px 0 0;">Live leads from customer inquiries</p>
+              </div>
+              <span style="font-size:11px;color:#aaa;font-weight:500;">${state.inquiries.length} total</span>
+            </div>
+
+            ${state.inquiries.length === 0 ? `
+              <div style="padding:40px 24px;text-align:center;border:1px dashed #e5e0d8;margin:16px;border-radius:10px;">
+                <p style="font-size:13px;color:#bbb;">No callback requests yet.</p>
+              </div>
+            ` : `
+              <div style="display:flex;flex-direction:column;gap:0;">
+                ${state.inquiries.map((lead, i) => `
+                  <div style="padding:16px 24px;${i > 0 ? 'border-top:1px solid #f0ece4;' : ''}display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+                    <div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                        <span style="font-weight:600;font-size:14px;">${esc(lead.customerName)}</span>
+                        <span class="tag" style="background:#f5f3ef;color:var(--navy);border:1px solid #ded9cf;">Inquiry</span>
+                      </div>
+                      <div style="font-size:12px;color:#666;display:flex;gap:16px;flex-wrap:wrap;">
+                        <span><b style="color:var(--navy);">${esc(lead.phone)}</b></span>
+                        ${lead.email ? `<span style="color:#999;">${esc(lead.email)}</span>` : ''}
+                      </div>
+                      <div style="margin-top:8px;font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--navy);background:#faf8f4;padding:4px 10px;border-radius:4px;display:inline-block;">
+                        ${esc(lead.packageName)}
+                      </div>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;">
+                      <div style="font-size:11px;color:#bbb;margin-bottom:6px;">${formatDate(lead.createdAt)}</div>
+                      <button class="btn-danger" onclick="handleArchive('${esc(lead.id)}')" style="font-size:10px;padding:5px 10px;">Archive</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+
+        </div>
+      </div>
+    </main>`;
+  }
+
+  // ── INQUIRY MODAL ──────────────────────────────────────────────────────────
+  function renderInquiryModal() {
+    const pkg = state.selectedPackage;
+    return `
+    <div class="modal-backdrop" onclick="if(event.target===this)dispatch('CLOSE_INQUIRY')">
+      <div class="modal-box" style="background:#fff;width:100%;max-width:420px;border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
+        
+        <div style="background:var(--navy);padding:24px 28px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Request a Callback</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin:0;">${esc(pkg.title)}</h3>
+            <p style="font-size:11px;color:rgba(255,255,255,0.45);margin:4px 0 0;">${esc(pkg.duration)}</p>
+          </div>
+          <button onclick="dispatch('CLOSE_INQUIRY')" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">✕</button>
+        </div>
+
+        ${state.showSuccessModal ? `
+          <div style="padding:40px 28px;text-align:center;">
+            <div style="width:52px;height:52px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h4 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:0 0 8px;">Request Received</h4>
+            <p style="font-size:13px;color:#666;line-height:1.6;">A Rayna Tours specialist will contact you shortly regarding the <strong>${esc(pkg.title)}</strong> package.</p>
+          </div>
+        ` : `
+          <form onsubmit="handleInquirySubmit(event)" style="padding:24px 28px;display:flex;flex-direction:column;gap:14px;">
+            
+            ${state.inquiryError ? `<div class="error-box">${esc(state.inquiryError)}</div>` : ''}
+
+            <div>
+              <label class="field-label" for="i-name">Full Name *</label>
+              <input class="field" id="i-name" type="text" placeholder="Your full name" required autocomplete="name" />
+            </div>
+            <div>
+              <label class="field-label" for="i-phone">Mobile Number *</label>
+              <input class="field" id="i-phone" type="tel" placeholder="+91 98765 43210" required autocomplete="tel" />
+            </div>
+            <div>
+              <label class="field-label" for="i-email">Email Address <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+              <input class="field" id="i-email" type="email" placeholder="your@email.com" autocomplete="email" />
+            </div>
+
+            <div style="display:flex;gap:10px;padding-top:4px;">
+              <button type="button" class="btn-outline" onclick="dispatch('CLOSE_INQUIRY')" style="flex:1;">Cancel</button>
+              <button type="submit" class="btn-gold" style="flex:2;justify-content:center;">Send Request</button>
+            </div>
+          </form>
+        `}
+      </div>
+    </div>`;
+  }
+
+  // ─── BOOT ──────────────────────────────────────────────────────────────────
+  window.addEventListener('popstate', render);
+
+  window.onload = async () => {
+    await initAuth();
+    setupListeners();
+    render();
+  };
+</script>
 </body>
 </html>
