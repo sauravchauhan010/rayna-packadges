@@ -239,8 +239,8 @@
     appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
   };
 
-  const ADMIN_USERNAME = 'admin@smc';
-  const ADMIN_PASSWORD = 'smctours2026';
+  // Credentials are stored securely in Vercel environment variables.
+  // See /api/login.js — never hardcode credentials here.
 
   if (typeof window.__app_id !== 'undefined' && window.__app_id) {
     APP_ID = window.__app_id;
@@ -319,6 +319,7 @@
     selectedPackage: null,
     showSuccessModal: false,
     loginError: '',
+    loginLoading: false,
     formError: '',
     formSuccess: '',
     inquiryError: '',
@@ -464,18 +465,33 @@
   };
 
   // ─── EVENT HANDLERS ────────────────────────────────────────────────────────
-  window.handleLogin = (e) => {
+  window.handleLogin = async (e) => {
     e.preventDefault();
     const user = document.getElementById('f-user')?.value?.trim();
     const pass = document.getElementById('f-pass')?.value;
     state.loginError = '';
+    state.loginLoading = true;
+    render();
 
-    if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-      state.isLoggedIn = true;
-      sessionStorage.setItem('smc_admin_auth', 'true');
-    } else {
-      state.loginError = 'Incorrect username or password. Please try again.';
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        state.isLoggedIn = true;
+        sessionStorage.setItem('smc_admin_auth', 'true');
+      } else {
+        state.loginError = data.error || 'Incorrect username or password. Please try again.';
+      }
+    } catch (err) {
+      state.loginError = 'Network error. Please try again.';
     }
+
+    state.loginLoading = false;
     render();
   };
 
@@ -889,8 +905,8 @@
               <input class="field" id="f-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
             </div>
 
-            <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:10px;border-radius:4px;">
-              Access Dashboard
+            <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:10px;border-radius:4px;" ${state.loginLoading ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
+              ${state.loginLoading ? 'Verifying…' : 'Access Dashboard'}
             </button>
           </form>
         </div>
