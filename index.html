@@ -140,13 +140,6 @@
     }
     .btn-edit:hover { background: var(--slate-soft); }
 
-    /* Input mode switcher tabs */
-    .mode-tab {
-      font-size: 10px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;
-      padding: 3px 8px; border-radius: 4px; border: 1px solid transparent; cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
     /* Table */
     table { border-collapse: collapse; width: 100%; }
     th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 12px 14px; background: var(--slate-soft); }
@@ -166,7 +159,7 @@
       margin-bottom: 4px;
     }
 
-    /* Hero Background */
+    /* Hero Editorial minimal background */
     .hero-bg {
       background-image: linear-gradient(180deg, rgba(10,22,40,0.92) 0%, rgba(10,22,40,0.97) 100%), url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
       background-size: cover; background-position: center;
@@ -177,14 +170,18 @@
     ::-webkit-scrollbar-track { background: var(--cream); }
     ::-webkit-scrollbar-thumb { background: #c0b9ad; border-radius: 3px; }
 
+    /* Error / Success feedback blocks */
     .error-box { background: #fff1f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 500; }
     .success-box { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 500; }
 
+    /* Live status indicator */
     .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 1.8s infinite; display: inline-block; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+    /* Compact image wrap */
     .img-wrap { position: relative; overflow: hidden; aspect-ratio: 16/10; background: #e8e4dc; }
 
+    /* Floating highlight strip on client cards */
     .highlight-strip {
       position: absolute; bottom: 8px; left: 8px;
       background: rgba(10, 22, 40, 0.85);
@@ -196,6 +193,7 @@
       padding: 4px 10px; border-radius: 4px;
     }
 
+    /* Elegant admin layout bar */
     .admin-bar {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
       color: #fff;
@@ -206,6 +204,7 @@
       flex-wrap: wrap;
     }
 
+    /* Highlighted table states */
     .editing-row { background: #fffbf0; }
   </style>
 </head>
@@ -223,7 +222,7 @@
   import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // ─── HOISTED STATE ENVIRONMENT VARIABLES ───────────────────────────────────
+  // ─── INITIAL HOISTING FOR ROBUST LOAD ──────────────────────────────────────
   var isFirebaseReady = false;
   var app = null;
   var auth = null;
@@ -316,7 +315,7 @@
     inquiries: [],
     isDbLoading: true,
     searchQuery: '',
-    selectedCountryFilter: 'All',
+    selectedCountryFilter: 'All', // Added top filter key
     selectedPackage: null,
     showSuccessModal: false,
     loginError: '',
@@ -325,9 +324,6 @@
     inquiryError: '',
     editingId: null,
     deleteTargetId: null,
-    // Form Input Upload Mode Toggles ('link' or 'upload')
-    imageInputMode: 'link', 
-    pdfInputMode: 'link',
     draft: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
   };
 
@@ -433,16 +429,6 @@
     } catch(_) { return iso; }
   }
 
-  // Helper utility to convert uploaded files to Base64 format free strings
-  function convertFileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
-  }
-
   // ─── DISPATCH ──────────────────────────────────────────────────────────────
   window.dispatch = (action, payload) => {
     switch(action) {
@@ -451,12 +437,6 @@
         break;
       case 'SET_COUNTRY_FILTER':
         state.selectedCountryFilter = payload;
-        break;
-      case 'SET_IMAGE_MODE':
-        state.imageInputMode = payload;
-        break;
-      case 'SET_PDF_MODE':
-        state.pdfInputMode = payload;
         break;
       case 'OPEN_INQUIRY':
         state.selectedPackage = payload;
@@ -504,11 +484,6 @@
     if (!pkg) return;
     state.editingId = id;
     state.draft = { title: pkg.title, duration: pkg.duration, highlight: pkg.highlight, image: pkg.image || '', pdfUrl: pkg.pdfUrl };
-    
-    // Auto adapt correct input modes based on edited document string formats
-    state.imageInputMode = pkg.image && pkg.image.startsWith('data:') ? 'upload' : 'link';
-    state.pdfInputMode = pkg.pdfUrl && pkg.pdfUrl.startsWith('data:') ? 'upload' : 'link';
-    
     state.formError = '';
     state.formSuccess = '';
     render();
@@ -531,57 +506,16 @@
     const title     = document.getElementById('f-title')?.value?.trim();
     const duration  = document.getElementById('f-duration')?.value?.trim();
     const highlight = document.getElementById('f-highlight')?.value?.trim();
-    
-    let finalImageUrl = '';
-    let finalPdfUrl = '';
+    const image     = document.getElementById('f-image')?.value?.trim();
+    const pdfUrl    = document.getElementById('f-pdf')?.value?.trim();
 
-    // Handle Image compilation based on active mode context
-    if (state.imageInputMode === 'link') {
-      finalImageUrl = document.getElementById('f-image')?.value?.trim();
-    } else {
-      const localImgInput = document.getElementById('f-image-file');
-      if (localImgInput && localImgInput.files.length > 0) {
-        try {
-          finalImageUrl = await convertFileToBase64(localImgInput.files[0]);
-        } catch (err) {
-          state.formError = 'Failed parsing cover image file locally.';
-          render(); return;
-        }
-      } else {
-        finalImageUrl = state.draft.image; // Fallback to current edited source if file wasn't re-selected
-      }
+    if (!title || !duration || !pdfUrl) {
+      state.formError = 'Country title, duration, and PDF link are required.';
+      render(); return;
     }
 
-    // Handle PDF compilation based on active mode context
-    if (state.pdfInputMode === 'link') {
-      finalPdfUrl = document.getElementById('f-pdf')?.value?.trim();
-      if (finalPdfUrl) {
-        try { new URL(finalPdfUrl); } catch(_) {
-          state.formError = 'Please check absolute URL structure for your itinerary link.';
-          render(); return;
-        }
-      }
-    } else {
-      const localPdfInput = document.getElementById('f-pdf-file');
-      if (localPdfInput && localPdfInput.files.length > 0) {
-        try {
-          // Verify file limits to comply safe baseline limits
-          if (localPdfInput.files[0].size > 1500000) { 
-            state.formError = 'Local file exceeds safety threshold. Please pass documents compressed below 1.5MB.';
-            render(); return;
-          }
-          finalPdfUrl = await convertFileToBase64(localPdfInput.files[0]);
-        } catch (err) {
-          state.formError = 'Failed processing local text asset file.';
-          render(); return;
-        }
-      } else {
-        finalPdfUrl = state.draft.pdfUrl;
-      }
-    }
-
-    if (!title || !duration || !finalPdfUrl) {
-      state.formError = 'Destination, Duration description and a valid itinerary layout file are required.';
+    try { new URL(pdfUrl); } catch(_) {
+      state.formError = 'Please enter a valid PDF URL (must start with https://).';
       render(); return;
     }
 
@@ -589,8 +523,8 @@
       title: title.trim(),
       duration: duration.trim(),
       highlight: highlight || '',
-      image: finalImageUrl || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80',
-      pdfUrl: finalPdfUrl,
+      image: image || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80',
+      pdfUrl,
       createdAt: new Date().toISOString()
     };
 
@@ -603,7 +537,7 @@
       saveLocal('smc_pkgs_v4', state.packages);
       state.editingId = null;
       state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
-      state.formSuccess = 'Local collection updated successfully.';
+      state.formSuccess = state.editingId ? 'Package updated.' : 'Package published successfully.';
       render(); return;
     }
 
@@ -611,16 +545,16 @@
       if (state.editingId) {
         const ref = doc(db, 'artifacts', APP_ID, 'public', 'data', 'packages', state.editingId);
         await updateDoc(ref, payload);
-        state.formSuccess = 'Departure specs updated live on cloud portal.';
+        state.formSuccess = 'Package updated successfully.';
       } else {
         const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
         await addDoc(col, payload);
-        state.formSuccess = 'New destination synchronization broadcasted.';
+        state.formSuccess = 'Package published successfully.';
       }
       state.editingId = null;
       state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
     } catch (err) {
-      state.formError = 'Cloud node error: ' + err.message;
+      state.formError = 'Database error: ' + err.message;
     }
     render();
   };
@@ -719,6 +653,7 @@
     const container = document.getElementById('app');
     if (!container) return;
 
+    // Advanced search + category filter logic
     const filtered = state.packages.filter(p => {
       const q = state.searchQuery.toLowerCase();
       const matchesSearch = !q || esc(p.title).toLowerCase().includes(q) || esc(p.highlight).toLowerCase().includes(q);
@@ -802,10 +737,12 @@
 
   // ── CUSTOMER VIEW ──────────────────────────────────────────────────────────
   function renderCustomer(filtered) {
+    // Collect all unique country destinations in packages for the top filter tabs
     const destinations = ['All', ...new Set(state.packages.map(p => p.title))];
 
     return `
     <main>
+      <!-- Premium consolidated space-efficient Hero -->
       <div class="hero-bg" style="position:relative;padding:48px 20px;text-align:center;">
         <div style="max-width:680px;margin:0 auto;position:relative;z-index:2;">
           <div style="display:inline-block;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:12px;">
@@ -818,6 +755,7 @@
             Premium itineraries tailored for discerning groups. Instant PDF itinerary download and immediate callback booking options.
           </p>
 
+          <!-- Integrated search bar -->
           <div style="max-width:380px;margin:0 auto;position:relative;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -833,6 +771,7 @@
         </div>
       </div>
 
+      <!-- Top Country Filter Grid/Pill Section -->
       <section style="padding:20px 20px 0;background:#fff;border-bottom:1px solid #ede9e1;">
         <div style="max-width:1200px;margin:0 auto;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
@@ -867,6 +806,7 @@
         </div>
       </section>
 
+      <!-- Main Departures Grid Catalog -->
       <section style="padding:40px 20px;background:var(--cream);">
         <div style="max-width:1200px;margin:0 auto;">
           
@@ -960,8 +900,6 @@
 
   // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
   function renderAdmin() {
-    const isEditingMode = state.editingId !== null;
-
     return `
     <main style="max-width:1200px;margin:0 auto;padding:24px 20px;">
       
@@ -984,14 +922,14 @@
 
       <div class="flex flex-col lg:flex-row gap-6 items-start">
         
-        <!-- Form Panel with Adaptive Image and PDF toggles -->
+        <!-- Form Panel -->
         <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;padding:18px;width:100%;max-width:320px;" class="lg:sticky lg:top:72px;">
           <div style="margin-bottom:14px;">
             <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:#f5f3ef;color:#666;padding:3px 8px;border-radius:3px;">
-              ${isEditingMode ? 'Edit Draft' : 'Add Departure'}
+              ${state.editingId ? 'Edit Draft' : 'Add Departure'}
             </span>
             <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:6px 0 0;">
-              ${isEditingMode ? 'Edit Package Specs' : 'Publish New Destination'}
+              ${state.editingId ? 'Edit Package Specs' : 'Publish New Destination'}
             </h3>
           </div>
 
@@ -1011,52 +949,19 @@
               <label class="field-label" for="f-highlight">Highlight Summary</label>
               <input class="field" id="f-highlight" type="text" placeholder="e.g. Zurich 3N" value="${esc(state.draft.highlight)}" />
             </div>
-
-            <!-- Cover Image Controller with Free Upload Switcher -->
             <div>
-              <div style="display:flex;justify-content:between;align-items:center;margin-bottom:4px;">
-                <label class="field-label" style="margin:0;">Cover Image *</label>
-                <div style="display:flex;background:#f5f3ef;padding:2px;border-radius:4px;gap:2px;">
-                  <span class="mode-tab ${state.imageInputMode === 'link' ? 'bg-white text-slate-900 font-bold border-gray-200' : 'text-gray-400'}" onclick="dispatch('SET_IMAGE_MODE', 'link')">Link</span>
-                  <span class="mode-tab ${state.imageInputMode === 'upload' ? 'bg-white text-slate-900 font-bold border-gray-200' : 'text-gray-400'}" onclick="dispatch('SET_IMAGE_MODE', 'upload')">Upload</span>
-                </div>
-              </div>
-              
-              ${state.imageInputMode === 'link' ? `
-                <input class="field" id="f-image" type="url" placeholder="https://images.unsplash.com..." value="${state.draft.image && !state.draft.image.startsWith('data:') ? esc(state.draft.image) : ''}" />
-              ` : `
-                <div style="border:1px dashed #ddd8ce;padding:8px;border-radius:6px;background:#fff;text-align:center;">
-                  <input type="file" id="f-image-file" accept="image/*" style="font-size:11px;width:100%;" />
-                  ${isEditingMode && state.draft.image && state.draft.image.startsWith('data:') ? `<p style="font-size:9px;color:var(--gold);margin-top:4px;">✓ Local image stored</p>` : ''}
-                </div>
-              `}
+              <label class="field-label" for="f-image">Card Image URL</label>
+              <input class="field" id="f-image" type="url" placeholder="https://unsplash..." value="${esc(state.draft.image)}" />
             </div>
-
-            <!-- Itinerary PDF controller with Free Upload Switcher -->
-            <div style="background:#faf8f4;border:1px solid #ede9e1;border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px;">
-              <div style="display:flex;justify-content:between;align-items:center;">
-                <label class="field-label" style="margin:0;">Itinerary Layout (PDF) *</label>
-                <div style="display:flex;background:#ede9e1;padding:2px;border-radius:4px;gap:2px;">
-                  <span class="mode-tab ${state.pdfInputMode === 'link' ? 'bg-white text-slate-900 font-bold' : 'text-gray-400'}" onclick="dispatch('SET_PDF_MODE', 'link')">Link</span>
-                  <span class="mode-tab ${state.pdfInputMode === 'upload' ? 'bg-white text-slate-900 font-bold' : 'text-gray-400'}" onclick="dispatch('SET_PDF_MODE', 'upload')">Upload</span>
-                </div>
-              </div>
-
-              ${state.pdfInputMode === 'link' ? `
-                <input class="field" id="f-pdf" type="url" placeholder="https://drive.google.com/..." value="${state.draft.pdfUrl && !state.draft.pdfUrl.startsWith('data:') ? esc(state.draft.pdfUrl) : ''}" />
-              ` : `
-                <div style="border:1px dashed #c0b9ad;padding:8px;border-radius:6px;background:#fff;text-align:center;">
-                  <input type="file" id="f-pdf-file" accept=".pdf" style="font-size:11px;width:100%;" />
-                  ${isEditingMode && state.draft.pdfUrl && state.draft.pdfUrl.startsWith('data:') ? `<p style="font-size:9px;color:var(--gold);margin-top:4px;">✓ Local PDF attached</p>` : ''}
-                </div>
-              `}
+            <div style="background:#faf8f4;border:1px solid #ede9e1;border-radius:6px;padding:10px;">
+              <label class="field-label" for="f-pdf">Itinerary Link (PDF) *</label>
+              <input class="field" id="f-pdf" type="url" placeholder="https://..." value="${esc(state.draft.pdfUrl)}" required />
             </div>
-
             <div style="display:flex;flex-direction:column;gap:6px;padding-top:2px;">
               <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:9px;border-radius:4px;">
-                ${isEditingMode ? 'Save Specs' : 'Publish Departure'}
+                ${state.editingId ? 'Save Specs' : 'Publish Departure'}
               </button>
-              ${isEditingMode ? `
+              ${state.editingId ? `
                 <button type="button" class="btn-outline" onclick="handleCancelEdit()" style="width:100%;justify-content:center;padding:8px;">
                   Cancel
                 </button>
@@ -1065,10 +970,10 @@
           </form>
         </div>
 
-        <!-- Content Panels Directory Grid -->
+        <!-- Content Panels -->
         <div style="flex:1;display:flex;flex-direction:column;gap:20px;width:100%;">
           
-          <!-- Packages Directory Table with numbering representation counter metrics -->
+          <!-- Packages Table -->
           <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
             <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
               <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0;">Active Departures Directory</h3>
@@ -1097,16 +1002,14 @@
                   <tbody>
                     ${state.packages.map((pkg, index) => `
                       <tr class="${state.editingId === pkg.id ? 'editing-row' : ''}">
-                        <!-- Sequential tracking numbers index listing counters -->
+                        <!-- Sequential listing numbers with clear numbering representation -->
                         <td style="font-weight:600;color:var(--gold);width:45px;padding:10px 12px;">${index + 1}</td>
                         <td>
                           <div style="display:flex;align-items:center;gap:10px;">
                             <img src="${esc(pkg.image)}" style="width:34px;height:34px;border-radius:4px;object-fit:cover;background:#e8e4dc;flex-shrink:0;" onerror="this.style.background='#e8e4dc';this.style.visibility='hidden'" />
                             <div>
                               <div style="font-weight:600;font-size:12px;color:var(--navy);">${esc(pkg.title)}</div>
-                              <a href="${esc(pkg.pdfUrl)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;font-weight:500;">
-                                ${pkg.pdfUrl && pkg.pdfUrl.startsWith('data:') ? 'View Local Document ↗' : 'View External Itinerary ↗'}
-                              </a>
+                              <a href="${esc(pkg.pdfUrl)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;font-weight:500;">Itinerary Link ↗</a>
                             </div>
                           </div>
                         </td>
@@ -1128,7 +1031,7 @@
             `}
           </div>
 
-          <!-- Inquiries Tracking Summary -->
+          <!-- Inquiries -->
           <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
             <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
               <div>
