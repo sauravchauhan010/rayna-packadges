@@ -38,49 +38,40 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Card hover */
-    .pkg-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .pkg-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(10,22,40,0.12); }
+    .pkg-card { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease; }
+    .pkg-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(10,22,40,0.08); }
 
-    .pkg-card img { transition: transform 0.5s ease; }
-    .pkg-card:hover img { transform: scale(1.06); }
-
-    /* Gold underline */
-    .gold-line::after {
-      content: '';
-      display: block;
-      width: 40px; height: 2px;
-      background: var(--gold);
-      margin-top: 8px;
-    }
+    .pkg-card img { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    .pkg-card:hover img { transform: scale(1.04); }
 
     /* Overlay backdrop */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 50;
-      background: rgba(10,22,40,0.75);
-      backdrop-filter: blur(6px);
+      background: rgba(10,22,40,0.6);
+      backdrop-filter: blur(4px);
       display: flex; align-items: center; justify-content: center;
       padding: 1rem;
       animation: fadeIn 0.2s ease;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    .modal-box { animation: slideUp 0.25s ease; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-box { animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Inputs */
     .field {
       width: 100%;
       background: #fff;
       border: 1px solid #ddd8ce;
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 6px;
+      padding: 9px 12px;
       font-family: 'DM Sans', sans-serif;
       font-size: 13px;
       color: var(--navy);
       outline: none;
       transition: border-color 0.2s;
     }
-    .field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+    .field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
 
     /* Buttons */
     .btn-gold {
@@ -88,17 +79,17 @@
       color: var(--navy);
       font-family: 'DM Sans', sans-serif;
       font-weight: 600;
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 11px 24px;
-      border-radius: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
       border: none;
       cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
+      transition: background 0.2s, transform 0.1s;
       display: inline-flex; align-items: center; gap: 6px;
     }
-    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-gold:hover { background: var(--gold-light); transform: translateY(-0.5px); }
     .btn-gold:active { transform: translateY(0); }
 
     .btn-outline {
@@ -106,11 +97,11 @@
       color: var(--navy);
       font-family: 'DM Sans', sans-serif;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 9px 16px;
+      border-radius: 6px;
       border: 1px solid #ddd8ce;
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s;
@@ -122,10 +113,10 @@
       color: #b91c1c;
       font-family: 'DM Sans', sans-serif;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      padding: 8px 14px;
+      padding: 6px 12px;
       border-radius: 6px;
       border: 1px solid #fecaca;
       cursor: pointer;
@@ -138,10 +129,10 @@
       color: var(--navy);
       font-family: 'DM Sans', sans-serif;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      padding: 8px 14px;
+      padding: 6px 12px;
       border-radius: 6px;
       border: 1px solid #ddd8ce;
       cursor: pointer;
@@ -149,44 +140,28 @@
     }
     .btn-edit:hover { background: var(--slate-soft); }
 
-    /* Toast */
-    .toast {
-      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-      background: var(--navy); color: #fff;
-      padding: 12px 24px; border-radius: 40px;
-      font-size: 13px; font-weight: 500;
-      display: flex; align-items: center; gap: 8px;
-      z-index: 100;
-      animation: toastIn 0.3s ease;
-      box-shadow: 0 8px 30px rgba(10,22,40,0.25);
-    }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-
     /* Table */
     table { border-collapse: collapse; width: 100%; }
-    th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 10px 14px; background: var(--slate-soft); }
+    th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 12px 14px; background: var(--slate-soft); }
     td { padding: 12px 14px; border-top: 1px solid #ede9e1; font-size: 13px; }
 
     /* Tag */
     .tag {
       display: inline-block;
-      font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 3px 10px; border-radius: 40px;
+      font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 40px;
     }
-
-    /* Nav */
-    nav { background: var(--navy); }
 
     /* Label */
     .field-label {
-      display: block; font-size: 10px; font-weight: 600;
+      display: block; font-size: 9px; font-weight: 600;
       letter-spacing: 0.1em; text-transform: uppercase; color: #888;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
-    /* Hero */
+    /* Hero Editorial minimal background */
     .hero-bg {
-      background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
+      background-image: linear-gradient(180deg, rgba(10,22,40,0.92) 0%, rgba(10,22,40,0.97) 100%), url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
       background-size: cover; background-position: center;
     }
 
@@ -195,54 +170,42 @@
     ::-webkit-scrollbar-track { background: var(--cream); }
     ::-webkit-scrollbar-thumb { background: #c0b9ad; border-radius: 3px; }
 
-    /* Error box */
-    .error-box {
-      background: #fff1f2; border: 1px solid #fecaca;
-      color: #991b1b; border-radius: 8px;
-      padding: 10px 14px; font-size: 12px; font-weight: 500;
-    }
+    /* Error / Success feedback blocks */
+    .error-box { background: #fff1f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 500; }
+    .success-box { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 500; }
 
-    /* Success box */
-    .success-box {
-      background: #f0fdf4; border: 1px solid #bbf7d0;
-      color: #166534; border-radius: 8px;
-      padding: 10px 14px; font-size: 12px; font-weight: 500;
-    }
-
-    /* Status badge */
-    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 1.8s infinite; display: inline-block; }
+    /* Live status indicator */
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 1.8s infinite; display: inline-block; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* Package card image wrapper */
-    .img-wrap { position: relative; overflow: hidden; aspect-ratio: 4/3; background: #e8e4dc; }
+    /* Compact image wrap */
+    .img-wrap { position: relative; overflow: hidden; aspect-ratio: 16/10; background: #e8e4dc; }
 
-    /* Highlight strip */
+    /* Floating highlight strip on client cards */
     .highlight-strip {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: var(--navy);
+      position: absolute; bottom: 8px; left: 8px;
+      background: rgba(10, 22, 40, 0.85);
+      backdrop-filter: blur(4px);
       color: var(--gold);
       font-family: 'DM Sans', sans-serif;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      text-align: center; padding: 8px 0;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px;
     }
 
-    /* Admin status bar */
+    /* Elegant admin layout bar */
     .admin-bar {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
       color: #fff;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 28px;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
       display: flex; justify-content: space-between; align-items: center; gap: 12px;
       flex-wrap: wrap;
     }
 
-    /* Package editing highlight */
+    /* Highlighted table states */
     .editing-row { background: #fffbf0; }
-
-    /* Footer */
-    footer { background: var(--navy); color: rgba(255,255,255,0.5); }
   </style>
 </head>
 <body>
@@ -259,6 +222,13 @@
   import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+  // ─── INITIAL HOISTING FOR ROBUST LOAD ──────────────────────────────────────
+  var isFirebaseReady = false;
+  var app = null;
+  var auth = null;
+  var db = null;
+  var APP_ID = 'smc-tours-portal-v2';
+
   // ─── CONFIG ────────────────────────────────────────────────────────────────
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
@@ -272,7 +242,20 @@
   const ADMIN_USERNAME = 'admin@smc';
   const ADMIN_PASSWORD = 'smctours2026';
 
-  const APP_ID = (typeof window.__app_id !== 'undefined' && window.__app_id) ? window.__app_id : 'smc-tours-portal-v2';
+  if (typeof window.__app_id !== 'undefined' && window.__app_id) {
+    APP_ID = window.__app_id;
+  }
+
+  let firebaseConfig = FIREBASE_CONFIG;
+  if (typeof window.__firebase_config !== 'undefined' && window.__firebase_config) {
+    try {
+      firebaseConfig = JSON.parse(window.__firebase_config);
+    } catch (e) {
+      console.error("Error parsing injected __firebase_config:", e);
+    }
+  }
+
+  isFirebaseReady = !!(firebaseConfig && firebaseConfig.apiKey);
 
   const SEED_PACKAGES = [
     {
@@ -313,13 +296,9 @@
     }
   ];
 
-  // ─── FIREBASE INIT ─────────────────────────────────────────────────────────
-  const isFirebaseReady = !!(FIREBASE_CONFIG?.apiKey);
-  let app, auth, db;
-
   if (isFirebaseReady) {
     try {
-      app = initializeApp(FIREBASE_CONFIG);
+      app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       db = getFirestore(app);
     } catch (err) {
@@ -336,6 +315,7 @@
     inquiries: [],
     isDbLoading: true,
     searchQuery: '',
+    selectedCountryFilter: 'All', // Added top filter key
     selectedPackage: null,
     showSuccessModal: false,
     loginError: '',
@@ -343,6 +323,7 @@
     formSuccess: '',
     inquiryError: '',
     editingId: null,
+    deleteTargetId: null,
     draft: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
   };
 
@@ -373,7 +354,6 @@
   // ─── DATABASE ──────────────────────────────────────────────────────────────
   function setupListeners() {
     if (!isFirebaseReady || !db) {
-      // Local mode
       try {
         const localPkgs = localStorage.getItem('smc_pkgs_v4');
         state.packages = localPkgs ? JSON.parse(localPkgs) : [...SEED_PACKAGES];
@@ -400,7 +380,6 @@
         snap.forEach(d => list.push({ id: d.id, ...d.data() }));
 
         if (list.length === 0 && state.isDbLoading) {
-          // Seed
           try {
             for (const item of SEED_PACKAGES) {
               const { id: _id, ...data } = item;
@@ -455,6 +434,9 @@
     switch(action) {
       case 'SEARCH':
         state.searchQuery = payload;
+        break;
+      case 'SET_COUNTRY_FILTER':
+        state.selectedCountryFilter = payload;
         break;
       case 'OPEN_INQUIRY':
         state.selectedPackage = payload;
@@ -532,7 +514,6 @@
       render(); return;
     }
 
-    // Basic URL validation for pdfUrl
     try { new URL(pdfUrl); } catch(_) {
       state.formError = 'Please enter a valid PDF URL (must start with https://).';
       render(); return;
@@ -578,19 +559,34 @@
     render();
   };
 
-  window.handleDelete = async (id) => {
-    if (!confirm('Delete this package? This cannot be undone.')) return;
+  window.triggerDeleteConfirmation = (id) => {
+    state.deleteTargetId = id;
+    render();
+  };
+
+  window.cancelDelete = () => {
+    state.deleteTargetId = null;
+    render();
+  };
+
+  window.confirmDelete = async () => {
+    const id = state.deleteTargetId;
+    if (!id) return;
 
     if (!isFirebaseReady || !db) {
       state.packages = state.packages.filter(p => p.id !== id);
       saveLocal('smc_pkgs_v4', state.packages);
       if (state.editingId === id) { state.editingId = null; state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }; }
+      state.deleteTargetId = null;
       render(); return;
     }
     try {
       await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'packages', id));
       if (state.editingId === id) { state.editingId = null; state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }; }
     } catch (err) { console.error('Delete error:', err); }
+    
+    state.deleteTargetId = null;
+    render();
   };
 
   window.handleInquirySubmit = async (e) => {
@@ -606,7 +602,6 @@
       render(); return;
     }
 
-    // Basic phone check
     if (!/^[\d\s\+\-\(\)]{7,15}$/.test(phone)) {
       state.inquiryError = 'Please enter a valid mobile number.';
       render(); return;
@@ -658,54 +653,55 @@
     const container = document.getElementById('app');
     if (!container) return;
 
+    // Advanced search + category filter logic
     const filtered = state.packages.filter(p => {
       const q = state.searchQuery.toLowerCase();
-      return !q || esc(p.title).toLowerCase().includes(q) || esc(p.highlight).toLowerCase().includes(q);
+      const matchesSearch = !q || esc(p.title).toLowerCase().includes(q) || esc(p.highlight).toLowerCase().includes(q);
+      const matchesCountry = state.selectedCountryFilter === 'All' || p.title === state.selectedCountryFilter;
+      return matchesSearch && matchesCountry;
     });
 
     let html = '';
 
     // ── NAV ──
     html += `
-    <header style="position:sticky;top:0;z-index:40;background:var(--navy);box-shadow:0 2px 20px rgba(0,0,0,0.3);">
-      <div style="max-width:1320px;margin:0 auto;padding:0 24px;height:68px;display:flex;justify-content:space-between;align-items:center;">
+    <header style="position:sticky;top:0;z-index:40;background:var(--navy);box-shadow:0 1px 10px rgba(0,0,0,0.15);">
+      <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;">
         
-        <div style="display:flex;align-items:center;gap:14px;cursor:pointer;" onclick="dispatch('GO_HOME')">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;">
-            <rect width="32" height="32" rx="8" fill="#c9a84c" opacity="0.15"/>
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="dispatch('GO_HOME')">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;">
+            <rect width="32" height="32" rx="6" fill="#c9a84c" opacity="0.15"/>
             <path d="M16 6L6 14v12h7v-7h6v7h7V14L16 6z" fill="#c9a84c"/>
           </svg>
           <div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.04em;line-height:1;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.02em;line-height:1;">
               Rayna <span style="color:var(--gold);">Tours</span>
             </div>
-            <div style="font-size:9px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:6px;margin-top:2px;">
+            <div style="font-size:8px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:4px;margin-top:1px;">
               <span class="live-dot"></span>
-              ${isFirebaseReady ? 'Live Cloud Portal' : 'Local Mode'}
+              ${isFirebaseReady ? 'Cloud connected' : 'Local mode'}
             </div>
           </div>
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;">
           ${state.isLoggedIn && state.view === 'admin' ? `
-            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:11px;" onclick="dispatch('LOGOUT')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:4px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:10px;padding:6px 12px;border-radius:4px;" onclick="dispatch('LOGOUT')">
               Sign Out
             </button>
           ` : ''}
           ${state.view === 'admin-login' ? `
-            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:11px;" onclick="dispatch('GO_HOME')">
-              ← Customer View
+            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:10px;padding:6px 12px;border-radius:4px;" onclick="dispatch('GO_HOME')">
+              ← Client Portal
             </button>
           ` : ''}
           ${state.view === 'customer' && !state.isLoggedIn ? `
-            <a href="?admin" style="font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);text-decoration:none;" title="Admin Login">Admin</a>
+            <a href="?admin" style="font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-decoration:none;" title="Admin Login">Admin Access</a>
           ` : ''}
         </div>
       </div>
     </header>`;
 
-    // ── VIEWS ──
     if (state.view === 'customer') {
       html += renderCustomer(filtered);
     } else if (state.view === 'admin-login') {
@@ -716,21 +712,24 @@
 
     // ── FOOTER ──
     html += `
-    <footer style="padding:40px 24px;">
-      <div style="max-width:1320px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+    <footer style="padding:24px 20px;border-top:1px solid #ede9e1;background:#fff;">
+      <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
         <div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.04em;">Rayna Tours</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">© 2026 SMC Tours Ltd. All rights reserved.</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--navy);">Rayna Tours</div>
+          <div style="font-size:10px;color:rgba(10,22,40,0.45);margin-top:2px;">© 2026 SMC Tours Ltd. All rights reserved.</div>
         </div>
-        <div style="font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);">
-          ${isFirebaseReady ? 'Cloud Connected' : 'Local Storage Mode'}
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(10,22,40,0.35);">
+          Premium Departures Hub
         </div>
       </div>
     </footer>`;
 
-    // ── INQUIRY MODAL ──
     if (state.selectedPackage) {
       html += renderInquiryModal();
+    }
+
+    if (state.deleteTargetId) {
+      html += renderDeleteConfirmationModal();
     }
 
     container.innerHTML = html;
@@ -738,83 +737,121 @@
 
   // ── CUSTOMER VIEW ──────────────────────────────────────────────────────────
   function renderCustomer(filtered) {
+    // Collect all unique country destinations in packages for the top filter tabs
+    const destinations = ['All', ...new Set(state.packages.map(p => p.title))];
+
     return `
     <main>
-      <!-- Hero -->
-      <div class="hero-bg" style="position:relative;min-height:420px;display:flex;align-items:center;">
-        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(10,22,40,0.7) 0%, rgba(10,22,40,0.85) 100%);"></div>
-        <div style="position:relative;z-index:1;max-width:720px;margin:0 auto;padding:64px 24px;text-align:center;">
-          <div style="display:inline-block;border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;padding:6px 18px;border-radius:40px;margin-bottom:20px;">
-            Premium Group Departures
+      <!-- Premium consolidated space-efficient Hero -->
+      <div class="hero-bg" style="position:relative;padding:48px 20px;text-align:center;">
+        <div style="max-width:680px;margin:0 auto;position:relative;z-index:2;">
+          <div style="display:inline-block;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:12px;">
+            SMC Premium Departures
           </div>
-          <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,58px);font-weight:700;color:#fff;line-height:1.1;margin:0 0 16px;">
-            Explore the World with<br><em style="color:var(--gold);">Rayna Tours</em>
+          <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,42px);font-weight:700;color:#fff;line-height:1.15;margin-bottom:10px;">
+            Explore the World with <em style="color:var(--gold);font-style:normal;">Rayna Tours</em>
           </h1>
-          <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.7;max-width:480px;margin:0 auto 32px;font-weight:300;">
-            Browse our curated holiday packages. Download the full itinerary PDF or request a callback from our travel specialists.
+          <p style="color:rgba(255,255,255,0.6);font-size:13px;max-width:440px;margin:0 auto 20px;font-weight:300;line-height:1.5;">
+            Premium itineraries tailored for discerning groups. Instant PDF itinerary download and immediate callback booking options.
           </p>
-          <div style="max-width:420px;margin:0 auto;position:relative;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.7)" stroke-width="2" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;">
+
+          <!-- Integrated search bar -->
+          <div style="max-width:380px;margin:0 auto;position:relative;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
             <input
               type="text"
-              placeholder="Search destinations…"
+              placeholder="Search destinations, tags..."
               value="${esc(state.searchQuery)}"
               oninput="dispatch('SEARCH', this.value)"
-              style="width:100%;background:rgba(255,255,255,0.95);border:none;border-radius:40px;padding:14px 16px 14px 46px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--navy);outline:none;box-shadow:0 8px 30px rgba(0,0,0,0.2);"
+              style="width:100%;background:rgba(255,255,255,0.98);border:none;border-radius:30px;padding:10px 14px 10px 38px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--navy);outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);"
             />
           </div>
         </div>
       </div>
 
-      <!-- Catalog -->
-      <section style="padding:64px 24px;background:var(--cream);">
-        <div style="max-width:1320px;margin:0 auto;">
-          
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:12px;">
-            <div>
-              <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;margin:0;line-height:1;">Group Departures</h2>
-              <div style="width:40px;height:2px;background:var(--gold);margin-top:8px;"></div>
+      <!-- Top Country Filter Grid/Pill Section -->
+      <section style="padding:20px 20px 0;background:#fff;border-bottom:1px solid #ede9e1;">
+        <div style="max-width:1200px;margin:0 auto;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+            <span style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#888;">Filter by Destination</span>
+            <div style="display:flex;gap:8px;overflow-x:auto;max-width:100%;padding-bottom:16px;scrollbar-width:none;" class="justify-start md:justify-center no-scrollbar">
+              ${destinations.map(country => {
+                const isSelected = state.selectedCountryFilter === country;
+                return `
+                  <button 
+                    onclick="dispatch('SET_COUNTRY_FILTER', '${esc(country)}')"
+                    style="
+                      white-space:nowrap;
+                      font-family:'DM Sans',sans-serif;
+                      font-size:11px;
+                      font-weight:600;
+                      letter-spacing:0.04em;
+                      padding:6px 14px;
+                      border-radius:30px;
+                      cursor:pointer;
+                      transition:all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                      border:1px solid ${isSelected ? 'var(--gold)' : '#ede9e1'};
+                      background: ${isSelected ? 'var(--navy)' : '#fff'};
+                      color: ${isSelected ? 'var(--gold)' : 'var(--navy)'};
+                    "
+                  >
+                    ${esc(country)}
+                  </button>
+                `;
+              }).join('')}
             </div>
-            <span style="font-size:12px;font-weight:500;color:#888;background:#fff;border:1px solid #e5e0d8;padding:6px 14px;border-radius:6px;">
-              ${filtered.length} ${filtered.length === 1 ? 'package' : 'packages'}
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Departures Grid Catalog -->
+      <section style="padding:40px 20px;background:var(--cream);">
+        <div style="max-width:1200px;margin:0 auto;">
+          
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <div>
+              <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;margin:0;">Curated Journeys</h2>
+            </div>
+            <span style="font-size:11px;font-weight:500;color:#666;background:#fff;border:1px solid #ede9e1;padding:4px 10px;border-radius:4px;">
+              Showing ${filtered.length} departure${filtered.length === 1 ? '' : 's'}
             </span>
           </div>
 
           ${state.isDbLoading ? `
-            <div style="text-align:center;padding:80px 20px;background:#fff;border-radius:16px;border:1px solid #e5e0d8;">
-              <div class="spinner" style="margin:0 auto 16px;"></div>
-              <p style="font-size:13px;color:#888;font-weight:500;">Loading packages…</p>
+            <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:8px;border:1px solid #ede9e1;">
+              <div class="spinner" style="margin:0 auto 12px;"></div>
+              <p style="font-size:12px;color:#888;font-weight:500;">Retrieving schedules...</p>
             </div>
           ` : filtered.length === 0 ? `
-            <div style="text-align:center;padding:80px 20px;background:#fff;border-radius:16px;border:1px dashed #d5d0c8;">
-              <p style="font-size:15px;color:#999;">No packages match your search.</p>
-              ${state.searchQuery ? `<button onclick="dispatch('SEARCH','')" style="margin-top:12px;font-size:12px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:600;letter-spacing:0.06em;">Clear search</button>` : ''}
+            <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:8px;border:1px dashed #d5d0c8;">
+              <p style="font-size:14px;color:#888;">No group departures match your current filters.</p>
+              <button onclick="dispatch('SET_COUNTRY_FILTER', 'All'); dispatch('SEARCH', '')" style="margin-top:10px;font-size:11px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:600;text-decoration:underline;">Reset all filters</button>
             </div>
           ` : `
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
               ${filtered.map(pkg => `
-                <div class="pkg-card" style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid #ede9e1;display:flex;flex-direction:column;">
+                <div class="pkg-card" style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #ede9e1;display:flex;flex-direction:column;">
                   
                   <div class="img-wrap">
                     <img src="${esc(pkg.image)}" alt="${esc(pkg.title)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80'" />
                     ${pkg.highlight ? `<div class="highlight-strip">${esc(pkg.highlight)}</div>` : ''}
                   </div>
 
-                  <div style="padding:22px 20px;flex:1;display:flex;flex-direction:column;">
-                    <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:0 0 6px;color:var(--navy);">${esc(pkg.title)}</h3>
-                    <p style="font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#999;margin:0 0 18px;">${esc(pkg.duration)}</p>
+                  <div style="padding:16px;flex:1;display:flex;flex-direction:column;">
+                    <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin:0 0 4px;color:var(--navy);">${esc(pkg.title)}</h3>
+                    <p style="font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;color:#888;margin-bottom:14px;">${esc(pkg.duration)}</p>
                     
                     <div style="flex:1;"></div>
 
-                    <div style="border-top:1px solid #ede9e1;padding-top:16px;margin-top:16px;display:flex;flex-direction:column;gap:10px;align-items:center;">
-                      <a href="${esc(pkg.pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn-gold" style="width:100%;justify-content:center;text-decoration:none;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                        View Itinerary PDF
+                    <div style="border-top:1px solid #f0ece4;padding-top:12px;display:flex;flex-direction:column;gap:8px;">
+                      <a href="${esc(pkg.pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn-gold" style="width:100%;justify-content:center;text-decoration:none;padding:8px 12px;border-radius:4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:2px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                        Itinerary PDF
                       </a>
-                      <button onclick="dispatch('OPEN_INQUIRY', ${pkgJson(pkg)})" style="background:none;border:none;cursor:pointer;font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#aaa;text-decoration:underline;padding:0;">
-                        Request a Callback
+                      <button onclick="dispatch('OPEN_INQUIRY', ${pkgJson(pkg)})" style="background:none;border:none;cursor:pointer;font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#999;text-decoration:underline;padding:2px 0;width:100%;text-align:center;">
+                        Callback Request
                       </button>
                     </div>
                   </div>
@@ -831,31 +868,29 @@
   // ── LOGIN VIEW ─────────────────────────────────────────────────────────────
   function renderLogin() {
     return `
-    <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 68px);padding:24px;background:var(--navy-mid);">
-      <div style="width:100%;max-width:400px;">
-        <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+    <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:24px;background:var(--navy-mid);">
+      <div style="width:100%;max-width:360px;">
+        <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.2);">
           
-          <div style="background:var(--navy);padding:32px;text-align:center;">
-            <div style="font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">SMC Admin Portal</div>
-            <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#fff;margin:0;">Control Room</h2>
-            <p style="font-size:12px;color:rgba(255,255,255,0.45);margin:8px 0 0;">Sign in with your agency credentials</p>
+          <div style="background:var(--navy);padding:24px;text-align:center;">
+            <div style="font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">SMC Agency Platform</div>
+            <h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin:0;">Control Center</h2>
           </div>
 
-          <form onsubmit="handleLogin(event)" style="padding:28px;display:flex;flex-direction:column;gap:18px;">
-            
+          <form onsubmit="handleLogin(event)" style="padding:20px;display:flex;flex-direction:column;gap:14px;">
             ${state.loginError ? `<div class="error-box">${esc(state.loginError)}</div>` : ''}
 
             <div>
               <label class="field-label" for="f-user">Username</label>
-              <input class="field" id="f-user" type="text" placeholder="Enter your username" autocomplete="username" />
+              <input class="field" id="f-user" type="text" placeholder="admin@smc" autocomplete="username" />
             </div>
             <div>
               <label class="field-label" for="f-pass">Password</label>
-              <input class="field" id="f-pass" type="password" placeholder="Enter your password" autocomplete="current-password" />
+              <input class="field" id="f-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
             </div>
 
-            <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:13px;">
-              Sign In to Dashboard
+            <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:10px;border-radius:4px;">
+              Access Dashboard
             </button>
           </form>
         </div>
@@ -866,69 +901,68 @@
   // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
   function renderAdmin() {
     return `
-    <main style="max-width:1320px;margin:0 auto;padding:36px 24px;">
+    <main style="max-width:1200px;margin:0 auto;padding:24px 20px;">
       
       <div class="admin-bar">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="background:rgba(201,168,76,0.15);padding:10px;border-radius:10px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="background:rgba(201,168,76,0.15);padding:8px;border-radius:6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           </div>
           <div>
-            <div style="font-weight:600;font-size:14px;">Package Manager Dashboard</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">
-              ${isFirebaseReady ? 'Changes sync live across all devices and customers.' : 'Running in local storage mode.'}
+            <div style="font-weight:600;font-size:13px;">Package Manager Dashboard</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px;">
+              ${isFirebaseReady ? 'Live cloud synchronizing' : 'Local storage fallback active'}
             </div>
           </div>
         </div>
-        <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:5px 14px;border-radius:40px;${isFirebaseReady ? 'background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.25);' : 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);'}">
-          ${isFirebaseReady ? '● Live' : '○ Local Mode'}
+        <span style="font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;${isFirebaseReady ? 'background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);' : 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);'}">
+          ${isFirebaseReady ? '● Synchronized' : '○ Local Database'}
         </span>
       </div>
 
-      <div style="display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;">
+      <div class="flex flex-col lg:flex-row gap-6 items-start">
         
         <!-- Form Panel -->
-        <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;padding:24px;position:sticky;top:88px;">
-          <div style="margin-bottom:20px;">
-            <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:#f5f3ef;color:#888;padding:4px 10px;border-radius:4px;">
-              ${state.editingId ? 'Editing Package' : 'Add Package'}
+        <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;padding:18px;width:100%;max-width:320px;" class="lg:sticky lg:top:72px;">
+          <div style="margin-bottom:14px;">
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:#f5f3ef;color:#666;padding:3px 8px;border-radius:3px;">
+              ${state.editingId ? 'Edit Draft' : 'Add Departure'}
             </span>
-            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:10px 0 0;">
-              ${state.editingId ? 'Edit Package Details' : 'Publish New Package'}
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:6px 0 0;">
+              ${state.editingId ? 'Edit Package Specs' : 'Publish New Destination'}
             </h3>
           </div>
 
-          ${state.formError ? `<div class="error-box" style="margin-bottom:16px;">${esc(state.formError)}</div>` : ''}
-          ${state.formSuccess ? `<div class="success-box" style="margin-bottom:16px;">${esc(state.formSuccess)}</div>` : ''}
+          ${state.formError ? `<div class="error-box" style="margin-bottom:12px;">${esc(state.formError)}</div>` : ''}
+          ${state.formSuccess ? `<div class="success-box" style="margin-bottom:12px;">${esc(state.formSuccess)}</div>` : ''}
 
-          <form onsubmit="handlePackageSubmit(event)" style="display:flex;flex-direction:column;gap:14px;">
+          <form onsubmit="handlePackageSubmit(event)" style="display:flex;flex-direction:column;gap:12px;">
             <div>
-              <label class="field-label" for="f-title">Country / Destination *</label>
+              <label class="field-label" for="f-title">Destination Country *</label>
               <input class="field" id="f-title" type="text" placeholder="e.g. Switzerland" value="${esc(state.draft.title)}" required />
             </div>
             <div>
-              <label class="field-label" for="f-duration">Duration *</label>
+              <label class="field-label" for="f-duration">Duration Description *</label>
               <input class="field" id="f-duration" type="text" placeholder="e.g. 3 Nights / 4 Days" value="${esc(state.draft.duration)}" required />
             </div>
             <div>
-              <label class="field-label" for="f-highlight">Highlight Tag</label>
+              <label class="field-label" for="f-highlight">Highlight Summary</label>
               <input class="field" id="f-highlight" type="text" placeholder="e.g. Zurich 3N" value="${esc(state.draft.highlight)}" />
             </div>
             <div>
-              <label class="field-label" for="f-image">Cover Image URL</label>
-              <input class="field" id="f-image" type="url" placeholder="https://… (Unsplash or direct link)" value="${esc(state.draft.image)}" />
+              <label class="field-label" for="f-image">Card Image URL</label>
+              <input class="field" id="f-image" type="url" placeholder="https://unsplash..." value="${esc(state.draft.image)}" />
             </div>
-            <div style="background:#faf8f4;border:1px solid #ede9e1;border-radius:8px;padding:14px;">
-              <label class="field-label" for="f-pdf">Itinerary PDF URL *</label>
-              <input class="field" id="f-pdf" type="url" placeholder="https://… (Google Drive, Dropbox, etc.)" value="${esc(state.draft.pdfUrl)}" required />
-              <p style="font-size:10px;color:#aaa;margin:6px 0 0;">Use a direct or shareable PDF link.</p>
+            <div style="background:#faf8f4;border:1px solid #ede9e1;border-radius:6px;padding:10px;">
+              <label class="field-label" for="f-pdf">Itinerary Link (PDF) *</label>
+              <input class="field" id="f-pdf" type="url" placeholder="https://..." value="${esc(state.draft.pdfUrl)}" required />
             </div>
-            <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px;">
-              <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:12px;">
-                ${state.editingId ? 'Save Changes' : 'Publish Package'}
+            <div style="display:flex;flex-direction:column;gap:6px;padding-top:2px;">
+              <button type="submit" class="btn-gold" style="width:100%;justify-content:center;padding:9px;border-radius:4px;">
+                ${state.editingId ? 'Save Specs' : 'Publish Departure'}
               </button>
               ${state.editingId ? `
-                <button type="button" class="btn-outline" onclick="handleCancelEdit()" style="width:100%;justify-content:center;">
+                <button type="button" class="btn-outline" onclick="handleCancelEdit()" style="width:100%;justify-content:center;padding:8px;">
                   Cancel
                 </button>
               ` : ''}
@@ -937,53 +971,56 @@
         </div>
 
         <!-- Content Panels -->
-        <div style="display:flex;flex-direction:column;gap:24px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:20px;width:100%;">
           
           <!-- Packages Table -->
-          <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;overflow:hidden;">
-            <div style="padding:20px 24px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
-              <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin:0;">Live Packages</h3>
-              <span style="font-size:11px;color:#aaa;font-weight:500;">${state.packages.length} total</span>
+          <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
+            <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
+              <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0;">Active Departures Directory</h3>
+              <span style="font-size:11px;color:#888;font-weight:500;">${state.packages.length} listed</span>
             </div>
 
             ${state.isDbLoading ? `
-              <div style="padding:48px;text-align:center;">
-                <div class="spinner" style="margin:0 auto 12px;"></div>
-                <p style="font-size:12px;color:#aaa;">Loading…</p>
+              <div style="padding:36px;text-align:center;">
+                <div class="spinner" style="margin:0 auto 10px;"></div>
+                <p style="font-size:12px;color:#888;">Contacting database...</p>
               </div>
             ` : state.packages.length === 0 ? `
-              <p style="padding:32px 24px;font-size:13px;color:#bbb;text-align:center;">No packages yet. Add your first package using the form.</p>
+              <p style="padding:24px;font-size:13px;color:#999;text-align:center;">Directory empty. Create catalog entries using the panel on the left.</p>
             ` : `
               <div style="overflow-x:auto;">
                 <table>
                   <thead>
                     <tr>
-                      <th style="text-align:left;">Destination</th>
+                      <th style="text-align:left;width:45px;padding:10px 12px;">#</th>
+                      <th style="text-align:left;">Destination Info</th>
                       <th style="text-align:left;">Duration</th>
-                      <th style="text-align:left;">Highlight</th>
-                      <th style="text-align:right;">Actions</th>
+                      <th style="text-align:left;">Focus Highlights</th>
+                      <th style="text-align:right;">Operations</th>
                     </tr>
                   </thead>
                   <tbody>
-                    ${state.packages.map(pkg => `
+                    ${state.packages.map((pkg, index) => `
                       <tr class="${state.editingId === pkg.id ? 'editing-row' : ''}">
+                        <!-- Sequential listing numbers with clear numbering representation -->
+                        <td style="font-weight:600;color:var(--gold);width:45px;padding:10px 12px;">${index + 1}</td>
                         <td>
-                          <div style="display:flex;align-items:center;gap:12px;">
-                            <img src="${esc(pkg.image)}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;background:#e8e4dc;flex-shrink:0;" onerror="this.style.background='#e8e4dc';this.style.visibility='hidden'" />
+                          <div style="display:flex;align-items:center;gap:10px;">
+                            <img src="${esc(pkg.image)}" style="width:34px;height:34px;border-radius:4px;object-fit:cover;background:#e8e4dc;flex-shrink:0;" onerror="this.style.background='#e8e4dc';this.style.visibility='hidden'" />
                             <div>
-                              <div style="font-weight:600;font-size:13px;">${esc(pkg.title)}</div>
-                              <a href="${esc(pkg.pdfUrl)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;font-weight:500;">View PDF ↗</a>
+                              <div style="font-weight:600;font-size:12px;color:var(--navy);">${esc(pkg.title)}</div>
+                              <a href="${esc(pkg.pdfUrl)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;font-weight:500;">Itinerary Link ↗</a>
                             </div>
                           </div>
                         </td>
-                        <td style="color:#666;white-space:nowrap;">${esc(pkg.duration)}</td>
+                        <td style="color:#555;font-size:12px;white-space:nowrap;">${esc(pkg.duration)}</td>
                         <td>
-                          ${pkg.highlight ? `<span style="font-size:10px;font-weight:600;letter-spacing:0.06em;background:#f5f3ef;border:1px solid #ded9cf;color:var(--navy);padding:3px 10px;border-radius:4px;">${esc(pkg.highlight)}</span>` : '<span style="color:#ccc;font-size:12px;">—</span>'}
+                          ${pkg.highlight ? `<span style="font-size:9px;font-weight:600;letter-spacing:0.04em;background:#f5f3ef;border:1px solid #ded9cf;color:var(--navy);padding:2px 8px;border-radius:4px;">${esc(pkg.highlight)}</span>` : '<span style="color:#ccc;font-size:11px;">—</span>'}
                         </td>
-                        <td style="text-align:right;">
-                          <div style="display:flex;justify-content:flex-end;gap:6px;">
-                            <button class="btn-edit" onclick="handleStartEdit('${esc(pkg.id)}')">Edit</button>
-                            <button class="btn-danger" onclick="handleDelete('${esc(pkg.id)}')">Delete</button>
+                        <td style="text-align:right;padding:10px 12px;">
+                          <div style="display:flex;justify-content:flex-end;gap:4px;">
+                            <button class="btn-edit" style="padding:4px 8px;font-size:10px;" onclick="handleStartEdit('${esc(pkg.id)}')">Edit</button>
+                            <button class="btn-danger" style="padding:4px 8px;font-size:10px;" onclick="triggerDeleteConfirmation('${esc(pkg.id)}')">Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -995,39 +1032,39 @@
           </div>
 
           <!-- Inquiries -->
-          <div style="background:#fff;border-radius:14px;border:1px solid #ede9e1;overflow:hidden;">
-            <div style="padding:20px 24px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
+          <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
+            <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
               <div>
-                <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin:0;">Callback Requests</h3>
-                <p style="font-size:11px;color:#aaa;margin:4px 0 0;">Live leads from customer inquiries</p>
+                <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0;">Active Callback Inquiries</h3>
+                <p style="font-size:10px;color:#888;margin:2px 0 0;">Synchronized leads from online forms</p>
               </div>
-              <span style="font-size:11px;color:#aaa;font-weight:500;">${state.inquiries.length} total</span>
+              <span style="font-size:11px;color:#888;font-weight:500;">${state.inquiries.length} total</span>
             </div>
 
             ${state.inquiries.length === 0 ? `
-              <div style="padding:40px 24px;text-align:center;border:1px dashed #e5e0d8;margin:16px;border-radius:10px;">
-                <p style="font-size:13px;color:#bbb;">No callback requests yet.</p>
+              <div style="padding:28px;text-align:center;border:1px dashed #e5e0d8;margin:14px;border-radius:6px;">
+                <p style="font-size:12px;color:#aaa;">No group inquiries requested yet.</p>
               </div>
             ` : `
-              <div style="display:flex;flex-direction:column;gap:0;">
+              <div style="display:flex;flex-direction:column;">
                 ${state.inquiries.map((lead, i) => `
-                  <div style="padding:16px 24px;${i > 0 ? 'border-top:1px solid #f0ece4;' : ''}display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+                  <div style="padding:12px 18px;${i > 0 ? 'border-top:1px solid #f0ece4;' : ''}display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
                     <div>
-                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                        <span style="font-weight:600;font-size:14px;">${esc(lead.customerName)}</span>
-                        <span class="tag" style="background:#f5f3ef;color:var(--navy);border:1px solid #ded9cf;">Inquiry</span>
+                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+                        <span style="font-weight:600;font-size:13px;">${esc(lead.customerName)}</span>
+                        <span class="tag" style="background:#faf8f4;color:var(--navy);border:1px solid #ede9e1;">Callback</span>
                       </div>
-                      <div style="font-size:12px;color:#666;display:flex;gap:16px;flex-wrap:wrap;">
-                        <span><b style="color:var(--navy);">${esc(lead.phone)}</b></span>
-                        ${lead.email ? `<span style="color:#999;">${esc(lead.email)}</span>` : ''}
+                      <div style="font-size:11px;color:#555;display:flex;gap:12px;flex-wrap:wrap;">
+                        <span>Phone: <b style="color:var(--navy);">${esc(lead.phone)}</b></span>
+                        ${lead.email ? `<span style="color:#888;">Email: ${esc(lead.email)}</span>` : ''}
                       </div>
-                      <div style="margin-top:8px;font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--navy);background:#faf8f4;padding:4px 10px;border-radius:4px;display:inline-block;">
-                        ${esc(lead.packageName)}
+                      <div style="margin-top:6px;font-size:9px;font-weight:600;letter-spacing:0.04em;color:var(--navy);background:#faf8f4;padding:2px 6px;border-radius:3px;display:inline-block;border:1px solid #ede9e1;">
+                        Interested: ${esc(lead.packageName)}
                       </div>
                     </div>
                     <div style="text-align:right;flex-shrink:0;">
-                      <div style="font-size:11px;color:#bbb;margin-bottom:6px;">${formatDate(lead.createdAt)}</div>
-                      <button class="btn-danger" onclick="handleArchive('${esc(lead.id)}')" style="font-size:10px;padding:5px 10px;">Archive</button>
+                      <div style="font-size:10px;color:#aaa;margin-bottom:4px;">${formatDate(lead.createdAt)}</div>
+                      <button class="btn-danger" onclick="handleArchive('${esc(lead.id)}')" style="font-size:9px;padding:3px 8px;border-radius:3px;">Done</button>
                     </div>
                   </div>
                 `).join('')}
@@ -1045,49 +1082,84 @@
     const pkg = state.selectedPackage;
     return `
     <div class="modal-backdrop" onclick="if(event.target===this)dispatch('CLOSE_INQUIRY')">
-      <div class="modal-box" style="background:#fff;width:100%;max-width:420px;border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
+      <div class="modal-box" style="background:#fff;width:100%;max-width:380px;border-radius:8px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.3);">
         
-        <div style="background:var(--navy);padding:24px 28px;display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="background:var(--navy);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;">
           <div>
-            <div style="font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Request a Callback</div>
-            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin:0;">${esc(pkg.title)}</h3>
-            <p style="font-size:11px;color:rgba(255,255,255,0.45);margin:4px 0 0;">${esc(pkg.duration)}</p>
+            <div style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px;">Request a Callback</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fff;margin:0;">${esc(pkg.title)}</h3>
+            <p style="font-size:11px;color:rgba(255,255,255,0.5);margin:2px 0 0;">${esc(pkg.duration)}</p>
           </div>
-          <button onclick="dispatch('CLOSE_INQUIRY')" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">✕</button>
+          <button onclick="dispatch('CLOSE_INQUIRY')" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.7);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;">✕</button>
         </div>
 
         ${state.showSuccessModal ? `
-          <div style="padding:40px 28px;text-align:center;">
-            <div style="width:52px;height:52px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <div style="padding:32px 20px;text-align:center;">
+            <div style="width:40px;height:40px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h4 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:0 0 8px;">Request Received</h4>
-            <p style="font-size:13px;color:#666;line-height:1.6;">A Rayna Tours specialist will contact you shortly regarding the <strong>${esc(pkg.title)}</strong> package.</p>
+            <h4 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0 0 4px;">Request Received</h4>
+            <p style="font-size:12px;color:#555;line-height:1.5;">An agency callback specialist will call you shortly regarding the <strong>${esc(pkg.title)}</strong> itinerary.</p>
           </div>
         ` : `
-          <form onsubmit="handleInquirySubmit(event)" style="padding:24px 28px;display:flex;flex-direction:column;gap:14px;">
-            
+          <form onsubmit="handleInquirySubmit(event)" style="padding:18px 20px;display:flex;flex-direction:column;gap:12px;">
             ${state.inquiryError ? `<div class="error-box">${esc(state.inquiryError)}</div>` : ''}
 
             <div>
               <label class="field-label" for="i-name">Full Name *</label>
-              <input class="field" id="i-name" type="text" placeholder="Your full name" required autocomplete="name" />
+              <input class="field" id="i-name" type="text" placeholder="John Doe" required autocomplete="name" />
             </div>
             <div>
               <label class="field-label" for="i-phone">Mobile Number *</label>
               <input class="field" id="i-phone" type="tel" placeholder="+91 98765 43210" required autocomplete="tel" />
             </div>
             <div>
-              <label class="field-label" for="i-email">Email Address <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-              <input class="field" id="i-email" type="email" placeholder="your@email.com" autocomplete="email" />
+              <label class="field-label" for="i-email">Email Address <span style="font-weight:400;text-transform:none;letter-spacing:0;">(Optional)</span></label>
+              <input class="field" id="i-email" type="email" placeholder="john@example.com" autocomplete="email" />
             </div>
 
-            <div style="display:flex;gap:10px;padding-top:4px;">
-              <button type="button" class="btn-outline" onclick="dispatch('CLOSE_INQUIRY')" style="flex:1;">Cancel</button>
-              <button type="submit" class="btn-gold" style="flex:2;justify-content:center;">Send Request</button>
+            <div style="display:flex;gap:8px;padding-top:4px;">
+              <button type="button" class="btn-outline" onclick="dispatch('CLOSE_INQUIRY')" style="flex:1;padding:8px;">Cancel</button>
+              <button type="submit" class="btn-gold" style="flex:2;justify-content:center;padding:8px;border-radius:4px;">Submit</button>
             </div>
           </form>
         `}
+      </div>
+    </div>`;
+  }
+
+  // ── CUSTOM CONFIRMATION MODAL ──────────────────────────────────────────────
+  function renderDeleteConfirmationModal() {
+    const pkg = state.packages.find(p => p.id === state.deleteTargetId);
+    const pkgTitle = pkg ? pkg.title : 'this departure';
+    return `
+    <div class="modal-backdrop" onclick="if(event.target===this)window.cancelDelete()">
+      <div class="modal-box" style="background:#fff;width:100%;max-width:350px;border-radius:8px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.3);">
+        
+        <div style="background:#991b1b;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;margin:0;">Delete Specs</h3>
+          <button onclick="window.cancelDelete()" style="background:rgba(255,255,255,0.12);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+
+        <div style="padding:24px 20px;text-align:center;">
+          <div style="width:40px;height:40px;background:#fff1f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <p style="font-size:13px;color:#0a1628;margin:0 0 6px;font-weight:600;">
+            Confirm removal of <span style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:16px;">${esc(pkgTitle)}</span>?
+          </p>
+          <p style="font-size:11px;color:#666;line-height:1.5;margin:0 0 18px;">
+            This action instantly removes the package from customer schedules.
+          </p>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-outline" onclick="window.cancelDelete()" style="flex:1;padding:8px;">Cancel</button>
+            <button class="btn-gold" onclick="window.confirmDelete()" style="flex:1;background:#dc2626;color:#fff;border:none;justify-content:center;padding:8px;">Confirm</button>
+          </div>
+        </div>
       </div>
     </div>`;
   }
