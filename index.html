@@ -323,6 +323,7 @@
     packages: [],
     isDbLoading: true,
     searchQuery: '',
+    adminSearchQuery: '', // Added real-time admin search parameter
     selectedCountryFilter: 'All',
     loginError: '',
     loginLoading: false,
@@ -449,6 +450,9 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     switch(action) {
       case 'SEARCH':
         state.searchQuery = payload;
+        break;
+      case 'ADMIN_SEARCH': // Added action for admin search routing
+        state.adminSearchQuery = payload;
         break;
       case 'SET_COUNTRY_FILTER':
         state.selectedCountryFilter = payload;
@@ -698,6 +702,25 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       html += renderDeleteConfirmationModal();
     }
 
+    const isScrolled = window.scrollY > 300;
+    const scrollClasses = isScrolled 
+      ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" 
+      : "opacity-0 translate-y-4 pointer-events-none hover:scale-105 active:scale-95";
+
+    html += `
+    <button 
+      id="back-to-top" 
+      onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+      style="position:fixed; bottom:24px; right:24px; z-index:50; width:44px; height:44px; border-radius:50%; background:var(--navy); border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(10,22,40,0.15); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"
+      class="${scrollClasses}"
+      title="Go to Top"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+    `;
+
     container.innerHTML = html;
 
     // Restore focus and precise character selection ranges immediately
@@ -882,6 +905,16 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
   // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
   function renderAdmin() {
     const isCloud = !!(isFirebaseReady && db);
+    const adminQuery = (state.adminSearchQuery || '').toLowerCase();
+    
+    // Filter departures list dynamically based on admin search query
+    const adminFiltered = state.packages.filter(p => {
+      return !adminQuery || 
+             esc(p.title).toLowerCase().includes(adminQuery) || 
+             esc(p.highlight).toLowerCase().includes(adminQuery) ||
+             esc(p.duration).toLowerCase().includes(adminQuery);
+    });
+
     return `
     <main style="max-width:1200px;margin:0 auto;padding:24px 20px;">
       
@@ -904,8 +937,8 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
       <div class="flex flex-col lg:flex-row gap-6 items-start">
         
-        <!-- Form Panel -->
-        <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;padding:18px;width:100%;max-width:320px;" class="lg:sticky lg:top:72px;">
+        <!-- Sticky Form Panel (Stays fixed relative to viewport scrolling on desktop) -->
+        <div class="lg:sticky lg:top-[74px] w-full lg:max-w-[320px] flex-shrink-0" style="background:#fff;border-radius:8px;border:1px solid #ede9e1;padding:18px;">
           <div style="margin-bottom:14px;">
             <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:#f5f3ef;color:#666;padding:3px 8px;border-radius:3px;">
               ${state.editingId ? 'Edit Draft' : 'Add Departure'}
@@ -955,11 +988,30 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
         <!-- Content Panels -->
         <div style="flex:1;display:flex;flex-direction:column;gap:20px;width:100%;">
           
-          <!-- Packages Table -->
+          <!-- Packages Table with Active Search Box Integration -->
           <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
-            <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
-              <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0;">Active Departures Directory</h3>
-              <span style="font-size:11px;color:#888;font-weight:500;">${state.packages.length} listed</span>
+            <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+              <div>
+                <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0;">Active Departures Directory</h3>
+                <span style="font-size:11px;color:#888;font-weight:500;">
+                  ${adminFiltered.length} of ${state.packages.length} listed
+                </span>
+              </div>
+
+              <!-- Admin Search Bar -->
+              <div style="position:relative; width:100%; max-width:240px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                  <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input
+                  type="text"
+                  id="admin-search-input"
+                  placeholder="Search departures..."
+                  value="${esc(state.adminSearchQuery)}"
+                  oninput="dispatch('ADMIN_SEARCH', this.value)"
+                  style="width:100%;background:#faf8f4;border:1px solid #ede9e1;border-radius:6px;padding:6px 10px 6px 30px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--navy);outline:none;"
+                />
+              </div>
             </div>
 
             ${state.isDbLoading ? `
@@ -967,8 +1019,10 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
                 <div class="spinner" style="margin:0 auto 10px;"></div>
                 <p style="font-size:12px;color:#888;">Contacting database...</p>
               </div>
-            ` : state.packages.length === 0 ? `
-              <p style="padding:24px;font-size:13px;color:#999;text-align:center;">Directory empty. Create catalog entries using the panel on the left.</p>
+            ` : adminFiltered.length === 0 ? `
+              <p style="padding:24px;font-size:13px;color:#999;text-align:center;">
+                ${state.packages.length === 0 ? 'Directory empty. Create catalog entries using the panel on the left.' : 'No departures match your search query.'}
+              </p>
             ` : `
               <div style="overflow-x:auto;">
                 <table>
@@ -982,7 +1036,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
                     </tr>
                   </thead>
                   <tbody>
-                    ${state.packages.map((pkg, index) => `
+                    ${adminFiltered.map((pkg, index) => `
                       <tr class="${state.editingId === pkg.id ? 'editing-row' : ''}">
                         <td style="font-weight:600;color:var(--gold);width:45px;padding:10px 12px;">${index + 1}</td>
                         <td>
@@ -1055,6 +1109,19 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
   // ─── BOOT ──────────────────────────────────────────────────────────────────
   window.addEventListener('popstate', render);
+
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('back-to-top');
+    if (btn) {
+      if (window.scrollY > 300) {
+        btn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+        btn.classList.add('opacity-100', 'translate-y-0');
+      } else {
+        btn.classList.remove('opacity-100', 'translate-y-0');
+        btn.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+      }
+    }
+  });
 
   setTimeout(() => {
     if (state.isDbLoading) {
