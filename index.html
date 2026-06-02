@@ -92,6 +92,25 @@
     .btn-gold:hover { background: var(--gold-light); transform: translateY(-0.5px); }
     .btn-gold:active { transform: translateY(0); }
 
+    /* WhatsApp button */
+    .btn-whatsapp {
+      background: #25D366;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-whatsapp:hover { background: #20ba5a; transform: translateY(-0.5px); }
+    .btn-whatsapp:active { transform: translateY(0); }
+
     .btn-outline {
       background: transparent;
       color: var(--navy);
@@ -144,13 +163,6 @@
     table { border-collapse: collapse; width: 100%; }
     th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 12px 14px; background: var(--slate-soft); }
     td { padding: 12px 14px; border-top: 1px solid #ede9e1; font-size: 13px; }
-
-    /* Tag */
-    .tag {
-      display: inline-block;
-      font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 40px;
-    }
 
     /* Label */
     .field-label {
@@ -239,9 +251,6 @@
     appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
   };
 
-  // Credentials are stored securely in Vercel environment variables.
-  // See /api/login.js — never hardcode credentials here.
-
   if (typeof window.__app_id !== 'undefined' && window.__app_id) {
     APP_ID = window.__app_id;
   }
@@ -312,17 +321,13 @@
     isLoggedIn: sessionStorage.getItem('smc_admin_auth') === 'true',
     user: null,
     packages: [],
-    inquiries: [],
     isDbLoading: true,
     searchQuery: '',
-    selectedCountryFilter: 'All', // Added top filter key
-    selectedPackage: null,
-    showSuccessModal: false,
+    selectedCountryFilter: 'All',
     loginError: '',
     loginLoading: false,
     formError: '',
     formSuccess: '',
-    inquiryError: '',
     editingId: null,
     deleteTargetId: null,
     draft: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
@@ -348,32 +353,39 @@
         await signInAnonymously(auth);
       }
     } catch (err) {
-      console.error('Auth error:', err);
+      console.warn('Authentication failed. Falling back to local offline sandbox directory.', err);
+      db = null;
     }
+  }
+
+  // ─── LOCAL STORAGE FALLBACK ENGINE ─────────────────────────────────────────
+  function loadLocalFallback() {
+    try {
+      const localPkgs = localStorage.getItem('smc_pkgs_v4');
+      state.packages = localPkgs ? JSON.parse(localPkgs) : [...SEED_PACKAGES];
+      if (!localPkgs) localStorage.setItem('smc_pkgs_v4', JSON.stringify(state.packages));
+    } catch(_) {
+      state.packages = [...SEED_PACKAGES];
+    }
+    state.isDbLoading = false;
+    render();
   }
 
   // ─── DATABASE ──────────────────────────────────────────────────────────────
   function setupListeners() {
     if (!isFirebaseReady || !db) {
-      try {
-        const localPkgs = localStorage.getItem('smc_pkgs_v4');
-        state.packages = localPkgs ? JSON.parse(localPkgs) : [...SEED_PACKAGES];
-        if (!localPkgs) localStorage.setItem('smc_pkgs_v4', JSON.stringify(state.packages));
-
-        const localInqs = localStorage.getItem('smc_inqs_v4');
-        state.inquiries = localInqs ? JSON.parse(localInqs) : [];
-      } catch(_) {
-        state.packages = [...SEED_PACKAGES];
-        state.inquiries = [];
-      }
-      state.isDbLoading = false;
-      render();
+      loadLocalFallback();
       return;
     }
 
     onAuthStateChanged(auth, (usr) => {
       state.user = usr;
-      if (!usr) return;
+      if (!usr) {
+        if (state.isDbLoading) {
+          loadLocalFallback();
+        }
+        return;
+      }
 
       const pkgsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
       onSnapshot(pkgsCol, async (snap) => {
@@ -393,16 +405,10 @@
           state.isDbLoading = false;
           render();
         }
-      }, err => { console.error('Packages listener error:', err); state.isDbLoading = false; render(); });
-
-      const inqsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries');
-      onSnapshot(inqsCol, (snap) => {
-        const list = [];
-        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-        list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        state.inquiries = list;
-        render();
-      }, err => { console.error('Inquiries listener error:', err); });
+      }, err => { 
+        console.error('Packages listener error:', err); 
+        loadLocalFallback();
+      });
     });
   }
 
@@ -423,12 +429,20 @@
     try { localStorage.setItem(key, JSON.stringify(data)); } catch(_) {}
   }
 
-  function formatDate(iso) {
-    if (!iso) return '';
-    try {
-      return new Date(iso).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    } catch(_) { return iso; }
-  }
+  window.redirectToWhatsApp = (pkg) => {
+    const phoneNumber = "919106322937";
+    const textMessage = `Hello Rayna Tours, I'm interested in booking the following Premium Departure package:
+
+📍 Destination: ${pkg.title}
+⏳ Duration: ${pkg.duration}
+✨ Highlights: ${pkg.highlight || 'Detailed Itinerary Included'}
+📄 Itinerary Details: ${pkg.pdfUrl}
+
+Please let me know the booking procedures and upcoming departures. Thank you!`;
+    
+    const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(textMessage)}`;
+    window.open(waUrl, '_blank');
+  };
 
   // ─── DISPATCH ──────────────────────────────────────────────────────────────
   window.dispatch = (action, payload) => {
@@ -438,15 +452,6 @@
         break;
       case 'SET_COUNTRY_FILTER':
         state.selectedCountryFilter = payload;
-        break;
-      case 'OPEN_INQUIRY':
-        state.selectedPackage = payload;
-        state.inquiryError = '';
-        state.showSuccessModal = false;
-        break;
-      case 'CLOSE_INQUIRY':
-        state.selectedPackage = null;
-        state.showSuccessModal = false;
         break;
       case 'LOGOUT':
         state.isLoggedIn = false;
@@ -605,66 +610,20 @@
     render();
   };
 
-  window.handleInquirySubmit = async (e) => {
-    e.preventDefault();
-    state.inquiryError = '';
-
-    const name  = document.getElementById('i-name')?.value?.trim();
-    const phone = document.getElementById('i-phone')?.value?.trim();
-    const email = document.getElementById('i-email')?.value?.trim();
-
-    if (!name || !phone) {
-      state.inquiryError = 'Name and mobile number are required.';
-      render(); return;
-    }
-
-    if (!/^[\d\s\+\-\(\)]{7,15}$/.test(phone)) {
-      state.inquiryError = 'Please enter a valid mobile number.';
-      render(); return;
-    }
-
-    const payload = {
-      customerName: name,
-      phone,
-      email: email || '',
-      packageName: state.selectedPackage?.title || 'General Inquiry',
-      createdAt: new Date().toISOString()
-    };
-
-    if (!isFirebaseReady || !db) {
-      state.inquiries = [{ id: 'inq-' + Date.now(), ...payload }, ...state.inquiries];
-      saveLocal('smc_inqs_v4', state.inquiries);
-      state.showSuccessModal = true;
-      render();
-      setTimeout(() => { state.selectedPackage = null; state.showSuccessModal = false; render(); }, 4000);
-      return;
-    }
-
-    try {
-      const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries');
-      await addDoc(col, payload);
-      state.showSuccessModal = true;
-      render();
-      setTimeout(() => { state.selectedPackage = null; state.showSuccessModal = false; render(); }, 4000);
-    } catch (err) {
-      state.inquiryError = 'Failed to submit. Please try again.';
-      render();
-    }
-  };
-
-  window.handleArchive = async (id) => {
-    if (!isFirebaseReady || !db) {
-      state.inquiries = state.inquiries.filter(i => i.id !== id);
-      saveLocal('smc_inqs_v4', state.inquiries);
-      render(); return;
-    }
-    try {
-      await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'inquiries', id));
-    } catch (err) { console.error('Archive error:', err); }
-  };
-
   // ─── RENDER ────────────────────────────────────────────────────────────────
   function render() {
+    // Preserve typing focus and cursor position dynamically on key presses
+    const activeId = document.activeElement ? document.activeElement.id : null;
+    let selectionStart = null;
+    let selectionEnd = null;
+    if (activeId) {
+      const activeEl = document.getElementById(activeId);
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+        selectionStart = activeEl.selectionStart;
+        selectionEnd = activeEl.selectionEnd;
+      }
+    }
+
     state.view = getView();
     const container = document.getElementById('app');
     if (!container) return;
@@ -680,39 +639,34 @@
     let html = '';
 
     // ── NAV ──
+    // Redesigned to crisp white (#ffffff) to ensure Rayna Tours' dark logo design stands out perfectly
     html += `
-    <header style="position:sticky;top:0;z-index:40;background:var(--navy);box-shadow:0 1px 10px rgba(0,0,0,0.15);">
+    <header style="position:sticky;top:0;z-index:40;background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.06);border-bottom:1px solid #ede9e1;">
       <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;">
         
-        <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="dispatch('GO_HOME')">
-          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;">
-            <rect width="32" height="32" rx="6" fill="#c9a84c" opacity="0.15"/>
-            <path d="M16 6L6 14v12h7v-7h6v7h7V14L16 6z" fill="#c9a84c"/>
-          </svg>
+        <div style="display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="dispatch('GO_HOME')">
+          <img src="https://d2cazmkfw8kdtj.cloudfront.net/assets/Images/AGT-31082/logo.png" alt="Rayna Tours" style="height:38px; width:auto; max-width:180px; object-fit:contain;" onerror="this.src='https://placehold.co/150x40/faf8f4/0a1628?text=Rayna+Tours'" />
           <div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.02em;line-height:1;">
-              Rayna <span style="color:var(--gold);">Tours</span>
-            </div>
-            <div style="font-size:8px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:4px;margin-top:1px;">
+            <div style="font-size:8px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(10,22,40,0.5);display:flex;align-items:center;gap:4px;margin-top:1px;">
               <span class="live-dot"></span>
-              ${isFirebaseReady ? 'Cloud connected' : 'Local mode'}
+              ${(isFirebaseReady && db) ? 'Cloud connected' : 'Local mode'}
             </div>
           </div>
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;">
           ${state.isLoggedIn && state.view === 'admin' ? `
-            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:10px;padding:6px 12px;border-radius:4px;" onclick="dispatch('LOGOUT')">
+            <button class="btn-outline" style="font-size:10px;padding:6px 12px;border-radius:4px;" onclick="dispatch('LOGOUT')">
               Sign Out
             </button>
           ` : ''}
           ${state.view === 'admin-login' ? `
-            <button class="btn-outline" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:10px;padding:6px 12px;border-radius:4px;" onclick="dispatch('GO_HOME')">
+            <button class="btn-outline" style="font-size:10px;padding:6px 12px;border-radius:4px;" onclick="dispatch('GO_HOME')">
               ← Client Portal
             </button>
           ` : ''}
           ${state.view === 'customer' && !state.isLoggedIn ? `
-            <a href="?admin" style="font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-decoration:none;" title="Admin Login">Admin Access</a>
+            <a href="?admin" style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(10,22,40,0.5);text-decoration:none;" title="Admin Login" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='rgba(10,22,40,0.5)'">Admin Access</a>
           ` : ''}
         </div>
       </div>
@@ -740,25 +694,31 @@
       </div>
     </footer>`;
 
-    if (state.selectedPackage) {
-      html += renderInquiryModal();
-    }
-
     if (state.deleteTargetId) {
       html += renderDeleteConfirmationModal();
     }
 
     container.innerHTML = html;
+
+    // Restore focus and precise character selection ranges immediately
+    if (activeId) {
+      const restoreEl = document.getElementById(activeId);
+      if (restoreEl) {
+        restoreEl.focus();
+        if (selectionStart !== null && selectionEnd !== null && typeof restoreEl.setSelectionRange === 'function') {
+          restoreEl.setSelectionRange(selectionStart, selectionEnd);
+        }
+      }
+    }
   }
 
   // ── CUSTOMER VIEW ──────────────────────────────────────────────────────────
   function renderCustomer(filtered) {
-    // Collect all unique country destinations in packages for the top filter tabs
     const destinations = ['All', ...new Set(state.packages.map(p => p.title))];
 
     return `
     <main>
-      <!-- Premium consolidated space-efficient Hero -->
+      <!-- Premium space-efficient Hero -->
       <div class="hero-bg" style="position:relative;padding:48px 20px;text-align:center;">
         <div style="max-width:680px;margin:0 auto;position:relative;z-index:2;">
           <div style="display:inline-block;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:12px;">
@@ -768,17 +728,18 @@
             Explore the World with <em style="color:var(--gold);font-style:normal;">Rayna Tours</em>
           </h1>
           <p style="color:rgba(255,255,255,0.6);font-size:13px;max-width:440px;margin:0 auto 20px;font-weight:300;line-height:1.5;">
-            Premium itineraries tailored for discerning groups. Instant PDF itinerary download and immediate callback booking options.
+            Premium itineraries tailored for discerning groups. Get instant itinerary access and directly connect with us via WhatsApp to book.
           </p>
 
-          <!-- Integrated search bar -->
+          <!-- Integrated search bar with focus ID -->
           <div style="max-width:380px;margin:0 auto;position:relative;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
             <input
               type="text"
-              placeholder="Search destinations, tags..."
+              id="search-input"
+              placeholder="Search destinations, highlights..."
               value="${esc(state.searchQuery)}"
               oninput="dispatch('SEARCH', this.value)"
               style="width:100%;background:rgba(255,255,255,0.98);border:none;border-radius:30px;padding:10px 14px 10px 38px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--navy);outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);"
@@ -787,7 +748,7 @@
         </div>
       </div>
 
-      <!-- Top Country Filter Grid/Pill Section -->
+      <!-- Country Filter Section -->
       <section style="padding:20px 20px 0;background:#fff;border-bottom:1px solid #ede9e1;">
         <div style="max-width:1200px;margin:0 auto;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
@@ -866,8 +827,12 @@
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:2px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
                         Itinerary PDF
                       </a>
-                      <button onclick="dispatch('OPEN_INQUIRY', ${pkgJson(pkg)})" style="background:none;border:none;cursor:pointer;font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#999;text-decoration:underline;padding:2px 0;width:100%;text-align:center;">
-                        Callback Request
+                      
+                      <button onclick="window.redirectToWhatsApp(${pkgJson(pkg)})" class="btn-whatsapp" style="width:100%;justify-content:center;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px;">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        Connect on WhatsApp
                       </button>
                     </div>
                   </div>
@@ -916,6 +881,7 @@
 
   // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
   function renderAdmin() {
+    const isCloud = !!(isFirebaseReady && db);
     return `
     <main style="max-width:1200px;margin:0 auto;padding:24px 20px;">
       
@@ -927,12 +893,12 @@
           <div>
             <div style="font-weight:600;font-size:13px;">Package Manager Dashboard</div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px;">
-              ${isFirebaseReady ? 'Live cloud synchronizing' : 'Local storage fallback active'}
+              ${isCloud ? 'Live cloud synchronizing' : 'Local storage fallback active'}
             </div>
           </div>
         </div>
-        <span style="font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;${isFirebaseReady ? 'background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);' : 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);'}">
-          ${isFirebaseReady ? '● Synchronized' : '○ Local Database'}
+        <span style="font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;${isCloud ? 'background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);' : 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);'}">
+          ${isCloud ? '● Synchronized' : '○ Local Database'}
         </span>
       </div>
 
@@ -1018,7 +984,6 @@
                   <tbody>
                     ${state.packages.map((pkg, index) => `
                       <tr class="${state.editingId === pkg.id ? 'editing-row' : ''}">
-                        <!-- Sequential listing numbers with clear numbering representation -->
                         <td style="font-weight:600;color:var(--gold);width:45px;padding:10px 12px;">${index + 1}</td>
                         <td>
                           <div style="display:flex;align-items:center;gap:10px;">
@@ -1047,104 +1012,12 @@
             `}
           </div>
 
-          <!-- Inquiries -->
-          <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
-            <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0;">Active Callback Inquiries</h3>
-                <p style="font-size:10px;color:#888;margin:2px 0 0;">Synchronized leads from online forms</p>
-              </div>
-              <span style="font-size:11px;color:#888;font-weight:500;">${state.inquiries.length} total</span>
-            </div>
-
-            ${state.inquiries.length === 0 ? `
-              <div style="padding:28px;text-align:center;border:1px dashed #e5e0d8;margin:14px;border-radius:6px;">
-                <p style="font-size:12px;color:#aaa;">No group inquiries requested yet.</p>
-              </div>
-            ` : `
-              <div style="display:flex;flex-direction:column;">
-                ${state.inquiries.map((lead, i) => `
-                  <div style="padding:12px 18px;${i > 0 ? 'border-top:1px solid #f0ece4;' : ''}display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-                    <div>
-                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
-                        <span style="font-weight:600;font-size:13px;">${esc(lead.customerName)}</span>
-                        <span class="tag" style="background:#faf8f4;color:var(--navy);border:1px solid #ede9e1;">Callback</span>
-                      </div>
-                      <div style="font-size:11px;color:#555;display:flex;gap:12px;flex-wrap:wrap;">
-                        <span>Phone: <b style="color:var(--navy);">${esc(lead.phone)}</b></span>
-                        ${lead.email ? `<span style="color:#888;">Email: ${esc(lead.email)}</span>` : ''}
-                      </div>
-                      <div style="margin-top:6px;font-size:9px;font-weight:600;letter-spacing:0.04em;color:var(--navy);background:#faf8f4;padding:2px 6px;border-radius:3px;display:inline-block;border:1px solid #ede9e1;">
-                        Interested: ${esc(lead.packageName)}
-                      </div>
-                    </div>
-                    <div style="text-align:right;flex-shrink:0;">
-                      <div style="font-size:10px;color:#aaa;margin-bottom:4px;">${formatDate(lead.createdAt)}</div>
-                      <button class="btn-danger" onclick="handleArchive('${esc(lead.id)}')" style="font-size:9px;padding:3px 8px;border-radius:3px;">Done</button>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            `}
-          </div>
-
         </div>
       </div>
     </main>`;
   }
 
-  // ── INQUIRY MODAL ──────────────────────────────────────────────────────────
-  function renderInquiryModal() {
-    const pkg = state.selectedPackage;
-    return `
-    <div class="modal-backdrop" onclick="if(event.target===this)dispatch('CLOSE_INQUIRY')">
-      <div class="modal-box" style="background:#fff;width:100%;max-width:380px;border-radius:8px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.3);">
-        
-        <div style="background:var(--navy);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;">
-          <div>
-            <div style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px;">Request a Callback</div>
-            <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fff;margin:0;">${esc(pkg.title)}</h3>
-            <p style="font-size:11px;color:rgba(255,255,255,0.5);margin:2px 0 0;">${esc(pkg.duration)}</p>
-          </div>
-          <button onclick="dispatch('CLOSE_INQUIRY')" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.7);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;">✕</button>
-        </div>
-
-        ${state.showSuccessModal ? `
-          <div style="padding:32px 20px;text-align:center;">
-            <div style="width:40px;height:40px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <h4 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;margin:0 0 4px;">Request Received</h4>
-            <p style="font-size:12px;color:#555;line-height:1.5;">An agency callback specialist will call you shortly regarding the <strong>${esc(pkg.title)}</strong> itinerary.</p>
-          </div>
-        ` : `
-          <form onsubmit="handleInquirySubmit(event)" style="padding:18px 20px;display:flex;flex-direction:column;gap:12px;">
-            ${state.inquiryError ? `<div class="error-box">${esc(state.inquiryError)}</div>` : ''}
-
-            <div>
-              <label class="field-label" for="i-name">Full Name *</label>
-              <input class="field" id="i-name" type="text" placeholder="John Doe" required autocomplete="name" />
-            </div>
-            <div>
-              <label class="field-label" for="i-phone">Mobile Number *</label>
-              <input class="field" id="i-phone" type="tel" placeholder="+91 98765 43210" required autocomplete="tel" />
-            </div>
-            <div>
-              <label class="field-label" for="i-email">Email Address <span style="font-weight:400;text-transform:none;letter-spacing:0;">(Optional)</span></label>
-              <input class="field" id="i-email" type="email" placeholder="john@example.com" autocomplete="email" />
-            </div>
-
-            <div style="display:flex;gap:8px;padding-top:4px;">
-              <button type="button" class="btn-outline" onclick="dispatch('CLOSE_INQUIRY')" style="flex:1;padding:8px;">Cancel</button>
-              <button type="submit" class="btn-gold" style="flex:2;justify-content:center;padding:8px;border-radius:4px;">Submit</button>
-            </div>
-          </form>
-        `}
-      </div>
-    </div>`;
-  }
-
-  // ── CUSTOM CONFIRMATION MODAL ──────────────────────────────────────────────
+  // ─── CUSTOM CONFIRMATION MODAL ──────────────────────────────────────────────
   function renderDeleteConfirmationModal() {
     const pkg = state.packages.find(p => p.id === state.deleteTargetId);
     const pkgTitle = pkg ? pkg.title : 'this departure';
@@ -1182,6 +1055,13 @@
 
   // ─── BOOT ──────────────────────────────────────────────────────────────────
   window.addEventListener('popstate', render);
+
+  setTimeout(() => {
+    if (state.isDbLoading) {
+      console.warn("Database connection timed out. Booting local offline sandbox.");
+      loadLocalFallback();
+    }
+  }, 3000);
 
   window.onload = async () => {
     await initAuth();
