@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rayna Tours — Premium Group Departures</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght=0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght=300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --navy: #0a1628;
@@ -23,11 +23,21 @@
       background-color: var(--cream);
       color: var(--navy);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Target the container to stretch and stick the footer to bottom */
+    #app {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      width: 100%;
     }
 
     h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; }
 
-    /* Spinner */
+    /* Spinner animation */
     .spinner {
       width: 36px; height: 36px;
       border: 3px solid rgba(201,168,76,0.3);
@@ -37,14 +47,14 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Card hover */
+    /* Card hover interactions */
     .pkg-card { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease; }
     .pkg-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(10,22,40,0.08); }
 
     .pkg-card img { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .pkg-card:hover img { transform: scale(1.04); }
 
-    /* Overlay backdrop */
+    /* Overlay backdrop and modals */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 50;
       background: rgba(10,22,40,0.6);
@@ -58,7 +68,7 @@
     .modal-box { animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Inputs */
+    /* Input Fields styling */
     .field {
       width: 100%;
       background: #fff;
@@ -73,7 +83,7 @@
     }
     .field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
 
-    /* Buttons */
+    /* Core premium buttons */
     .btn-gold {
       background: var(--gold);
       color: var(--navy);
@@ -92,7 +102,7 @@
     .btn-gold:hover { background: var(--gold-light); transform: translateY(-0.5px); }
     .btn-gold:active { transform: translateY(0); }
 
-    /* WhatsApp button */
+    /* WhatsApp custom branding */
     .btn-whatsapp {
       background: #25D366;
       color: #fff;
@@ -159,41 +169,36 @@
     }
     .btn-edit:hover { background: var(--slate-soft); }
 
-    /* Table */
+    /* Directory Tables */
     table { border-collapse: collapse; width: 100%; }
     th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 12px 14px; background: var(--slate-soft); }
     td { padding: 12px 14px; border-top: 1px solid #ede9e1; font-size: 13px; }
 
-    /* Label */
     .field-label {
       display: block; font-size: 9px; font-weight: 600;
       letter-spacing: 0.1em; text-transform: uppercase; color: #888;
       margin-bottom: 4px;
     }
 
-    /* Hero Editorial minimal background */
+    /* Hero Background visual layers */
     .hero-bg {
       background-image: linear-gradient(180deg, rgba(10,22,40,0.92) 0%, rgba(10,22,40,0.97) 100%), url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
       background-size: cover; background-position: center;
     }
 
-    /* Scrollbar */
+    /* Scrollbar style */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--cream); }
     ::-webkit-scrollbar-thumb { background: #c0b9ad; border-radius: 3px; }
 
-    /* Error / Success feedback blocks */
     .error-box { background: #fff1f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 500; }
     .success-box { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 500; }
 
-    /* Live status indicator */
     .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 1.8s infinite; display: inline-block; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* Compact image wrap */
     .img-wrap { position: relative; overflow: hidden; aspect-ratio: 16/10; background: #e8e4dc; }
 
-    /* Floating highlight strip on client cards */
     .highlight-strip {
       position: absolute; bottom: 8px; left: 8px;
       background: rgba(10, 22, 40, 0.85);
@@ -205,7 +210,6 @@
       padding: 4px 10px; border-radius: 4px;
     }
 
-    /* Elegant admin layout bar */
     .admin-bar {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
       color: #fff;
@@ -216,7 +220,6 @@
       flex-wrap: wrap;
     }
 
-    /* Highlighted table states */
     .editing-row { background: #fffbf0; }
   </style>
 </head>
@@ -239,6 +242,8 @@
   var app = null;
   var auth = null;
   var db = null;
+  
+  // Reverted default APP_ID back to 'smc-tours-portal-v2' so legacy cloud entries are loaded
   var APP_ID = 'smc-tours-portal-v2';
 
   // ─── CONFIG ────────────────────────────────────────────────────────────────
@@ -251,16 +256,26 @@
     appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
   };
 
-  if (typeof window.__app_id !== 'undefined' && window.__app_id) {
+  // Robust environment check for injected APP ID
+  if (typeof __app_id !== 'undefined' && __app_id) {
+    APP_ID = __app_id;
+  } else if (typeof window.__app_id !== 'undefined' && window.__app_id) {
     APP_ID = window.__app_id;
   }
 
+  // Robust environment check for injected Firebase configuration
   let firebaseConfig = FIREBASE_CONFIG;
-  if (typeof window.__firebase_config !== 'undefined' && window.__firebase_config) {
+  if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+    try {
+      firebaseConfig = JSON.parse(__firebase_config);
+    } catch (e) {
+      console.error("Error parsing injected global __firebase_config:", e);
+    }
+  } else if (typeof window.__firebase_config !== 'undefined' && window.__firebase_config) {
     try {
       firebaseConfig = JSON.parse(window.__firebase_config);
     } catch (e) {
-      console.error("Error parsing injected __firebase_config:", e);
+      console.error("Error parsing injected window.__firebase_config:", e);
     }
   }
 
@@ -311,19 +326,19 @@
       auth = getAuth(app);
       db = getFirestore(app);
     } catch (err) {
-      console.error('Firebase init error:', err);
+      console.error('Firebase initialization error:', err);
     }
   }
 
   // ─── STATE ─────────────────────────────────────────────────────────────────
   const state = {
     view: 'customer',
-    isLoggedIn: sessionStorage.getItem('smc_admin_auth') === 'true',
+    isLoggedIn: sessionStorage.getItem('rayna_admin_auth') === 'true',
     user: null,
     packages: [],
     isDbLoading: true,
     searchQuery: '',
-    adminSearchQuery: '', // Added real-time admin search parameter
+    adminSearchQuery: '',
     selectedCountryFilter: 'All',
     loginError: '',
     loginLoading: false,
@@ -348,23 +363,24 @@
       return;
     }
     try {
-      if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
-        await signInWithCustomToken(auth, window.__initial_auth_token);
+      // Robust detection of injected authentication token
+      const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : (typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null);
+      if (token) {
+        await signInWithCustomToken(auth, token);
       } else {
         await signInAnonymously(auth);
       }
     } catch (err) {
       console.warn('Authentication failed. Falling back to local offline sandbox directory.', err);
-      db = null;
     }
   }
 
   // ─── LOCAL STORAGE FALLBACK ENGINE ─────────────────────────────────────────
   function loadLocalFallback() {
     try {
-      const localPkgs = localStorage.getItem('smc_pkgs_v4');
+      const localPkgs = localStorage.getItem('rayna_pkgs_v4');
       state.packages = localPkgs ? JSON.parse(localPkgs) : [...SEED_PACKAGES];
-      if (!localPkgs) localStorage.setItem('smc_pkgs_v4', JSON.stringify(state.packages));
+      if (!localPkgs) localStorage.setItem('rayna_pkgs_v4', JSON.stringify(state.packages));
     } catch(_) {
       state.packages = [...SEED_PACKAGES];
     }
@@ -388,6 +404,7 @@
         return;
       }
 
+      // Query mapped strictly to artifacts -> APP_ID (smc-tours-portal-v2) -> public -> data -> packages
       const pkgsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
       onSnapshot(pkgsCol, async (snap) => {
         const list = [];
@@ -451,7 +468,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       case 'SEARCH':
         state.searchQuery = payload;
         break;
-      case 'ADMIN_SEARCH': // Added action for admin search routing
+      case 'ADMIN_SEARCH':
         state.adminSearchQuery = payload;
         break;
       case 'SET_COUNTRY_FILTER':
@@ -459,7 +476,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
         break;
       case 'LOGOUT':
         state.isLoggedIn = false;
-        sessionStorage.removeItem('smc_admin_auth');
+        sessionStorage.removeItem('rayna_admin_auth');
         const url = new URL(window.location);
         url.searchParams.delete('admin');
         window.history.pushState({}, '', url);
@@ -492,7 +509,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
       if (res.ok && data.success) {
         state.isLoggedIn = true;
-        sessionStorage.setItem('smc_admin_auth', 'true');
+        sessionStorage.setItem('rayna_admin_auth', 'true');
       } else {
         state.loginError = data.error || 'Incorrect username or password. Please try again.';
       }
@@ -559,7 +576,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       } else {
         state.packages = [{ id: 'pkg-' + Date.now(), ...payload }, ...state.packages];
       }
-      saveLocal('smc_pkgs_v4', state.packages);
+      saveLocal('rayna_pkgs_v4', state.packages);
       state.editingId = null;
       state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' };
       state.formSuccess = state.editingId ? 'Package updated.' : 'Package published successfully.';
@@ -600,7 +617,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
     if (!isFirebaseReady || !db) {
       state.packages = state.packages.filter(p => p.id !== id);
-      saveLocal('smc_pkgs_v4', state.packages);
+      saveLocal('rayna_pkgs_v4', state.packages);
       if (state.editingId === id) { state.editingId = null; state.draft = { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }; }
       state.deleteTargetId = null;
       render(); return;
@@ -616,7 +633,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
   // ─── RENDER ────────────────────────────────────────────────────────────────
   function render() {
-    // Preserve typing focus and cursor position dynamically on key presses
+    // Save current active input ID and cursor selection to prevent drop focus
     const activeId = document.activeElement ? document.activeElement.id : null;
     let selectionStart = null;
     let selectionEnd = null;
@@ -632,7 +649,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     const container = document.getElementById('app');
     if (!container) return;
 
-    // Advanced search + category filter logic
     const filtered = state.packages.filter(p => {
       const q = state.searchQuery.toLowerCase();
       const matchesSearch = !q || esc(p.title).toLowerCase().includes(q) || esc(p.highlight).toLowerCase().includes(q);
@@ -643,7 +659,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     let html = '';
 
     // ── NAV ──
-    // Redesigned to crisp white (#ffffff) to ensure Rayna Tours' dark logo design stands out perfectly
     html += `
     <header style="position:sticky;top:0;z-index:40;background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.06);border-bottom:1px solid #ede9e1;">
       <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;">
@@ -684,16 +699,19 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       html += renderAdmin();
     }
 
-    // ── FOOTER ──
+    // ── STICKY FOOTER ──
     html += `
-    <footer style="padding:24px 20px;border-top:1px solid #ede9e1;background:#fff;">
-      <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--navy);">Rayna Tours</div>
-          <div style="font-size:10px;color:rgba(10,22,40,0.45);margin-top:2px;">© 2026 SMC Tours Ltd. All rights reserved.</div>
+    <footer style="margin-top:auto; padding:24px 20px; border-top:1px solid #ede9e1; background:#fff;">
+      <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:sales@raynab2b.com" style="color:var(--navy); text-decoration:none; font-weight:500;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--navy)'">sales@raynab2b.com</a>
         </div>
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(10,22,40,0.35);">
-          Premium Departures Hub
+        <div style="font-size:12px; color:rgba(10,22,40,0.6);">
+          Designed & developed by 
+          <a href="https://www.instagram.com/the_volleydrum" target="_blank" rel="noopener noreferrer" style="color:var(--gold); font-weight:600; text-decoration:none; border-bottom:1px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderBottomColor='var(--gold)'" onmouseout="this.style.borderBottomColor='transparent'">
+            SAURAV CHAUHAN
+          </a>
         </div>
       </div>
     </footer>`;
@@ -702,6 +720,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       html += renderDeleteConfirmationModal();
     }
 
+    // Back to top floating trigger
     const isScrolled = window.scrollY > 300;
     const scrollClasses = isScrolled 
       ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" 
@@ -723,7 +742,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
     container.innerHTML = html;
 
-    // Restore focus and precise character selection ranges immediately
+    // Restore focus state and cursor selection smoothly
     if (activeId) {
       const restoreEl = document.getElementById(activeId);
       if (restoreEl) {
@@ -740,12 +759,11 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     const destinations = ['All', ...new Set(state.packages.map(p => p.title))];
 
     return `
-    <main>
-      <!-- Premium space-efficient Hero -->
+    <main style="flex: 1; width: 100%;">
       <div class="hero-bg" style="position:relative;padding:48px 20px;text-align:center;">
         <div style="max-width:680px;margin:0 auto;position:relative;z-index:2;">
           <div style="display:inline-block;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:12px;">
-            SMC Premium Departures
+            Rayna Premium Departures
           </div>
           <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,42px);font-weight:700;color:#fff;line-height:1.15;margin-bottom:10px;">
             Explore the World with <em style="color:var(--gold);font-style:normal;">Rayna Tours</em>
@@ -754,7 +772,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
             Premium itineraries tailored for discerning groups. Get instant itinerary access and directly connect with us via WhatsApp to book.
           </p>
 
-          <!-- Integrated search bar with focus ID -->
           <div style="max-width:380px;margin:0 auto;position:relative;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -771,7 +788,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
         </div>
       </div>
 
-      <!-- Country Filter Section -->
       <section style="padding:20px 20px 0;background:#fff;border-bottom:1px solid #ede9e1;">
         <div style="max-width:1200px;margin:0 auto;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
@@ -806,7 +822,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
         </div>
       </section>
 
-      <!-- Main Departures Grid Catalog -->
       <section style="padding:40px 20px;background:var(--cream);">
         <div style="max-width:1200px;margin:0 auto;">
           
@@ -872,12 +887,12 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
   // ── LOGIN VIEW ─────────────────────────────────────────────────────────────
   function renderLogin() {
     return `
-    <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:24px;background:var(--navy-mid);">
+    <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:24px;background:var(--navy-mid); width: 100%;">
       <div style="width:100%;max-width:360px;">
         <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.2);">
           
           <div style="background:var(--navy);padding:24px;text-align:center;">
-            <div style="font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">SMC Agency Platform</div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Rayna Tours Platform</div>
             <h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin:0;">Control Center</h2>
           </div>
 
@@ -886,7 +901,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
             <div>
               <label class="field-label" for="f-user">Username</label>
-              <input class="field" id="f-user" type="text" placeholder="admin@smc" autocomplete="username" />
+              <input class="field" id="f-user" type="text" placeholder="admin@rayna" autocomplete="username" />
             </div>
             <div>
               <label class="field-label" for="f-pass">Password</label>
@@ -907,7 +922,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     const isCloud = !!(isFirebaseReady && db);
     const adminQuery = (state.adminSearchQuery || '').toLowerCase();
     
-    // Filter departures list dynamically based on admin search query
     const adminFiltered = state.packages.filter(p => {
       return !adminQuery || 
              esc(p.title).toLowerCase().includes(adminQuery) || 
@@ -916,7 +930,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     });
 
     return `
-    <main style="max-width:1200px;margin:0 auto;padding:24px 20px;">
+    <main style="flex: 1; max-width:1200px;margin:0 auto;padding:24px 20px; width:100%;">
       
       <div class="admin-bar">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -937,7 +951,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
       <div class="flex flex-col lg:flex-row gap-6 items-start">
         
-        <!-- Sticky Form Panel (Stays fixed relative to viewport scrolling on desktop) -->
+        <!-- Sticky Form Panel -->
         <div class="lg:sticky lg:top-[74px] w-full lg:max-w-[320px] flex-shrink-0" style="background:#fff;border-radius:8px;border:1px solid #ede9e1;padding:18px;">
           <div style="margin-bottom:14px;">
             <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:#f5f3ef;color:#666;padding:3px 8px;border-radius:3px;">
@@ -988,7 +1002,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
         <!-- Content Panels -->
         <div style="flex:1;display:flex;flex-direction:column;gap:20px;width:100%;">
           
-          <!-- Packages Table with Active Search Box Integration -->
           <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
             <div style="padding:14px 18px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
               <div>
@@ -998,7 +1011,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
                 </span>
               </div>
 
-              <!-- Admin Search Bar -->
+              <!-- Admin search filter -->
               <div style="position:relative; width:100%; max-width:240px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;">
                   <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -1015,7 +1028,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
             </div>
 
             ${state.isDbLoading ? `
-              <div style="padding:36px;text-align:center;">
+              <div style="text-align:center;padding:36px;text-align:center;">
                 <div class="spinner" style="margin:0 auto 10px;"></div>
                 <p style="font-size:12px;color:#888;">Contacting database...</p>
               </div>
@@ -1123,6 +1136,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     }
   });
 
+  // Watchdog configuration to load local database if Firebase handshake fails
   setTimeout(() => {
     if (state.isDbLoading) {
       console.warn("Database connection timed out. Booting local offline sandbox.");
