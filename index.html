@@ -27,7 +27,6 @@
       flex-direction: column;
     }
 
-    /* Target the container to stretch and stick the footer to bottom */
     #app {
       display: flex;
       flex-direction: column;
@@ -47,14 +46,14 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Card hover interactions */
+    /* Card interactions */
     .pkg-card { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease; }
     .pkg-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(10,22,40,0.08); }
 
     .pkg-card img { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .pkg-card:hover img { transform: scale(1.04); }
 
-    /* Overlay backdrop and modals */
+    /* Modal frameworks */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 50;
       background: rgba(10,22,40,0.6);
@@ -68,7 +67,6 @@
     .modal-box { animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Input Fields styling */
     .field {
       width: 100%;
       background: #fff;
@@ -83,7 +81,6 @@
     }
     .field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
 
-    /* Core premium buttons */
     .btn-gold {
       background: var(--gold);
       color: var(--navy);
@@ -102,7 +99,6 @@
     .btn-gold:hover { background: var(--gold-light); transform: translateY(-0.5px); }
     .btn-gold:active { transform: translateY(0); }
 
-    /* WhatsApp custom branding */
     .btn-whatsapp {
       background: #25D366;
       color: #fff;
@@ -169,7 +165,6 @@
     }
     .btn-edit:hover { background: var(--slate-soft); }
 
-    /* Directory Tables */
     table { border-collapse: collapse; width: 100%; }
     th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 12px 14px; background: var(--slate-soft); }
     td { padding: 12px 14px; border-top: 1px solid #ede9e1; font-size: 13px; }
@@ -180,13 +175,11 @@
       margin-bottom: 4px;
     }
 
-    /* Hero Background visual layers */
     .hero-bg {
       background-image: linear-gradient(180deg, rgba(10,22,40,0.92) 0%, rgba(10,22,40,0.97) 100%), url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
       background-size: cover; background-position: center;
     }
 
-    /* Scrollbar style */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--cream); }
     ::-webkit-scrollbar-thumb { background: #c0b9ad; border-radius: 3px; }
@@ -237,7 +230,6 @@
   import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // ─── INITIAL HOISTING FOR ROBUST LOAD ──────────────────────────────────────
   var isFirebaseReady = false;
   var app = null;
   var auth = null;
@@ -246,7 +238,6 @@
   // Reverted default APP_ID back to 'smc-tours-portal-v2' so legacy cloud entries are loaded
   var APP_ID = 'smc-tours-portal-v2';
 
-  // ─── CONFIG ────────────────────────────────────────────────────────────────
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
     authDomain: "packadge-itenary.firebaseapp.com",
@@ -256,14 +247,12 @@
     appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
   };
 
-  // Robust environment check for injected APP ID
   if (typeof __app_id !== 'undefined' && __app_id) {
     APP_ID = __app_id;
   } else if (typeof window.__app_id !== 'undefined' && window.__app_id) {
     APP_ID = window.__app_id;
   }
 
-  // Robust environment check for injected Firebase configuration
   let firebaseConfig = FIREBASE_CONFIG;
   if (typeof __firebase_config !== 'undefined' && __firebase_config) {
     try {
@@ -330,7 +319,6 @@
     }
   }
 
-  // ─── STATE ─────────────────────────────────────────────────────────────────
   const state = {
     view: 'customer',
     isLoggedIn: sessionStorage.getItem('rayna_admin_auth') === 'true',
@@ -349,21 +337,18 @@
     draft: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
   };
 
-  // ─── ROUTING ───────────────────────────────────────────────────────────────
   function getView() {
     const p = new URLSearchParams(window.location.search);
     if (p.has('admin')) return state.isLoggedIn ? 'admin' : 'admin-login';
     return 'customer';
   }
 
-  // ─── AUTH ──────────────────────────────────────────────────────────────────
   async function initAuth() {
     if (!isFirebaseReady || !auth) {
       state.user = { uid: 'local-user' };
       return;
     }
     try {
-      // Robust detection of injected authentication token
       const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : (typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null);
       if (token) {
         await signInWithCustomToken(auth, token);
@@ -375,7 +360,6 @@
     }
   }
 
-  // ─── LOCAL STORAGE FALLBACK ENGINE ─────────────────────────────────────────
   function loadLocalFallback() {
     try {
       const localPkgs = localStorage.getItem('rayna_pkgs_v4');
@@ -388,7 +372,6 @@
     render();
   }
 
-  // ─── DATABASE ──────────────────────────────────────────────────────────────
   function setupListeners() {
     if (!isFirebaseReady || !db) {
       loadLocalFallback();
@@ -404,7 +387,6 @@
         return;
       }
 
-      // Query mapped strictly to artifacts -> APP_ID (smc-tours-portal-v2) -> public -> data -> packages
       const pkgsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
       onSnapshot(pkgsCol, async (snap) => {
         const list = [];
@@ -430,7 +412,6 @@
     });
   }
 
-  // ─── HELPERS ───────────────────────────────────────────────────────────────
   function esc(str) {
     return String(str || '')
       .replace(/&/g, '&amp;')
@@ -462,7 +443,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     window.open(waUrl, '_blank');
   };
 
-  // ─── DISPATCH ──────────────────────────────────────────────────────────────
   window.dispatch = (action, payload) => {
     switch(action) {
       case 'SEARCH':
@@ -490,7 +470,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     render();
   };
 
-  // ─── EVENT HANDLERS ────────────────────────────────────────────────────────
   window.handleLogin = async (e) => {
     e.preventDefault();
     const user = document.getElementById('f-user')?.value?.trim();
@@ -631,9 +610,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     render();
   };
 
-  // ─── RENDER ────────────────────────────────────────────────────────────────
   function render() {
-    // Save current active input ID and cursor selection to prevent drop focus
     const activeId = document.activeElement ? document.activeElement.id : null;
     let selectionStart = null;
     let selectionEnd = null;
@@ -658,14 +635,15 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
     let html = '';
 
-    // ── NAV ──
+    // ── STICKY NAV WITH EMBEDDED SEARCH BOX ──
     html += `
     <header style="position: -webkit-sticky; position: sticky; top: 0; z-index: 50; background: #ffffff; box-shadow: 0 2px 12px rgba(10,22,40,0.06); border-bottom: 1px solid #ede9e1; width: 100%;">
-      <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
         
-        <div style="display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="dispatch('GO_HOME')">
+        <!-- Logo & Status -->
+        <div style="display:flex;align-items:center;gap:12px;cursor:pointer;flex-shrink:0;" onclick="dispatch('GO_HOME')">
           <img src="https://d2cazmkfw8kdtj.cloudfront.net/assets/Images/AGT-31082/logo.png" alt="Rayna Tours" style="height:38px; width:auto; max-width:180px; object-fit:contain;" onerror="this.src='https://placehold.co/150x40/faf8f4/0a1628?text=Rayna+Tours'" />
-          <div>
+          <div class="hidden md:block">
             <div style="font-size:8px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(10,22,40,0.5);display:flex;align-items:center;gap:4px;margin-top:1px;">
               <span class="live-dot"></span>
               ${(isFirebaseReady && db) ? 'Cloud connected' : 'Local mode'}
@@ -673,7 +651,27 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:10px;">
+        <!-- Embedded Sticky Search Box (Only on customer page) -->
+        ${state.view === 'customer' ? `
+          <div style="position: relative; flex: 1; max-width: 360px;" class="mx-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(10,22,40,0.4)" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search departures..."
+              value="${esc(state.searchQuery)}"
+              oninput="dispatch('SEARCH', this.value)"
+              style="width:100%;background:var(--cream);border:1px solid #ede9e1;border-radius:20px;padding:6px 12px 6px 32px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--navy);outline:none;transition:all 0.2s;"
+              onfocus="this.style.borderColor='var(--gold)';"
+              onblur="this.style.borderColor='#ede9e1';"
+            />
+          </div>
+        ` : ''}
+
+        <!-- Actions -->
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
           ${state.isLoggedIn && state.view === 'admin' ? `
             <button class="btn-outline" style="font-size:10px;padding:6px 12px;border-radius:4px;" onclick="dispatch('LOGOUT')">
               Sign Out
@@ -699,28 +697,27 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       html += renderAdmin();
     }
 
-    // ── PERSISTENT STICKY FOOTER ──
-    html += `
-    <footer style="position: -webkit-sticky; position: sticky; bottom: 0; z-index: 40; padding: 14px 20px; border-top: 1px solid #ede9e1; background: #ffffff; width: 100%; box-shadow: 0 -3px 14px rgba(10,22,40,0.05);">
-      <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <div style="display:flex; align-items:center; gap:6px; font-size:12px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <a href="mailto:sales@raynab2b.com" style="color:var(--navy); text-decoration:none; font-weight:500;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--navy)'">sales@raynab2b.com</a>
-        </div>
-        <div style="font-size:12px; color:rgba(10,22,40,0.6);">
-          Designed & developed by 
-          <a href="https://www.instagram.com/the_volleydrum" target="_blank" rel="noopener noreferrer" style="color:var(--gold); font-weight:600; text-decoration:none; border-bottom:1px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderBottomColor='var(--gold)'" onmouseout="this.style.borderBottomColor='transparent'">
-            SAURAV CHAUHAN
-          </a>
-        </div>
-      </div>
-    </footer>`;
-
     if (state.deleteTargetId) {
       html += renderDeleteConfirmationModal();
     }
 
-    // Back to top floating trigger - positioned slightly higher (bottom: 72px) to clear the sticky footer
+    // ── STICKY FLOATING BADGE (BOTTOM-LEFT): Email Support ──
+    html += `
+    <div style="position: fixed; bottom: 20px; left: 20px; z-index: 45; display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 30px; border: 1px solid #ede9e1; box-shadow: 0 4px 12px rgba(10,22,40,0.08); font-size: 12px; transition: transform 0.2s ease-in-out;" class="hover:scale-105">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <a href="mailto:sales@raynab2b.com" style="color:var(--navy); text-decoration:none; font-weight:500; transition: color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--navy)'">sales@raynab2b.com</a>
+    </div>`;
+
+    // ── STICKY FLOATING BADGE (BOTTOM-RIGHT): Designer Credit ──
+    html += `
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 45; display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 30px; border: 1px solid #ede9e1; box-shadow: 0 4px 12px rgba(10,22,40,0.08); font-size: 11px; color: rgba(10,22,40,0.6); transition: transform 0.2s ease-in-out;" class="hover:scale-105">
+      <span>Designed & developed by</span>
+      <a href="https://www.instagram.com/the_volleydrum" target="_blank" rel="noopener noreferrer" style="color:var(--gold); font-weight:700; text-decoration:none; border-bottom: 1px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderBottomColor='var(--gold)'" onmouseout="this.style.borderBottomColor='transparent'">
+        SAURAV CHAUHAN
+      </a>
+    </div>`;
+
+    // ── STICKY FLOATING TRIGGER (BOTTOM-RIGHT - STACKED ABOVE CREDIT) ──
     const isScrolled = window.scrollY > 300;
     const scrollClasses = isScrolled 
       ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" 
@@ -730,7 +727,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     <button 
       id="back-to-top" 
       onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
-      style="position:fixed; bottom:72px; right:24px; z-index:50; width:44px; height:44px; border-radius:50%; background:var(--navy); border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(10,22,40,0.15); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"
+      style="position:fixed; bottom:74px; right:20px; z-index:50; width:44px; height:44px; border-radius:50%; background:var(--navy); border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(10,22,40,0.15); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"
       class="${scrollClasses}"
       title="Go to Top"
     >
@@ -742,7 +739,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
     container.innerHTML = html;
 
-    // Restore focus state and cursor selection smoothly
+    // Restore focus and cursor positions smoothly
     if (activeId) {
       const restoreEl = document.getElementById(activeId);
       if (restoreEl) {
@@ -754,12 +751,11 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     }
   }
 
-  // ── CUSTOMER VIEW ──────────────────────────────────────────────────────────
   function renderCustomer(filtered) {
     const destinations = ['All', ...new Set(state.packages.map(p => p.title))];
 
     return `
-    <main style="flex: 1; width: 100%;">
+    <main style="flex: 1; width: 100%; padding-bottom: 80px;">
       <div class="hero-bg" style="position:relative;padding:48px 20px;text-align:center;">
         <div style="max-width:680px;margin:0 auto;position:relative;z-index:2;">
           <div style="display:inline-block;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:12px;">
@@ -768,23 +764,9 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
           <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,42px);font-weight:700;color:#fff;line-height:1.15;margin-bottom:10px;">
             Explore the World with <em style="color:var(--gold);font-style:normal;">Rayna Tours</em>
           </h1>
-          <p style="color:rgba(255,255,255,0.6);font-size:13px;max-width:440px;margin:0 auto 20px;font-weight:300;line-height:1.5;">
+          <p style="color:rgba(255,255,255,0.6);font-size:13px;max-width:440px;margin:0 auto;font-weight:300;line-height:1.5;">
             Premium itineraries tailored for discerning groups. Get instant itinerary access and directly connect with us via WhatsApp to book.
           </p>
-
-          <div style="max-width:380px;margin:0 auto;position:relative;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;">
-              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-            </svg>
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Search destinations, highlights..."
-              value="${esc(state.searchQuery)}"
-              oninput="dispatch('SEARCH', this.value)"
-              style="width:100%;background:rgba(255,255,255,0.98);border:none;border-radius:30px;padding:10px 14px 10px 38px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--navy);outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);"
-            />
-          </div>
         </div>
       </div>
 
@@ -884,7 +866,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </main>`;
   }
 
-  // ── LOGIN VIEW ─────────────────────────────────────────────────────────────
   function renderLogin() {
     return `
     <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:24px;background:var(--navy-mid); width: 100%;">
@@ -917,7 +898,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </main>`;
   }
 
-  // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
   function renderAdmin() {
     const isCloud = !!(isFirebaseReady && db);
     const adminQuery = (state.adminSearchQuery || '').toLowerCase();
@@ -930,7 +910,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     });
 
     return `
-    <main style="flex: 1; max-width:1200px;margin:0 auto;padding:24px 20px; width:100%; padding-bottom: 40px;">
+    <main style="flex: 1; max-width:1200px;margin:0 auto;padding:24px 20px; width:100%; padding-bottom: 80px;">
       
       <div class="admin-bar">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -1084,7 +1064,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </main>`;
   }
 
-  // ─── CUSTOM CONFIRMATION MODAL ──────────────────────────────────────────────
   function renderDeleteConfirmationModal() {
     const pkg = state.packages.find(p => p.id === state.deleteTargetId);
     const pkgTitle = pkg ? pkg.title : 'this departure';
@@ -1120,7 +1099,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </div>`;
   }
 
-  // ─── BOOT ──────────────────────────────────────────────────────────────────
   window.addEventListener('popstate', render);
 
   window.addEventListener('scroll', () => {
@@ -1136,7 +1114,6 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     }
   });
 
-  // Watchdog configuration to load local database if Firebase handshake fails
   setTimeout(() => {
     if (state.isDbLoading) {
       console.warn("Database connection timed out. Booting local offline sandbox.");
