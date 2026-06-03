@@ -660,7 +660,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
     // ── NAV ──
     html += `
-    <header style="position:sticky;top:0;z-index:40;background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.06);border-bottom:1px solid #ede9e1;">
+    <header style="position: -webkit-sticky; position: sticky; top: 0; z-index: 50; background: #ffffff; box-shadow: 0 2px 12px rgba(10,22,40,0.06); border-bottom: 1px solid #ede9e1; width: 100%;">
       <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;">
         
         <div style="display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="dispatch('GO_HOME')">
@@ -699,10 +699,10 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       html += renderAdmin();
     }
 
-    // ── STICKY FOOTER ──
+    // ── PERSISTENT STICKY FOOTER ──
     html += `
-    <footer style="margin-top:auto; padding:24px 20px; border-top:1px solid #ede9e1; background:#fff;">
-      <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+    <footer style="position: -webkit-sticky; position: sticky; bottom: 0; z-index: 40; padding: 14px 20px; border-top: 1px solid #ede9e1; background: #ffffff; width: 100%; box-shadow: 0 -3px 14px rgba(10,22,40,0.05);">
+      <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div style="display:flex; align-items:center; gap:6px; font-size:12px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           <a href="mailto:sales@raynab2b.com" style="color:var(--navy); text-decoration:none; font-weight:500;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--navy)'">sales@raynab2b.com</a>
@@ -720,7 +720,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
       html += renderDeleteConfirmationModal();
     }
 
-    // Back to top floating trigger
+    // Back to top floating trigger - positioned slightly higher (bottom: 72px) to clear the sticky footer
     const isScrolled = window.scrollY > 300;
     const scrollClasses = isScrolled 
       ? "opacity-100 translate-y-0 hover:scale-105 active:scale-95" 
@@ -730,7 +730,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     <button 
       id="back-to-top" 
       onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
-      style="position:fixed; bottom:24px; right:24px; z-index:50; width:44px; height:44px; border-radius:50%; background:var(--navy); border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(10,22,40,0.15); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"
+      style="position:fixed; bottom:72px; right:24px; z-index:50; width:44px; height:44px; border-radius:50%; background:var(--navy); border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(10,22,40,0.15); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"
       class="${scrollClasses}"
       title="Go to Top"
     >
@@ -845,7 +845,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
               <button onclick="dispatch('SET_COUNTRY_FILTER', 'All'); dispatch('SEARCH', '')" style="margin-top:10px;font-size:11px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:600;text-decoration:underline;">Reset all filters</button>
             </div>
           ` : `
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding-bottom:20px;">
               ${filtered.map(pkg => `
                 <div class="pkg-card" style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #ede9e1;display:flex;flex-direction:column;">
                   
@@ -930,7 +930,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     });
 
     return `
-    <main style="flex: 1; max-width:1200px;margin:0 auto;padding:24px 20px; width:100%;">
+    <main style="flex: 1; max-width:1200px;margin:0 auto;padding:24px 20px; width:100%; padding-bottom: 40px;">
       
       <div class="admin-bar">
         <div style="display:flex;align-items:center;gap:10px;">
