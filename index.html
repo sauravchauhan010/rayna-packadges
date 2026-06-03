@@ -25,6 +25,7 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden; /* Prevent horizontal scrollbars on fluid expansions */
     }
 
     #app {
@@ -46,14 +47,14 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Card interactions */
+    /* Card hover interactions */
     .pkg-card { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease; }
     .pkg-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(10,22,40,0.08); }
 
     .pkg-card img { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .pkg-card:hover img { transform: scale(1.04); }
 
-    /* Modal frameworks */
+    /* Overlay backdrop and modals */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 50;
       background: rgba(10,22,40,0.6);
@@ -67,6 +68,7 @@
     .modal-box { animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* Input Fields styling */
     .field {
       width: 100%;
       background: #fff;
@@ -81,6 +83,7 @@
     }
     .field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
 
+    /* Core premium buttons */
     .btn-gold {
       background: var(--gold);
       color: var(--navy);
@@ -99,6 +102,7 @@
     .btn-gold:hover { background: var(--gold-light); transform: translateY(-0.5px); }
     .btn-gold:active { transform: translateY(0); }
 
+    /* WhatsApp custom branding */
     .btn-whatsapp {
       background: #25D366;
       color: #fff;
@@ -165,6 +169,7 @@
     }
     .btn-edit:hover { background: var(--slate-soft); }
 
+    /* Directory Tables */
     table { border-collapse: collapse; width: 100%; }
     th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; padding: 12px 14px; background: var(--slate-soft); }
     td { padding: 12px 14px; border-top: 1px solid #ede9e1; font-size: 13px; }
@@ -175,11 +180,13 @@
       margin-bottom: 4px;
     }
 
+    /* Hero Background visual layers */
     .hero-bg {
       background-image: linear-gradient(180deg, rgba(10,22,40,0.92) 0%, rgba(10,22,40,0.97) 100%), url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80');
       background-size: cover; background-position: center;
     }
 
+    /* Scrollbar style */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--cream); }
     ::-webkit-scrollbar-thumb { background: #c0b9ad; border-radius: 3px; }
@@ -230,6 +237,7 @@
   import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+  // ─── INITIAL HOISTING FOR ROBUST LOAD ──────────────────────────────────────
   var isFirebaseReady = false;
   var app = null;
   var auth = null;
@@ -238,6 +246,7 @@
   // Reverted default APP_ID back to 'smc-tours-portal-v2' so legacy cloud entries are loaded
   var APP_ID = 'smc-tours-portal-v2';
 
+  // ─── CONFIG ────────────────────────────────────────────────────────────────
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDLIMISKaknbAIqwHrbk8xIbMjETktlzwU",
     authDomain: "packadge-itenary.firebaseapp.com",
@@ -247,12 +256,14 @@
     appId: "1:482476048193:web:4164c8c466c5e856b96bc0"
   };
 
+  // Robust environment check for injected APP ID
   if (typeof __app_id !== 'undefined' && __app_id) {
     APP_ID = __app_id;
   } else if (typeof window.__app_id !== 'undefined' && window.__app_id) {
     APP_ID = window.__app_id;
   }
 
+  // Robust environment check for injected Firebase configuration
   let firebaseConfig = FIREBASE_CONFIG;
   if (typeof __firebase_config !== 'undefined' && __firebase_config) {
     try {
@@ -319,6 +330,7 @@
     }
   }
 
+  // ─── STATE ─────────────────────────────────────────────────────────────────
   const state = {
     view: 'customer',
     isLoggedIn: sessionStorage.getItem('rayna_admin_auth') === 'true',
@@ -337,18 +349,21 @@
     draft: { title: '', duration: '', highlight: '', image: '', pdfUrl: '' }
   };
 
+  // ─── ROUTING ───────────────────────────────────────────────────────────────
   function getView() {
     const p = new URLSearchParams(window.location.search);
     if (p.has('admin')) return state.isLoggedIn ? 'admin' : 'admin-login';
     return 'customer';
   }
 
+  // ─── AUTH ──────────────────────────────────────────────────────────────────
   async function initAuth() {
     if (!isFirebaseReady || !auth) {
       state.user = { uid: 'local-user' };
       return;
     }
     try {
+      // Robust detection of injected authentication token
       const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : (typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null);
       if (token) {
         await signInWithCustomToken(auth, token);
@@ -360,6 +375,7 @@
     }
   }
 
+  // ─── LOCAL STORAGE FALLBACK ENGINE ─────────────────────────────────────────
   function loadLocalFallback() {
     try {
       const localPkgs = localStorage.getItem('rayna_pkgs_v4');
@@ -372,6 +388,7 @@
     render();
   }
 
+  // ─── DATABASE ──────────────────────────────────────────────────────────────
   function setupListeners() {
     if (!isFirebaseReady || !db) {
       loadLocalFallback();
@@ -387,6 +404,7 @@
         return;
       }
 
+      // Query mapped strictly to artifacts -> APP_ID (smc-tours-portal-v2) -> public -> data -> packages
       const pkgsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'packages');
       onSnapshot(pkgsCol, async (snap) => {
         const list = [];
@@ -412,6 +430,7 @@
     });
   }
 
+  // ─── HELPERS ───────────────────────────────────────────────────────────────
   function esc(str) {
     return String(str || '')
       .replace(/&/g, '&amp;')
@@ -443,6 +462,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     window.open(waUrl, '_blank');
   };
 
+  // ─── DISPATCH ──────────────────────────────────────────────────────────────
   window.dispatch = (action, payload) => {
     switch(action) {
       case 'SEARCH':
@@ -470,6 +490,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     render();
   };
 
+  // ─── EVENT HANDLERS ────────────────────────────────────────────────────────
   window.handleLogin = async (e) => {
     e.preventDefault();
     const user = document.getElementById('f-user')?.value?.trim();
@@ -610,7 +631,9 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     render();
   };
 
+  // ─── RENDER ────────────────────────────────────────────────────────────────
   function render() {
+    // Save current active input ID and cursor selection to prevent drop focus
     const activeId = document.activeElement ? document.activeElement.id : null;
     let selectionStart = null;
     let selectionEnd = null;
@@ -635,10 +658,10 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
 
     let html = '';
 
-    // ── STICKY NAV WITH EMBEDDED SEARCH BOX ──
+    // ── FLUID STICKY NAV WITH EMBEDDED SEARCH BOX ──
     html += `
     <header style="position: -webkit-sticky; position: sticky; top: 0; z-index: 50; background: #ffffff; box-shadow: 0 2px 12px rgba(10,22,40,0.06); border-bottom: 1px solid #ede9e1; width: 100%;">
-      <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div style="width:100%;padding:0 20px;height:58px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
         
         <!-- Logo & Status -->
         <div style="display:flex;align-items:center;gap:12px;cursor:pointer;flex-shrink:0;" onclick="dispatch('GO_HOME')">
@@ -751,6 +774,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     }
   }
 
+  // ── CUSTOMER VIEW ──────────────────────────────────────────────────────────
   function renderCustomer(filtered) {
     const destinations = ['All', ...new Set(state.packages.map(p => p.title))];
 
@@ -770,11 +794,12 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
         </div>
       </div>
 
-      <section style="padding:20px 20px 0;background:#fff;border-bottom:1px solid #ede9e1;">
-        <div style="max-width:1200px;margin:0 auto;">
+      <!-- Fluid Width Filter Bar -->
+      <section style="padding:20px 20px 0;background:#fff;border-bottom:1px solid #ede9e1; width: 100%;">
+        <div style="width:100%; padding: 0 10px;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
             <span style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#888;">Filter by Destination</span>
-            <div style="display:flex;gap:8px;overflow-x:auto;max-width:100%;padding-bottom:16px;scrollbar-width:none;" class="justify-start md:justify-center no-scrollbar">
+            <div style="display:flex;gap:8px;overflow-x:auto;width:100%;padding-bottom:16px;scrollbar-width:none;" class="justify-start md:justify-center no-scrollbar">
               ${destinations.map(country => {
                 const isSelected = state.selectedCountryFilter === country;
                 return `
@@ -804,8 +829,9 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
         </div>
       </section>
 
-      <section style="padding:40px 20px;background:var(--cream);">
-        <div style="max-width:1200px;margin:0 auto;">
+      <!-- Fully Fluid Catalog Grid spanning edge-to-edge -->
+      <section style="padding:40px 20px;background:var(--cream); width:100%;">
+        <div style="width:100%; padding: 0 10px;">
           
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
             <div>
@@ -817,17 +843,18 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
           </div>
 
           ${state.isDbLoading ? `
-            <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:8px;border:1px solid #ede9e1;">
+            <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:8px;border:1px solid #ede9e1; width:100%;">
               <div class="spinner" style="margin:0 auto 12px;"></div>
               <p style="font-size:12px;color:#888;font-weight:500;">Retrieving schedules...</p>
             </div>
           ` : filtered.length === 0 ? `
-            <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:8px;border:1px dashed #d5d0c8;">
+            <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:8px;border:1px dashed #d5d0c8; width:100%;">
               <p style="font-size:14px;color:#888;">No group departures match your current filters.</p>
               <button onclick="dispatch('SET_COUNTRY_FILTER', 'All'); dispatch('SEARCH', '')" style="margin-top:10px;font-size:11px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:600;text-decoration:underline;">Reset all filters</button>
             </div>
           ` : `
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding-bottom:20px;">
+            <!-- Optimized fluid Grid columns utilizing available horizontal spaces -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding-bottom:20px; width:100%;">
               ${filtered.map(pkg => `
                 <div class="pkg-card" style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #ede9e1;display:flex;flex-direction:column;">
                   
@@ -866,6 +893,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </main>`;
   }
 
+  // ── LOGIN VIEW ─────────────────────────────────────────────────────────────
   function renderLogin() {
     return `
     <main style="flex:1;display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:24px;background:var(--navy-mid); width: 100%;">
@@ -898,6 +926,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </main>`;
   }
 
+  // ── ADMIN VIEW ─────────────────────────────────────────────────────────────
   function renderAdmin() {
     const isCloud = !!(isFirebaseReady && db);
     const adminQuery = (state.adminSearchQuery || '').toLowerCase();
@@ -910,7 +939,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     });
 
     return `
-    <main style="flex: 1; max-width:1200px;margin:0 auto;padding:24px 20px; width:100%; padding-bottom: 80px;">
+    <main style="flex: 1; width: 100%; padding:24px 20px; padding-bottom: 80px;">
       
       <div class="admin-bar">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -979,7 +1008,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
           </form>
         </div>
 
-        <!-- Content Panels -->
+        <!-- Directory Panel stretching fluidly to use maximum widescreen space -->
         <div style="flex:1;display:flex;flex-direction:column;gap:20px;width:100%;">
           
           <div style="background:#fff;border-radius:8px;border:1px solid #ede9e1;overflow:hidden;">
@@ -1017,8 +1046,8 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
                 ${state.packages.length === 0 ? 'Directory empty. Create catalog entries using the panel on the left.' : 'No departures match your search query.'}
               </p>
             ` : `
-              <div style="overflow-x:auto;">
-                <table>
+              <div style="overflow-x:auto; width:100%;">
+                <table style="width:100%;">
                   <thead>
                     <tr>
                       <th style="text-align:left;width:45px;padding:10px 12px;">#</th>
@@ -1064,6 +1093,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </main>`;
   }
 
+  // ─── CUSTOM CONFIRMATION MODAL ──────────────────────────────────────────────
   function renderDeleteConfirmationModal() {
     const pkg = state.packages.find(p => p.id === state.deleteTargetId);
     const pkgTitle = pkg ? pkg.title : 'this departure';
@@ -1099,6 +1129,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     </div>`;
   }
 
+  // ─── BOOT ──────────────────────────────────────────────────────────────────
   window.addEventListener('popstate', render);
 
   window.addEventListener('scroll', () => {
@@ -1114,6 +1145,7 @@ Please let me know the booking procedures and upcoming departures. Thank you!`;
     }
   });
 
+  // Watchdog configuration to load local database if Firebase handshake fails
   setTimeout(() => {
     if (state.isDbLoading) {
       console.warn("Database connection timed out. Booting local offline sandbox.");
